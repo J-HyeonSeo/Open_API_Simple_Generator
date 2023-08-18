@@ -1,0 +1,6 @@
+rootProject.name = 'oasg'
+include 'api'
+include 'domain'
+include 'consumer'
+include 'batch'
+
