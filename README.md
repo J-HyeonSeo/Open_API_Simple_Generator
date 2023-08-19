@@ -135,7 +135,51 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 ### ERD 모델링
 
+#### MySQL
+
 ![ERD](doc/erd/erd.png)
+
+#### MongoDB
+
+- API 데이터
+
+```
+{
+    '_id' : ObjectId(''),
+    'field_1' : Object,
+    'field_2' : Object,
+       . ,
+       . ,
+    'field_N' : Object
+}
+```
+
+- API 히스토리
+
+```
+{
+    '_id' : ObjectId(''),
+    'at' : Date,
+    'user_id' : Int64,
+    'type : String -> ('INSERT', 'UPDATE', 'DELETE'),
+    'original_data' : {  -> (*Optional : UPDATE, DELETE)
+        '_id' : ObjectId(''),
+        'field_1' : Object,
+        'field_2' : Object,
+           . ,
+           . ,
+        'field_N' : Object
+    },
+    'new_data' : {   -> (*Optional : INSERT, UPDATE)
+        '_id' : ObjectId(''),
+        'field_1' : Object,
+        'field_2' : Object,
+           . ,
+           . ,
+        'field_N' : Object
+    }
+}
+```
 
 ---
 
@@ -179,15 +223,15 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 ### 의존성
 
-|       의존성       |버전|     용도     |
-|:---------------:|:---:|:----------:|
-|   SpringBoot    |2.7.14| 웹개발 프레임워크  |
-| Spring-Security |2.7.14|     인증     |
-|  Oauth2-client  |2.7.14|   소셜로그인    |
-|  Spring-batch   |2.7.14|   배치 처리    |
-| Spring-mongodb  |2.7.14| MongoDB 사용 |
-|  Spring-redis   |2.7.14|  Redis 사용  |
-|  Spring-kafka   |2.7.14|  kafka 사용  |
-| Spring-data-jpa |2.7.14|ORM|
-| Mysql-Connector |8.0.33|MySQL 연결|
-|     Lombok      |1.18.28|Getter, Setter, Constructor 생성|
+|       의존성       |버전|               용도               |
+|:---------------:|:---:|:------------------------------:|
+|   SpringBoot    |2.7.14|           웹개발 프레임워크            |
+| Spring-Security |2.7.14|               인증               |
+|  Oauth2-client  |2.7.14|             소셜로그인              |
+|  Spring-batch   |2.7.14|             배치 처리              |
+| Spring-mongodb  |2.7.14|         OpenAPI 데이터 저장         |
+|  Spring-redis   |2.7.14|          Locking 및 캐싱          |
+|  Spring-kafka   |2.7.14|        엑셀 파싱을 위한 메세지 전달        |
+| Spring-data-jpa |2.7.14|              ORM               |
+| Mysql-Connector |8.0.33|            MySQL 연결            |
+|     Lombok      |1.18.28| Getter, Setter, Constructor 생성 |
