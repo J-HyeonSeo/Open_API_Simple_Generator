@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         accessToken = tokenProvider.generateAccessTokenByRefresh(refreshToken);
         Authentication authentication = tokenProvider.getAuthentication(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        request.getSession().setAttribute("AccessToken", "Bearer " + accessToken);
+        request.getSession().setAttribute("AccessToken", accessToken);
       }else{
         throw new AuthenticationException(AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED);
       }
