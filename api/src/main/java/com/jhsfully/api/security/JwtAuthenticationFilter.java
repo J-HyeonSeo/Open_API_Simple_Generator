@@ -1,8 +1,11 @@
 package com.jhsfully.api.security;
 
+import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.domain.type.AuthenticationErrorType;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   public static final String ACCESS_TOKEN_HEADER = "AccessToken";
   public static final String REFRESH_TOKEN_HEADER = "RefreshToken";
-  public static final String TOKEN_PREFIX = "Bearer ";
   private final TokenProvider tokenProvider;
 
   @Override
@@ -46,6 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Authentication authentication = tokenProvider.getAuthentication(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         request.getSession().setAttribute("AccessToken", "Bearer " + accessToken);
+      }else{
+        throw new AuthenticationException(AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED);
       }
     } catch (Exception e) {
       //로그인이 필요한 경우임.
@@ -58,19 +62,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private String resolveTokenFromRequest(HttpServletRequest request, String tokenHeader) {
 //    String token = request.getHeader(tokenHeader);
-    String token = (String) request.getSession().getAttribute(tokenHeader);
+    String token = null;
 
-    if (!ObjectUtils.isEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
-      return token.substring(TOKEN_PREFIX.length());
+    Cookie[] cookies = request.getCookies();
+
+    if(cookies == null){
+      return null;
+    }
+
+    for(Cookie cookie : request.getCookies()){
+      if(tokenHeader.equals(cookie.getName())){
+        token = cookie.getValue();
+        break;
+      }
+    }
+
+    if (!ObjectUtils.isEmpty(token)) {
+      return token;
     }
     return null;
   }
 
   private boolean isSkip(String requestURI) {
     log.info(requestURI);
-    if (requestURI.startsWith("/oauth2")) {
-      return true;
-    }
     if (requestURI.startsWith("/login")) {
       return true;
     }

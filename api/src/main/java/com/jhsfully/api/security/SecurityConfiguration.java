@@ -6,12 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfiguration{
 
   private final KakaoOauth2MemberService kakaoOauth2MemberService;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   /*
       기존의 WebSecurityConfigurerAdapter가 Depressed되었음.
@@ -25,7 +27,9 @@ public class SecurityConfiguration{
    */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-    http.authorizeRequests()
+    http
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .authorizeRequests()
         .anyRequest().permitAll()
         .and()
         .logout()
