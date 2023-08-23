@@ -1,11 +1,8 @@
 package com.jhsfully.api.security;
 
-import com.jhsfully.api.exception.AuthenticationException;
-import com.jhsfully.domain.type.AuthenticationErrorType;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +19,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   public static final String ACCESS_TOKEN_HEADER = "AccessToken";
   public static final String REFRESH_TOKEN_HEADER = "RefreshToken";
-  private final int ACCESS_TOKEN_MAX_AGE = 24 * 60 * 60;
+  public static final String TOKEN_PREFIX = "Bearer ";
   private final TokenProvider tokenProvider;
 
   @Override
@@ -30,27 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException {
 
     String accessToken = resolveTokenFromRequest(request, ACCESS_TOKEN_HEADER);
-    String refreshToken = resolveTokenFromRequest(request, REFRESH_TOKEN_HEADER);
 
-    try {
-      if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
+    if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
 
-        Authentication authentication = tokenProvider.getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+      Authentication authentication = tokenProvider.getAuthentication(accessToken);
+      SecurityContextHolder.getContext().setAuthentication(authentication);
 
-      } else if (StringUtils.hasText(refreshToken) && tokenProvider.validateToken(refreshToken)) {
-        accessToken = tokenProvider.generateAccessTokenByRefresh(refreshToken);
-        Authentication authentication = tokenProvider.getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        Cookie accessCookie = new Cookie("AccessToken", accessToken);
-        accessCookie.setMaxAge(ACCESS_TOKEN_MAX_AGE);
-        accessCookie.setPath("/");
-        response.addCookie(accessCookie);
-      }else{
-        throw new AuthenticationException(AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED);
-      }
-    } catch (Exception e) {
-      //로그인이 필요한 경우임.
+    } else {
+      //로그인 하거나, refresh를 통해 accessToken을 재발급 받아야 함.
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       return;
     }
@@ -59,24 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private String resolveTokenFromRequest(HttpServletRequest request, String tokenHeader) {
-//    String token = request.getHeader(tokenHeader);
-    String token = null;
+    String token = request.getHeader(tokenHeader);
 
-    Cookie[] cookies = request.getCookies();
-
-    if(cookies == null){
-      return null;
-    }
-
-    for(Cookie cookie : request.getCookies()){
-      if(tokenHeader.equals(cookie.getName())){
-        token = cookie.getValue();
-        break;
-      }
-    }
-
-    if (!ObjectUtils.isEmpty(token)) {
-      return token;
+    if (!ObjectUtils.isEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
+      return token.substring(TOKEN_PREFIX.length());
     }
     return null;
   }

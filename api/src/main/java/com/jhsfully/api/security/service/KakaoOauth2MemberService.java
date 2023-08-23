@@ -1,4 +1,4 @@
-package com.jhsfully.api.service.oauthimpl;
+package com.jhsfully.api.security.service;
 
 import com.jhsfully.api.security.TokenProvider;
 import com.jhsfully.domain.entity.Member;
@@ -28,9 +28,6 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
   private final TokenProvider tokenProvider;
   private final HttpServletResponse httpServletResponse;
 
-  private final int ACCESS_TOKEN_MAX_AGE = 24 * 60 * 60;
-  private final int REFRESH_TOKEN_MAX_AGE = 14 * 24 * 60 * 60;
-
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
@@ -54,14 +51,21 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
     String refreshToken = tokenProvider.generateRefreshToken(member.getId(), email,
         member.isAdmin());
 
-    //쿠키에, 토큰 저장
+    /*
+        로그인에 성공하면, 쿠키에 토큰을 임시적으로 저장함.
+        실제로는, 쿠키의 값을 읽어와서 RestAPI와 같은 통신방식으로 수행함.
+        대신에, csrf()을 신경쓰지 않아도 됨.
+        단, 직접적으로 데이터에 접근하는 GET요청일 경우에는,
+        웹브라우저에서 테스트하는 사람들을 위해 XSS필터를 걸어야 할 수도 있음.
+        (Naver에서 개발한 Lucy 필터를 사용할까 고민중임.)
+     */
     Cookie accessCookie = new Cookie("AccessToken", accessToken);
-    accessCookie.setMaxAge(ACCESS_TOKEN_MAX_AGE);
+    accessCookie.setMaxAge(1000);
     accessCookie.setPath("/");
 
     Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setMaxAge(REFRESH_TOKEN_MAX_AGE);
+    refreshCookie.setMaxAge(1000);
     refreshCookie.setPath("/");
 
     httpServletResponse.addCookie(accessCookie);
