@@ -1,7 +1,11 @@
 package com.jhsfully.domain.entity;
 
+import com.jhsfully.domain.converter.JsonConverter;
 import com.jhsfully.domain.type.ApiState;
 import java.time.LocalDateTime;
+import java.util.Map;
+import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -40,7 +44,12 @@ public class ApiInfo {
   private int recordCount;
   private int dataMaxLength;
   private boolean isPublic;
-  private String schemaStructure;
+
+  @Convert(converter = JsonConverter.class)
+  @Column(columnDefinition = "json")
+  private Map<String, String> schemaStructure;
+  @Convert(converter = JsonConverter.class)
+  @Column(columnDefinition = "json")
   private String queryParameter;
   @CreatedDate
   private LocalDateTime registeredAt;

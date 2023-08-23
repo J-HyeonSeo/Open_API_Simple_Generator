@@ -13,3 +13,5 @@ spring:
     url: jdbc:mysql://localhost:3306/openapi?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
+
+  
