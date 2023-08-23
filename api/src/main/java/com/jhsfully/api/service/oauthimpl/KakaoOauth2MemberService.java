@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -24,17 +23,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
 
+  private final DefaultOAuth2UserService defaultOAuth2UserService;
   private final MemberRepository memberRepository;
   private final TokenProvider tokenProvider;
   private final HttpServletResponse httpServletResponse;
 
+  private final int ACCESS_TOKEN_MAX_AGE = 24 * 60 * 60;
+  private final int REFRESH_TOKEN_MAX_AGE = 14 * 24 * 60 * 60;
+
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-    OAuth2UserService<OAuth2UserRequest, OAuth2User> service = new DefaultOAuth2UserService();
     String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
         .getUserInfoEndpoint().getUserNameAttributeName();
-    OAuth2User oAuth2User = service.loadUser(userRequest); // Oauth2 정보를 가져옴
+    OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(userRequest); // Oauth2 정보를 가져옴
 
     Map<String, Object> accountInfo = oAuth2User.getAttribute("kakao_account");
 
@@ -54,12 +56,12 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
 
     //쿠키에, 토큰 저장
     Cookie accessCookie = new Cookie("AccessToken", accessToken);
-    accessCookie.setMaxAge(1 * 24 * 60 * 60);
+    accessCookie.setMaxAge(ACCESS_TOKEN_MAX_AGE);
     accessCookie.setPath("/");
 
     Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setMaxAge(14 * 24 * 60 * 60);
+    refreshCookie.setMaxAge(REFRESH_TOKEN_MAX_AGE);
     refreshCookie.setPath("/");
 
     httpServletResponse.addCookie(accessCookie);
@@ -74,29 +76,24 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
   }
 
   private Member saveOrUpdate(String email, String nickname) {
-    Optional<Member> optionalMember = memberRepository.findByEmail(email);
 
-    Member member;
+    Optional<Member> member = memberRepository.findByEmail(email);
 
-    if (optionalMember.isPresent()) {
+    if(member.isPresent()){
+      Member updateMember = member.get();
       log.info(email + "님이 카카오계정으로 로그인 하였습니다.");
-      member = optionalMember.get();
-
-      if (member.getNickname().equals(nickname)) {
-        return member;
-      }
-
-      member.setNickname(nickname);
-    } else {
-      member = Member.builder()
-          .email(email)
-          .nickname(nickname)
-          .isAdmin(false)
-          .build();
-      log.info(email + "님이 카카오계정으로 회원가입을 하였습니다.");
+      updateMember.setNickname(nickname);
+      return memberRepository.save(updateMember);
     }
 
-    return memberRepository.save(member);
+    log.info(email + "님이 카카오계정으로 회원가입을 하였습니다.");
+    return memberRepository.save(
+        Member.builder()
+            .email(email)
+            .nickname(nickname)
+            .isAdmin(false)
+            .build()
+    );
   }
 
 }

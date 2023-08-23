@@ -1,9 +1,7 @@
 package com.jhsfully.api.service.impl;
 
 import com.jhsfully.api.service.AuthService;
-import com.jhsfully.domain.entity.RefreshToken;
 import com.jhsfully.domain.repository.RefreshTokenRepository;
-import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +20,9 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public void logout(String refreshTokenString) {
 
-    Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findById(refreshTokenString);
-
-    if(refreshTokenEntity.isPresent()){
-      refreshTokenRepository.delete(refreshTokenEntity.get());
-    }
+    refreshTokenRepository.findById(refreshTokenString).ifPresent(
+        refreshTokenRepository::delete
+    );
 
     //cookie release
     Cookie accessCookie = new Cookie("AccessToken", null);

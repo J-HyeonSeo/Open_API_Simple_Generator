@@ -14,35 +14,41 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<?> inputArgsExceptionHandler(BindingResult bindingResult){
+  public ResponseEntity<?> inputArgsExceptionHandler(BindingResult bindingResult) {
     String message = bindingResult.getFieldError().getDefaultMessage();
 
-    if(message == null){
+    if (message == null) {
       message = "요청된 값이 올바르지 않습니다.";
     }
 
-    return ResponseEntity.badRequest().body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message));
+    return ResponseEntity.badRequest()
+        .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message));
   }
 
-  @ExceptionHandler(CustomException.class)
-  public ResponseEntity<?> customExceptionHandler(CustomException e){
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<?> authenticationExceptionHandler(AuthenticationException e) {
 
-    //인증 되지 않은 사용자
-    if(e instanceof AuthenticationException){
-      AuthenticationException authenticationException = (AuthenticationException)e;
-      if(AUTHENTICATION_UNAUTHORIZED == authenticationException.getAuthenticationErrorType()){
-        return ResponseEntity.status(401).body(
-            new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                e.getMessage()
-            )
-        );
-      }
+    if (AUTHENTICATION_UNAUTHORIZED == e.getAuthenticationErrorType()) {
+      return ResponseEntity.status(401).body(
+          new ErrorResponse(
+              HttpStatus.UNAUTHORIZED.value(),
+              e.getMessage()
+          )
+      );
     }
 
     return ResponseEntity.internalServerError().body(
         new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage())
     );
+  }
+
+  @ExceptionHandler(CustomException.class)
+  public ResponseEntity<?> customExceptionHandler(CustomException e) {
+
+    return ResponseEntity.internalServerError().body(
+        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage())
+    );
+
   }
 
 }

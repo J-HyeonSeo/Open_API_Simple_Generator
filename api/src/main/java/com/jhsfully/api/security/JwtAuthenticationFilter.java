@@ -12,27 +12,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   public static final String ACCESS_TOKEN_HEADER = "AccessToken";
   public static final String REFRESH_TOKEN_HEADER = "RefreshToken";
+  private final int ACCESS_TOKEN_MAX_AGE = 24 * 60 * 60;
   private final TokenProvider tokenProvider;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    if (isSkip(request.getRequestURI())) {
-      filterChain.doFilter(request, response);
-      return;
-    }
 
     String accessToken = resolveTokenFromRequest(request, ACCESS_TOKEN_HEADER);
     String refreshToken = resolveTokenFromRequest(request, REFRESH_TOKEN_HEADER);
@@ -47,7 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         accessToken = tokenProvider.generateAccessTokenByRefresh(refreshToken);
         Authentication authentication = tokenProvider.getAuthentication(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        request.getSession().setAttribute("AccessToken", accessToken);
+        Cookie accessCookie = new Cookie("AccessToken", accessToken);
+        accessCookie.setMaxAge(ACCESS_TOKEN_MAX_AGE);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
       }else{
         throw new AuthenticationException(AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED);
       }
@@ -83,22 +81,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return null;
   }
 
-  private boolean isSkip(String requestURI) {
-    log.info(requestURI);
-    if (requestURI.startsWith("/login")) {
-      return true;
-    }
-
-    //for Develop
-    if (requestURI.startsWith("/h2-console")) {
-      return true;
-    }
-    if (requestURI.startsWith("/swagger")) {
-      return true;
-    }
-    if (requestURI.startsWith("/v2")) {
-      return true;
-    }
-    return false;
-  }
 }

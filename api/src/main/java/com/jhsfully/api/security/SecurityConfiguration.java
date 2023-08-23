@@ -1,22 +1,26 @@
 package com.jhsfully.api.security;
 
 import com.jhsfully.api.service.oauthimpl.KakaoOauth2MemberService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfiguration{
 
   private final KakaoOauth2MemberService kakaoOauth2MemberService;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+  public SecurityConfiguration(KakaoOauth2MemberService kakaoOauth2MemberService, TokenProvider tokenProvider){
+    this.kakaoOauth2MemberService = kakaoOauth2MemberService;
+    this.jwtAuthenticationFilter = new JwtAuthenticationFilter(tokenProvider);
+  }
+
   /*
-      기존의 WebSecurityConfigurerAdapter가 Depressed되었음.
+      기존의 WebSecurityConfigurerAdapter가 Deprecated되었음.
       아래와 같은 방식으로 작성하는 것이 권장방식이 됨.
 
       카카오 로그인은 -> http:localhost:8080/oauth2/authorization/kakao 로 접속하면,
@@ -27,10 +31,10 @@ public class SecurityConfiguration{
    */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+
     http
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .authorizeRequests()
-        .anyRequest().permitAll()
+        .authorizeRequests().anyRequest().permitAll()
         .and()
         .logout()
         .logoutSuccessUrl("/auth/logout")
@@ -40,6 +44,22 @@ public class SecurityConfiguration{
         .userService(kakaoOauth2MemberService);
 
     return http.build();
+  }
+
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer(){
+    return web -> {
+      web.ignoring()
+          .antMatchers(
+              "/images/**",
+              "/js/**",
+              "/css/**",
+              "/swagger-ui/**",
+              "/swagger-resources/**",
+              "/v2/**",
+              "/v3/**"
+              );
+    };
   }
 
 }
