@@ -37,3 +37,5 @@ spring:
 
   jwt:
     secret: ENTER YOUR JWT SECRET KEY
+
+  excel-storage-path: ${EXCEL_STORAGE_PATH}
