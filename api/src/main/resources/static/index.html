@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+
+  <input type="file" name="file" id="file">
+  <button type="button" id="upload">클릭하면 업로드한다요</button>
+
+</body>
+<script>
+
+let button = document.getElementById('upload');
+
+button.addEventListener('click', function() {
+
+  // 파일 엘리먼트를 선택합니다.
+  const fileInput = document.querySelector('#file');
+
+  // FormData 객체를 생성합니다.
+  const formData = new FormData();
+  formData.append('apiName', 'WIFI-INFO');
+  formData.append('apiIntroduce', 'THIS IS CAN BE RETURN KOREAN WIFI INFO DATA');
+  formData.append('schemaStructure[0].field', 'field1');
+  formData.append('schemaStructure[0].type', 'STRING');
+  formData.append('schemaStructure[1].field', 'field2');
+  formData.append('schemaStructure[1].type', 'STRING');
+  formData.append('queryParameter[0].field', 'field1');
+  formData.append('queryParameter[0].type', 'INCLUDE');
+  formData.append('queryParameter[1].field', 'field2');
+  formData.append('queryParameter[1].type', 'INCLUDE');
+  formData.append('isPublic', true);
+  formData.append('file', fileInput.files[0]); // 파일 추가
+
+  // POST 요청을 보냅니다.
+  fetch('/api', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Response:', data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+
+});
+
+
+
+</script>
+</html>

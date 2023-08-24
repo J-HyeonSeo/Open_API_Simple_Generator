@@ -1,6 +1,6 @@
 package com.jhsfully.api.exception;
 
-import static com.jhsfully.domain.type.AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED;
 
 import com.jhsfully.api.model.ErrorResponse;
 import org.springframework.http.HttpStatus;

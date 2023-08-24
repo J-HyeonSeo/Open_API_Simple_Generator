@@ -1,7 +1,9 @@
 package com.jhsfully.domain.entity;
 
 import com.jhsfully.domain.converter.JsonConverter;
+import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
+import com.jhsfully.domain.type.ApiStructureType;
 import java.time.LocalDateTime;
 import java.util.Map;
 import javax.persistence.Column;
@@ -47,10 +49,10 @@ public class ApiInfo {
 
   @Convert(converter = JsonConverter.class)
   @Column(columnDefinition = "json")
-  private Map<String, String> schemaStructure;
+  private Map<String, ApiStructureType> schemaStructure;
   @Convert(converter = JsonConverter.class)
   @Column(columnDefinition = "json")
-  private String queryParameter;
+  private Map<String, ApiQueryType> queryParameter;
   @CreatedDate
   private LocalDateTime registeredAt;
   @LastModifiedDate

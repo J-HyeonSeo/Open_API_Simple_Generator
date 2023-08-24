@@ -1,6 +1,6 @@
 package com.jhsfully.api.exception;
 
-import com.jhsfully.domain.type.AuthenticationErrorType;
+import com.jhsfully.domain.type.errortype.AuthenticationErrorType;
 import lombok.Getter;
 
 @Getter

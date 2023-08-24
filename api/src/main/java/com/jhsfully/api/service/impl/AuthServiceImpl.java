@@ -1,6 +1,6 @@
 package com.jhsfully.api.service.impl;
 
-import static com.jhsfully.domain.type.AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_UNAUTHORIZED;
 
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.auth.TokenResponse;

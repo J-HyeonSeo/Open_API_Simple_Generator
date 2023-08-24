@@ -56,6 +56,7 @@ public class SecurityConfiguration{
     return web -> {
       web.ignoring()
           .antMatchers(
+              "/**",  //이건 일단 테스트 용도로 추가함.
               "/auth/**",
               "/images/**",
               "/js/**",

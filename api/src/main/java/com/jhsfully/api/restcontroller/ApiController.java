@@ -1,10 +1,13 @@
 package com.jhsfully.api.restcontroller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jhsfully.api.model.api.CreateApiInput;
+import com.jhsfully.api.service.ApiService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,24 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ApiController {
 
-  @GetMapping
-  public ResponseEntity<?> getApiDate(){
+  private final ApiService apiService;
+
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<?> createOpenApi(
+      @ModelAttribute CreateApiInput input) throws JsonProcessingException {
+
+    apiService.createOpenApi(input);
+
     return ResponseEntity.ok().build();
-  }
-
-  @PostMapping
-  public ResponseEntity<?> createOpenApi(@RequestBody CreateApiInput input){
-
-    System.out.println(input.getApiName());
-    System.out.println(input.getApiIntroduce());
-    System.out.println(input.getSchemeStructure());
-    System.out.println(input.getQueryParameter());
-    System.out.println(input.isPublic());
-//    System.out.println(file.getOriginalFilename());
-
-    return null;
   }
 
 }
