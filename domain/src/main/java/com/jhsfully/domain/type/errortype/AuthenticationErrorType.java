@@ -1,4 +1,4 @@
-package com.jhsfully.domain.type;
+package com.jhsfully.domain.type.errortype;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

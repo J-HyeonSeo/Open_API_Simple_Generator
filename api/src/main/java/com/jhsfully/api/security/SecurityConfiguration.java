@@ -1,10 +1,11 @@
 package com.jhsfully.api.security;
 
-import com.jhsfully.api.service.oauthimpl.KakaoOauth2MemberService;
+import com.jhsfully.api.security.service.KakaoOauth2MemberService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -33,6 +34,10 @@ public class SecurityConfiguration{
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
     http
+        .httpBasic().disable()
+        .csrf().disable()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeRequests().anyRequest().permitAll()
         .and()
@@ -51,6 +56,8 @@ public class SecurityConfiguration{
     return web -> {
       web.ignoring()
           .antMatchers(
+              "/**",  //이건 일단 테스트 용도로 추가함.
+              "/auth/**",
               "/images/**",
               "/js/**",
               "/css/**",
