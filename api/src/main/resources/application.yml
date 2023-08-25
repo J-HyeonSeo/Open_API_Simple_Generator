@@ -36,6 +36,7 @@ spring:
       password: ${MONGODB_PASSWORD}
 
   kafka:
+    topic-name: excelparser
     bootstrap-servers:
       - localhost:9092
     consumer:

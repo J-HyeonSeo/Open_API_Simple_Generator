@@ -26,6 +26,7 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
   private final DefaultOAuth2UserService defaultOAuth2UserService;
   private final MemberRepository memberRepository;
   private final TokenProvider tokenProvider;
+  private static final int TEMP_COOKIE_MAX_AGE = 1000; //쿠키에서 값을 추출하기 전까지, 값을 살려둠.
   private final HttpServletResponse httpServletResponse;
 
   @Override
@@ -60,12 +61,12 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
         (Naver에서 개발한 Lucy 필터를 사용할까 고민중임.)
      */
     Cookie accessCookie = new Cookie("AccessToken", accessToken);
-    accessCookie.setMaxAge(1000);
+    accessCookie.setMaxAge(TEMP_COOKIE_MAX_AGE);
     accessCookie.setPath("/");
 
     Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setMaxAge(1000);
+    refreshCookie.setMaxAge(TEMP_COOKIE_MAX_AGE);
     refreshCookie.setPath("/");
 
     httpServletResponse.addCookie(accessCookie);

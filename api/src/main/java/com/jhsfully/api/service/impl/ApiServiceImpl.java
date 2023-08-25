@@ -7,6 +7,7 @@ import static com.jhsfully.domain.type.ApiStructureType.STRING;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_NOT_INCLUDE_SCHEMA;
 
@@ -30,38 +31,37 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ApiServiceImpl implements ApiService {
 
   private final ApiInfoRepository apiInfoRepository;
-  private final KafkaTemplate<String, String> kafkaTemplate;
+  private final KafkaTemplate<String, ExcelParserModel> kafkaTemplate;
   private final ObjectMapper objectMapper;
   @Value("${spring.excel-storage-path}")
   private String EXCEL_STORAGE_PATH;
+  @Value("${spring.kafka.topic-name}")
+  private String KAFKA_TOPIC_NAME;
 
   public void createOpenApi(CreateApiInput input) throws JsonProcessingException {
     validateCreateOpenApi(input);
 
-    Map<String, ApiStructureType> schemaStructure = new HashMap<>();
-    Map<String, ApiQueryType> queryParameter = new HashMap<>();
-
-    input.getSchemaStructure().forEach(
-        x -> schemaStructure.put(x.getField(), x.getType())
-    );
-
-    input.getQueryParameter().forEach(
-        x -> queryParameter.put(x.getField(), x.getType())
-    );
+    Map<String, ApiStructureType> schemaStructure = input.getSchemaStructure().stream()
+        .collect(Collectors.toMap(SchemaData::getField, SchemaData::getType));
+    Map<String, ApiQueryType> queryParameter = input.getQueryParameter().stream()
+            .collect(Collectors.toMap(QueryData::getField, QueryData::getType));
 
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
     String historyCollectionName = dataCollectionName + "-history";
@@ -99,7 +99,7 @@ public class ApiServiceImpl implements ApiService {
         throw new ApiException(DOES_NOT_EXCEL_FILE);
       }
     }catch (IOException e){
-      throw new ApiException(DOES_NOT_EXCEL_FILE);
+      throw new ApiException(FILE_PARSE_ERROR);
     }
 
     String filepath = EXCEL_STORAGE_PATH + "/" + fileName;
@@ -113,8 +113,8 @@ public class ApiServiceImpl implements ApiService {
   }
 
   private void sendKafka(ExcelParserModel model) throws JsonProcessingException {
-    kafkaTemplate.send("excelparser",
-        objectMapper.writeValueAsString(model)
+    kafkaTemplate.send(KAFKA_TOPIC_NAME,
+        model
     );
   }
 
@@ -145,21 +145,18 @@ public class ApiServiceImpl implements ApiService {
       mapStructure.put(data.getField(), data.getType());
     }
 
-    //입력된 쿼리 파라미터에는 중복 필드가 없는가?
     Map<String, ApiQueryType> mapQueryParameter = new HashMap<>();
 
     for (QueryData data : input.getQueryParameter()) {
+      //입력된 쿼리 파라미터에는 중복 필드가 없는가?
       if (mapQueryParameter.containsKey(data.getField())) {
         throw new ApiException(DUPLICATED_QUERY_PARAMETER);
       }
-      mapQueryParameter.put(data.getField(), data.getType());
-    }
-
-    //쿼리 파라미터 필드는 스키마 필드에 속해 있는가?
-    for (QueryData data : input.getQueryParameter()) {
+      //쿼리 파라미터 필드는 스키마 필드에 속해 있는가?
       if (!mapStructure.containsKey(data.getField())) {
         throw new ApiException(QUERY_PARAMETER_NOT_INCLUDE_SCHEMA);
       }
+      mapQueryParameter.put(data.getField(), data.getType());
     }
 
     /*
