@@ -56,7 +56,8 @@ public class SecurityConfiguration{
     return web -> {
       web.ignoring()
           .antMatchers(
-              "/**",  //이건 일단 테스트 용도로 추가함.
+
+              "/query/**",  //데이터 질의는 로그인 대신 auth_key로 대체함.
               "/auth/**",
               "/images/**",
               "/js/**",

@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ApiErrorType {
 
+  API_NOT_FOUND("존재하지 않는 API입니다."),
   DUPLICATED_SCHEMA("중복된 스키마 필드는 생성이 불가능합니다."),
   DUPLICATED_QUERY_PARAMETER("중복된 쿼리파라미터는 생성이 불가능합니다."),
   QUERY_PARAMETER_NOT_INCLUDE_SCHEMA("스키마에 대한 쿼리파라미터가 아닙니다."),
