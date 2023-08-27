@@ -47,6 +47,9 @@ button.addEventListener('click', function() {
   formData.append('queryParameter[1].field', '주소');
   formData.append('queryParameter[1].type', 'INCLUDE');
 
+  formData.append('queryParameter[2].field', '숫자 데이터');
+  formData.append('queryParameter[2].type', 'GTE');
+
   formData.append('isPublic', true);
   formData.append('file', fileInput.files[0]); // 파일 추가
 

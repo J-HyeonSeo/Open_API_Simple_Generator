@@ -8,6 +8,7 @@ import com.jhsfully.domain.kafkamodel.ExcelParserModel;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Indexes;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -68,9 +69,10 @@ public class DataSaveServiceImpl implements DataSaveService {
   //컬렉션 생성 및 반환. (기존에 있었으면, Exception)
   private MongoCollection<Document> getCollectionAndCreate(String collectionName){
     if(mongoTemplate.collectionExists(collectionName)){
+      log.info("이미 만들어진 컬렉션에 접근하고 있습니다. , collection : " + collectionName);
       throw new RuntimeException("Duplicated collectionName!");
     }
-    return mongoTemplate.getCollection(collectionName);
+    return mongoTemplate.createCollection(collectionName);
   }
 
 
@@ -78,17 +80,20 @@ public class DataSaveServiceImpl implements DataSaveService {
       쿼리 파라미터로 지정된 필드명은 MongoDB에 인덱싱 될 거임.
 
       단, INCLUDE는 Full-Text-Search가 필요하므로, 특수인덱스인 text 인덱스로 처리함.
+      text-index는 여러개로 구성할 수 없기에, 복합인덱스로 구성함.
+
       이 외의 인덱스는 정렬인덱스로 생성하도록 함.
    */
   private void createIndex(String collectionName, ExcelParserModel model) {
 
     Document indexDocument = new Document();
+    MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
 
     for(Map.Entry<String, ApiQueryType> param : model.getQueryParameter().entrySet()){
       if (param.getValue() == INCLUDE){
         indexDocument.append(param.getKey(), "text");
       }else{
-        indexDocument.append(param.getKey(), 1);
+        collection.createIndex(Indexes.ascending(param.getKey()));
       }
     }
 
