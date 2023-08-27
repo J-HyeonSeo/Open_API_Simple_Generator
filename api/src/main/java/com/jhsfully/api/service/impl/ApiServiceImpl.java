@@ -65,9 +65,8 @@ public class ApiServiceImpl implements ApiService {
 
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
     String historyCollectionName = dataCollectionName + "-history";
-    String filePath = null;
 
-    filePath = fileSave(input.getFile(), dataCollectionName);
+    String filePath = fileSave(input.getFile(), dataCollectionName);
 
     ApiInfo apiInfo = apiInfoRepository.save(ApiInfo.builder()
         .apiName(input.getApiName())
@@ -102,12 +101,16 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiException(FILE_PARSE_ERROR);
     }
 
-    String filepath = EXCEL_STORAGE_PATH + "/" + fileName;
+    /*
+        상단에서, 이미 검사를 마쳤기 때문에, split해서 확장자를 가져올 수 있음.
+     */
+    String fileExtension = file.getOriginalFilename().split("\\.")[1];
+    String filepath = EXCEL_STORAGE_PATH + "/" + fileName + "." + fileExtension;
     try {
       File newFile = new File(filepath);
       FileCopyUtils.copy(file.getInputStream(), new FileOutputStream(newFile));
     } catch (IOException e) {
-      throw new ApiException(DOES_NOT_EXCEL_FILE);
+      throw new ApiException(FILE_PARSE_ERROR);
     }
     return filepath;
   }
@@ -164,14 +167,16 @@ public class ApiServiceImpl implements ApiService {
          STRING => INCLUDE, START, EQUAL
          EXTRAS => EQUAL, GT, GTE, LT, LTE
      */
-    for (SchemaData data : input.getSchemaStructure()) {
-      ApiQueryType queryType = mapQueryParameter.get(data.getField());
-      if (data.getType() == STRING) {
-        if (queryType != INCLUDE && queryType != START && queryType != EQUAL) {
+    for (QueryData data : input.getQueryParameter()) {
+
+      ApiStructureType structureType = mapStructure.get(data.getField());
+
+      if (structureType == STRING) {
+        if (data.getType() != INCLUDE && data.getType() != START && data.getType() != EQUAL) {
           throw new ApiException(QUERY_PARAMETER_CANNOT_MATCH);
         }
       } else {
-        if (queryType == INCLUDE || queryType == START) {
+        if (data.getType() == INCLUDE || data.getType() == START) {
           throw new ApiException(QUERY_PARAMETER_CANNOT_MATCH);
         }
       }

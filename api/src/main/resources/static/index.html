@@ -23,14 +23,33 @@ button.addEventListener('click', function() {
   const formData = new FormData();
   formData.append('apiName', 'WIFI-INFO');
   formData.append('apiIntroduce', 'THIS IS CAN BE RETURN KOREAN WIFI INFO DATA');
-  formData.append('schemaStructure[0].field', 'field1');
+  formData.append('schemaStructure[0].field', '와이파이명');
   formData.append('schemaStructure[0].type', 'STRING');
-  formData.append('schemaStructure[1].field', 'field2');
+
+  formData.append('schemaStructure[1].field', '주소');
   formData.append('schemaStructure[1].type', 'STRING');
-  formData.append('queryParameter[0].field', 'field1');
+
+  formData.append('schemaStructure[2].field', '설치위치');
+  formData.append('schemaStructure[2].type', 'STRING');
+
+  formData.append('schemaStructure[3].field', '숫자 데이터');
+  formData.append('schemaStructure[3].type', 'INTEGER');
+
+  formData.append('schemaStructure[4].field', '날짜 데이터');
+  formData.append('schemaStructure[4].type', 'DATE');
+
+  formData.append('schemaStructure[5].field', '소수점 데이터');
+  formData.append('schemaStructure[5].type', 'FLOAT');
+
+  formData.append('queryParameter[0].field', '와이파이명');
   formData.append('queryParameter[0].type', 'INCLUDE');
-  formData.append('queryParameter[1].field', 'field2');
+
+  formData.append('queryParameter[1].field', '주소');
   formData.append('queryParameter[1].type', 'INCLUDE');
+
+  formData.append('queryParameter[2].field', '숫자 데이터');
+  formData.append('queryParameter[2].type', 'GTE');
+
   formData.append('isPublic', true);
   formData.append('file', fileInput.files[0]); // 파일 추가
 

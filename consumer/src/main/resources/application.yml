@@ -1,0 +1,32 @@
+server:
+  port: 8081
+
+spring:
+  profiles:
+    include:
+      - domain
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      database: apiservice
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
+
+  kafka:
+    topic-name: excelparser
+    bootstrap-servers:
+      - localhost:9092
+    consumer:
+      group-id: api
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            value:
+              default:
+                type: 'com.jhsfully.domain.kafkamodel.ExcelParserModel'
