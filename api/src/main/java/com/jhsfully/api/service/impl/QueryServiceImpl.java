@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +48,10 @@ public class QueryServiceImpl implements QueryService {
 
     query.with(pageable);
 
-    List<Map> results = mongoTemplate.find(query, Map.class, apiInfo.getDataCollectionName());
+    List<Map> results = mongoTemplate.find(query, Map.class, apiInfo.getDataCollectionName())
+        .stream()
+        .peek(x -> x.put("_id", x.get("_id").toString()))
+        .collect(Collectors.toList());
 
     return QueryResponse.builder()
         .totalCount(totalCount)
