@@ -1,5 +1,6 @@
 package com.jhsfully.domain.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,5 +28,6 @@ public class ApiKey {
   private Member member;
   @ManyToOne
   private ApiInfo apiInfo;
+  @Column(nullable = false, unique = true)
   private String authKey;
 }
