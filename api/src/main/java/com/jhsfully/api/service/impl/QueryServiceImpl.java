@@ -10,7 +10,6 @@ import com.jhsfully.api.model.query.QueryInput;
 import com.jhsfully.api.model.query.QueryResponse;
 import com.jhsfully.api.service.QueryService;
 import com.jhsfully.domain.entity.ApiInfo;
-import com.jhsfully.domain.entity.ApiKey;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.ApiKeyRepository;
 import com.jhsfully.domain.type.ApiQueryType;
@@ -71,7 +70,7 @@ public class QueryServiceImpl implements QueryService {
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    ApiKey apiKey = apiKeyRepository.findByApiInfoAndAuthKey(apiInfo, input.getAuthKey())
+    apiKeyRepository.findByApiInfoAndAuthKey(apiInfo, input.getAuthKey())
         .orElseThrow(() -> new ApiPermissionException(API_KEY_NOT_ISSUED));
 
     //쿼리 파라미터에 대한 검증

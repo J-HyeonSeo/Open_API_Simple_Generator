@@ -17,6 +17,6 @@ public class QueryResponse {
 
   private long totalCount;
   private long dataCount;
-  List<Map> dataList;
+  private List<Map> dataList;
 
 }
