@@ -8,10 +8,14 @@ import lombok.Getter;
 public enum ApiErrorType {
 
   API_NOT_FOUND("존재하지 않는 API입니다."),
+  API_DATA_CANNOT_PARSE("데이터 구조가 맞지 않아 변환할 수 없습니다."),
+  API_FIELD_COUNT_IS_DIFFERENT("API에 존재하는 필드 갯수보다 적습니다."),
   DUPLICATED_SCHEMA("중복된 스키마 필드는 생성이 불가능합니다."),
   DUPLICATED_QUERY_PARAMETER("중복된 쿼리파라미터는 생성이 불가능합니다."),
   QUERY_PARAMETER_NOT_INCLUDE_SCHEMA("스키마에 대한 쿼리파라미터가 아닙니다."),
   QUERY_PARAMETER_CANNOT_MATCH("쿼리 파라미터가 매치되지 않습니다."),
+  FIELD_WAS_NOT_DEFINITION_IN_SCHEMA("스키마에 정의되지 않은 필드명입니다."),
+  VALUE_STRUCTURE_IS_DIFFERENT("입력된 데이터의 자료구조가 다릅니다."),
   DOES_NOT_EXCEL_FILE("업로드 된 파일은 엑셀파일이 아닙니다."),
   FILE_PARSE_ERROR("파일을 읽는 중에 오류가 발생하였습니다.");
   private final String message;
