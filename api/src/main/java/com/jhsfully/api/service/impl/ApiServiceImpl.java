@@ -6,6 +6,7 @@ import static com.jhsfully.domain.type.ApiQueryType.START;
 import static com.jhsfully.domain.type.ApiStructureType.STRING;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_FIELD_COUNT_IS_DIFFERENT;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.DATA_IS_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
@@ -30,6 +31,7 @@ import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataResponse;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
 import com.jhsfully.api.util.FileUtil;
@@ -81,6 +83,10 @@ public class ApiServiceImpl implements ApiService {
   private final ApiUserPermissionRepository apiUserPermissionRepository;
   private final MemberRepository memberRepository;
   private final MongoTemplate mongoTemplate;
+
+
+  //Service
+  private final ApiHistoryService apiHistoryService;
 
 
   //for kafka
@@ -187,6 +193,15 @@ public class ApiServiceImpl implements ApiService {
 
     InsertOneResult result = collection.insertOne(document);
 
+    input.getInsertData().put("_id", result.getInsertedId().asObjectId().getValue());
+
+    //히스토리 로그 남기기.
+    apiHistoryService.writeInsertHistory(
+        input.getInsertData(),
+        apiInfo.getHistoryCollectionName(),
+        memberId
+    );
+
     return new InsertApiDataResponse(
         result.getInsertedId().asObjectId().getValue().toString()
     );
@@ -204,6 +219,17 @@ public class ApiServiceImpl implements ApiService {
 
     Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
 
+    //변경 할 데이터를 검색할 쿼리 생성
+    Query query = new Query(Criteria.where("_id").is(new ObjectId(input.getDataId())));
+
+    //id가 존재하는지 확인하기.
+    if(!mongoTemplate.exists(query, apiInfo.getDataCollectionName())){
+      throw new ApiException(DATA_IS_NOT_FOUND);
+    }
+
+    //기존 데이터 가져오기.
+    Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
+
     //업데이트 할 데이터 설정.
     Update update = new Update();
 
@@ -213,11 +239,17 @@ public class ApiServiceImpl implements ApiService {
       update.set(data.getKey(), ConvertUtil.ObjectToStructureType(data.getValue(), structureType));
     }
 
-    //변경 할 데이터를 검색할 쿼리 생성
-    Query query = new Query(Criteria.where("_id").is(new ObjectId(input.getDataId())));
-
     //데이터 업데이트
     mongoTemplate.updateFirst(query, update, apiInfo.getDataCollectionName());
+
+    //히스토리에 로그 남기기
+    input.getUpdateData().put("_id", new ObjectId(input.getDataId()));
+    apiHistoryService.writeUpdateHistory(
+        originalData,
+        input.getUpdateData(),
+        apiInfo.getHistoryCollectionName(),
+        memberId
+    );
   }
 
   /*
@@ -231,7 +263,23 @@ public class ApiServiceImpl implements ApiService {
 
     Query query = new Query(Criteria.where("_id").is(new ObjectId(input.getDataId())));
 
+    //기존 데이터 가져오기.
+    Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
+
+    //id가 존재하는지 확인하기.
+    if(!mongoTemplate.exists(query, apiInfo.getDataCollectionName())){
+      throw new ApiException(DATA_IS_NOT_FOUND);
+    }
+
+    //데이터 지우기
     mongoTemplate.remove(query, apiInfo.getDataCollectionName());
+
+    //로그 남기기
+    apiHistoryService.writeDeleteHistory(
+        originalData,
+        apiInfo.getHistoryCollectionName(),
+        memberId
+    );
   }
 
   /*
@@ -239,7 +287,7 @@ public class ApiServiceImpl implements ApiService {
       연관 데이터가 없다면, 하드 삭제
    */
   public void deleteOpenApi(long apiId, long memberId){
-
+    //TODO 추후에 작성함.
   }
 
 
@@ -307,7 +355,7 @@ public class ApiServiceImpl implements ApiService {
 
   /*
       API의 데이터를 관리하는 밸리데이션 로직은,
-      추후에, 반드시 사용자의 등급에 관련된 제약사항을 확인해야 함.
+      TODO 추후에, 반드시 사용자의 등급에 관련된 제약사항을 확인해야 함.
    */
 
   private void validateInsertApiData(InsertApiDataInput input, long memberId){
@@ -331,6 +379,8 @@ public class ApiServiceImpl implements ApiService {
       }
     }
 
+    //TODO 해당 api의 소유주의 등급 데이터를 가져와, 삽입가능한 상태인지 확인이 필요함.
+
   }
 
   private void validateUpdateApiData(UpdateApiDataInput input, long memberId){
@@ -348,6 +398,9 @@ public class ApiServiceImpl implements ApiService {
         throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
       }
     }
+
+    //TODO 해당 api의 소유주의 등급 데이터를 가져와, 삽입가능한 상태인지 확인이 필요함.
+
   }
 
   private void validateDeleteApiData(DeleteApiDataInput input, long memberId){
@@ -364,9 +417,6 @@ public class ApiServiceImpl implements ApiService {
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
       throw new ApiPermissionException(YOU_ARE_NOT_API_OWNER);
     }
-
-    //TODO continue~~~
-
 
   }
 

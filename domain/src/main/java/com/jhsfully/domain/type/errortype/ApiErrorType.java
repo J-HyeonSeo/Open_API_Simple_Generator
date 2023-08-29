@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ApiErrorType {
 
   API_NOT_FOUND("존재하지 않는 API입니다."),
+  DATA_IS_NOT_FOUND("존재하지 데이터 번호 입니다."),
   API_DATA_CANNOT_PARSE("데이터 구조가 맞지 않아 변환할 수 없습니다."),
   API_FIELD_COUNT_IS_DIFFERENT("API에 존재하는 필드 갯수보다 적습니다."),
   DUPLICATED_SCHEMA("중복된 스키마 필드는 생성이 불가능합니다."),

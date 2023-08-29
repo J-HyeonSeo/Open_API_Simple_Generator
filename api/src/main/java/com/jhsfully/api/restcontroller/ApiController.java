@@ -5,18 +5,23 @@ import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.MemberUtil;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiController {
 
   private final ApiService apiService;
+  private final ApiHistoryService apiHistoryService;
 
   /*
       사용자가 OpenAPI를 만들기 위해서 호출하는 컨트롤러
@@ -87,5 +93,26 @@ public class ApiController {
     long memberId = MemberUtil.getMemberId();
 
     return null;
+  }
+
+  /*
+      API소유주는 startDate ~ endDate 기간의 히스토리 데이터를 조회할 수 있음.
+   */
+  @GetMapping("history/{apiId}/{pageSize}/{pageIdx}")
+  public ResponseEntity<?> getApiHistories(
+      @PathVariable long apiId,
+      @PathVariable int pageSize,
+      @PathVariable int pageIdx,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+  ){
+    long memberId = MemberUtil.getMemberId();
+
+    return ResponseEntity.ok(
+      apiHistoryService.getApiHistories(
+          apiId, memberId, pageSize, pageIdx,
+          startDate, endDate
+      )
+    );
   }
 }
