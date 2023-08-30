@@ -35,15 +35,20 @@ public class DataSaveServiceImpl implements DataSaveService {
    */
   public void saveDataFromExcel(ExcelParserModel model) throws IOException {
     MongoCollection<Document> collection;
+    String historyCollectionName = model.getDataCollectionName() + "-history";
     try {
       collection = getCollectionAndCreate(model.getDataCollectionName());
     }catch (RuntimeException e){
       return;
     }
-    getCollectionAndCreate(model.getDataCollectionName() + "-history");
+    MongoCollection<Document> historyCollection = getCollectionAndCreate(historyCollectionName);
     log.info("DB Collections Created");
 
-    createIndex(model.getDataCollectionName(), model);
+    //data collection index
+    createIndex(model.getDataCollectionName(), model.getQueryParameter());
+    //history collection index
+    historyCollection.createIndex(Indexes.descending("at"));
+
     log.info("DB Indexes Created");
 
     File file = new File(model.getExcelPath());
@@ -55,7 +60,7 @@ public class DataSaveServiceImpl implements DataSaveService {
       log.info("Data Saved.");
     } catch (Exception e) {
       mongoTemplate.dropCollection(model.getDataCollectionName());
-      mongoTemplate.dropCollection(model.getDataCollectionName() + "-history");
+      mongoTemplate.dropCollection(historyCollectionName);
       log.info("Failed to data save - These Schema are Mismatch!");
     }finally {
       if (inputStream != null){
@@ -84,12 +89,12 @@ public class DataSaveServiceImpl implements DataSaveService {
 
       이 외의 인덱스는 정렬인덱스로 생성하도록 함.
    */
-  private void createIndex(String collectionName, ExcelParserModel model) {
+  private void createIndex(String collectionName, Map<String, ApiQueryType> queryParameter) {
 
     Document indexDocument = new Document();
     MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
 
-    for(Map.Entry<String, ApiQueryType> param : model.getQueryParameter().entrySet()){
+    for(Map.Entry<String, ApiQueryType> param : queryParameter.entrySet()){
       if (param.getValue() == INCLUDE){
         indexDocument.append(param.getKey(), "text");
       }else{
