@@ -101,6 +101,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //DB에 데이터 기록.
     collection.insertOne(document);
+
   }
 
   public void writeUpdateHistory(

@@ -36,7 +36,6 @@ import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
 import com.jhsfully.api.util.FileUtil;
 import com.jhsfully.domain.entity.ApiInfo;
-import com.jhsfully.domain.entity.ApiPermissionDetail;
 import com.jhsfully.domain.entity.ApiUserPermission;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.kafkamodel.ExcelParserModel;
@@ -437,15 +436,9 @@ public class ApiServiceImpl implements ApiService {
         .findByApiInfoAndMember(apiInfo, member)
         .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_API));
 
-    for(ApiPermissionDetail permission : userPermission.getApiPermissionDetails()){
-      //해당 권한이 있을 경우 바로 리턴
-      if(type == permission.getType()){
-        return;
-      }
-    }
-
-    //권한을 확인해도 존재하지 않을 경우에는 에러 발생.
-    throw new ApiPermissionException(USER_HAS_NOT_PERMISSION);
+    userPermission.getApiPermissionDetails().stream()
+        .filter(it -> it.getType() == type).findAny()
+        .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_PERMISSION));
 
   }
 
