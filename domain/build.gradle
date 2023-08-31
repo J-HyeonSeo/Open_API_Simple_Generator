@@ -12,6 +12,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.5'
     api 'org.springframework.boot:spring-boot-starter-data-jpa'
     api 'org.springframework.boot:spring-boot-starter-data-redis'
+    api 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     runtimeOnly 'com.mysql:mysql-connector-j'
 }
 

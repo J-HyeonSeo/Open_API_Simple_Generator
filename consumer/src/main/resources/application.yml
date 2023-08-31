@@ -15,6 +15,9 @@ spring:
       username: ${MONGODB_USERNAME}
       password: ${MONGODB_PASSWORD}
 
+  elasticsearch:
+    server: localhost:9200
+
   kafka:
     topic-name: excelparser
     bootstrap-servers:

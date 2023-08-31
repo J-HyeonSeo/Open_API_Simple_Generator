@@ -33,13 +33,13 @@ public class DataSaveServiceImpl implements DataSaveService {
   /*
       카프카가 메세지를 중복으로
    */
-  public void saveDataFromExcel(ExcelParserModel model) throws IOException {
+  public boolean saveDataFromExcel(ExcelParserModel model) throws IOException {
     MongoCollection<Document> collection;
     String historyCollectionName = model.getDataCollectionName() + "-history";
     try {
       collection = getCollectionAndCreate(model.getDataCollectionName());
     }catch (RuntimeException e){
-      return;
+      return false;
     }
     MongoCollection<Document> historyCollection = getCollectionAndCreate(historyCollectionName);
     log.info("DB Collections Created");
@@ -58,14 +58,16 @@ public class DataSaveServiceImpl implements DataSaveService {
       inputStream = new FileInputStream(file);
       DataSaverFromExcel.readExcelAndWriteToDB(inputStream, collection, model);
       log.info("Data Saved.");
+      return true;
     } catch (Exception e) {
       mongoTemplate.dropCollection(model.getDataCollectionName());
       mongoTemplate.dropCollection(historyCollectionName);
       log.info("Failed to data save - These Schema are Mismatch!");
+      return false;
     }finally {
       if (inputStream != null){
         inputStream.close();
-//        file.delete();
+//        file.delete(); //해당 사항은 아직 보류함.
       }
     }
 

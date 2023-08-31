@@ -6,8 +6,10 @@ import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
 import com.jhsfully.api.service.ApiHistoryService;
+import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.MemberUtil;
+import com.jhsfully.domain.type.SearchType;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  *  API의 등록,
  *  API데이터의 추가/수정/삭제
+ *  API 검색
  */
 
 @RestController
@@ -34,8 +37,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiController {
 
-  private final ApiService apiService;
-  private final ApiHistoryService apiHistoryService;
+  private final ApiService apiService; //api 생성/삭제, 데이터 추가/수정/삭제
+  private final ApiHistoryService apiHistoryService; //history 데이터 조회/추가
+  private final ApiSearchService apiSearchService; //elastic search 로 api 검색
 
   /*
       사용자가 OpenAPI를 만들기 위해서 호출하는 컨트롤러
@@ -94,6 +98,31 @@ public class ApiController {
 
     return null;
   }
+
+  /*
+      Elastic Search 로 공개된 OpenAPI 를 검색해서, 리스트 반환
+   */
+  @GetMapping("/{pageSize}/{pageIdx}")
+  public ResponseEntity<?> getOpenApiList(
+      @PathVariable int pageSize,
+      @PathVariable int pageIdx,
+      @RequestParam String searchText,
+      @RequestParam SearchType type
+  ){
+
+    return ResponseEntity.ok(
+        apiSearchService.getOpenApiList(pageSize, pageIdx, searchText, type)
+    );
+  }
+
+  /*
+      TODO MySQL에 질의하여, Api상세 데이터를 가져옴.
+   */
+  @GetMapping("/{apiId}")
+  public ResponseEntity<?> getOpenApi(){
+    return null;
+  }
+
 
   /*
       API소유주는 startDate ~ endDate 기간의 히스토리 데이터를 조회할 수 있음.
