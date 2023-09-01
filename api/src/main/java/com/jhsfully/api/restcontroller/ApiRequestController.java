@@ -1,5 +1,6 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.service.ApiRequestService;
 import com.jhsfully.api.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/request")
 @RequiredArgsConstructor
-public class RequestController {
+public class ApiRequestController {
+
+  private final ApiRequestService apiRequestService;
 
   /*
       내가 보냈던 API 신청 목록 조회.
@@ -24,7 +27,9 @@ public class RequestController {
       @PathVariable int pageIdx
   ){
     long memberId = MemberUtil.getMemberId();
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(
+        apiRequestService.getRequestListForMember(memberId, pageSize, pageIdx)
+    );
   }
 
   /*
@@ -37,15 +42,18 @@ public class RequestController {
       @PathVariable int pageIdx
   ){
     long memberId = MemberUtil.getMemberId();
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(
+        apiRequestService.getRequestListForOwner(memberId, apiId, pageSize, pageIdx)
+    );
   }
 
   /*
       Member가 오픈된 API에 대해 신청 요청을 보냄.
    */
   @PostMapping("/{apiId}")
-  public ResponseEntity<?> apiRequest(){
+  public ResponseEntity<?> apiRequest(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
+    apiRequestService.apiRequest(memberId, apiId);
     return ResponseEntity.ok().build();
   }
 
@@ -57,6 +65,7 @@ public class RequestController {
       @PathVariable long requestId
   ){
     long memberId = MemberUtil.getMemberId();
+    apiRequestService.apiRequestAssign(memberId, requestId);
     return ResponseEntity.ok().build();
   }
 
@@ -68,6 +77,7 @@ public class RequestController {
       @PathVariable long requestId
   ){
     long memberId = MemberUtil.getMemberId();
+    apiRequestService.apiRequestReject(memberId, requestId);
     return ResponseEntity.ok().build();
   }
 

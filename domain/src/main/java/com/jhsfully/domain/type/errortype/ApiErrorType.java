@@ -18,19 +18,6 @@ public enum ApiErrorType {
   FIELD_WAS_NOT_DEFINITION_IN_SCHEMA("스키마에 정의되지 않은 필드명입니다."),
   VALUE_STRUCTURE_IS_DIFFERENT("입력된 데이터의 자료구조가 다릅니다."),
   DOES_NOT_EXCEL_FILE("업로드 된 파일은 엑셀파일이 아닙니다."),
-  FILE_PARSE_ERROR("파일을 읽는 중에 오류가 발생하였습니다."),
-
-
-
-  //REQUEST
-  REQUEST_NOT_FOUND("존재하지 않는 요청입니다."),
-  CANNOT_REQUEST_API_OWNER("API 소유주는 신청할 수 없습니다."),
-  CANNOT_REQUEST_API_HAS_PERMISSION("이미 해당 API에 대한 접근이 가능합니다."),
-  CANNOT_REQUEST_ALREADY_REQUESTED("이미 신청 요청을 보낸 API입니다."),
-  CANNOT_REQUEST_BANNED("신청 정지를 당한 사용자입니다."),
-  CANNOT_ASSIGN_REQUEST_NOT_OWNER("소유자 아닌 사람이 신청을 수락할 수 없습니다."),
-  CANNOT_REJECT_REQUEST_NOT_OWNER("소유자 아닌 사람이 신청을 거절할 수 없습니다."),
-  REQUEST_ALREADY_ASSIGN("이미 수락된 신청입니다."),
-  REQUEST_ALREADY_REJECT("이미 거절된 신청입니다.");
+  FILE_PARSE_ERROR("파일을 읽는 중에 오류가 발생하였습니다.");
   private final String message;
 }

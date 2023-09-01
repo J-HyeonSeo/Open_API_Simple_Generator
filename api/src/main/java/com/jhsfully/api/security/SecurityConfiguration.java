@@ -56,7 +56,7 @@ public class SecurityConfiguration{
     return web -> {
       web.ignoring()
           .antMatchers(
-              "/api/**", //TODO for test will remove!!
+              "/test/**", //TODO for test will remove!!
               "/query/**",  //데이터 질의는 로그인 대신 auth_key로 대체함.
               "/auth/**",
               "/images/**",

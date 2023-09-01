@@ -1,5 +1,6 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.service.ApiInviteService;
 import com.jhsfully.api.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/invite")
 @RequiredArgsConstructor
-public class InviteController {
+public class ApiInviteController {
+
+  private final ApiInviteService apiInviteService;
 
   /*
     API 소유주가 해당 API 에 대해 보낸 초대 목록 조회.
@@ -25,7 +28,9 @@ public class InviteController {
       @PathVariable int pageIdx
   ){
     long memberId = MemberUtil.getMemberId();
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(
+        apiInviteService.getInviteListForOwner(memberId, apiId, pageSize, pageIdx)
+    );
   }
 
   /*
@@ -37,15 +42,21 @@ public class InviteController {
       @PathVariable int pageIdx
   ){
     long memberId = MemberUtil.getMemberId();
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(
+        apiInviteService.getInviteListForMember(memberId, pageSize, pageIdx)
+    );
   }
 
   /*
     API 소유주가 Member에게 해당 API 에 대해 초대 요청을 보냄.
  */
-  @PostMapping("/{apiId}/{memberId}")
-  public ResponseEntity<?> apiInvite(){
-    long memberId = MemberUtil.getMemberId();
+  @PostMapping("/{apiId}/{targetMemberId}")
+  public ResponseEntity<?> apiInvite(
+      @PathVariable long apiId,
+      @PathVariable long targetMemberId
+  ){
+    long ownerMemberId = MemberUtil.getMemberId();
+    apiInviteService.apiInvite(apiId, ownerMemberId, targetMemberId);
     return ResponseEntity.ok().build();
   }
 
@@ -57,6 +68,7 @@ public class InviteController {
       @PathVariable long inviteId
   ){
     long memberId = MemberUtil.getMemberId();
+    apiInviteService.apiInviteAssign(memberId, inviteId);
     return ResponseEntity.ok().build();
   }
 
@@ -68,6 +80,7 @@ public class InviteController {
       @PathVariable long inviteId
   ){
     long memberId = MemberUtil.getMemberId();
+    apiInviteService.apiInviteReject(memberId, inviteId);
     return ResponseEntity.ok().build();
   }
 }

@@ -1,5 +1,6 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.service.ApiBlackListService;
 import com.jhsfully.api.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/blacklist")
 @RequiredArgsConstructor
-public class BlackListController {
+public class ApiBlackListController {
+
+  private final ApiBlackListService apiBlackListService;
 
   /*
     API 소유주가 해당 API에 대해 차단한 블랙리스트 유저 조회
@@ -25,15 +28,21 @@ public class BlackListController {
       @PathVariable int pageIdx
   ){
     long memberId = MemberUtil.getMemberId();
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(
+        apiBlackListService.getBlackList(apiId, memberId, pageSize, pageIdx)
+    );
   }
 
   /*
     API 소유주가 해당 API의 블랙리스트에 해당 Member를 등록함.
  */
-  @PostMapping("/{apiId}/{memberId}")
-  public ResponseEntity<?> registerBlackList(){
-    long memberId = MemberUtil.getMemberId();
+  @PostMapping("/{apiId}/{targetMemberId}")
+  public ResponseEntity<?> registerBlackList(
+      @PathVariable long apiId,
+      @PathVariable long targetMemberId
+  ){
+    long ownerMemberId = MemberUtil.getMemberId();
+    apiBlackListService.registerBlackList(apiId, ownerMemberId, targetMemberId);
     return ResponseEntity.ok().build();
   }
 
@@ -45,6 +54,7 @@ public class BlackListController {
       @PathVariable long blackListId
   ){
     long memberId = MemberUtil.getMemberId();
+    apiBlackListService.deleteBlackList(blackListId, memberId);
     return ResponseEntity.ok().build();
   }
 
