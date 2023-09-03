@@ -8,6 +8,7 @@ import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.type.ApiState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,11 @@ public class ApiInfoUpdateServiceImpl implements ApiInfoUpdateService {
         .id(apiInfo.getId())
         .apiName(apiInfo.getApiName())
         .apiIntroduce(apiInfo.getApiIntroduce())
-        .memberEmail(apiInfo.getMember().getEmail())
+        .ownerEmail(apiInfo.getMember().getEmail())
+        .state(ApiState.ENABLED)
+        .isPublic(true)
+        .ownerMemberId(apiInfo.getMember().getId())
+        .mapping(new JoinField<>("apiInfo"))
         .build();
 
     apiInfoElasticRepository.save(apiInfoElastic);

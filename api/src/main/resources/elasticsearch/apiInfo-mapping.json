@@ -1,9 +1,19 @@
 {
   "properties" : {
-    "id" : {"type" : "keyword"},
+    "id" : {"type" : "long"},
     "apiName" : {"type" : "text", "fields": {"kor":  {"type":  "text", "analyzer": "korean"}, "ngram":  {"type" : "text", "analyzer":  "my_ngram_analyzer"}}},
     "apiIntroduce" : {"type" : "text", "fields": {"kor":  {"type":  "text", "analyzer": "korean"}, "ngram":  {"type" : "text", "analyzer":  "my_ngram_analyzer"}}},
-    "memberEmail" : {"type" : "text", "fields": {"kor":  {"type":  "text", "analyzer": "korean"}, "ngram":  {"type" : "text", "analyzer":  "my_ngram_analyzer"}}},
-    "isPublic" : {"type" : "boolean"}
+    "ownerEmail" : {"type" : "text", "fields": {"kor":  {"type":  "text", "analyzer": "korean"}, "ngram":  {"type" : "text", "analyzer":  "my_ngram_analyzer"}}},
+    "state" : {"type" : "text"},
+    "isPublic" : {"type" : "boolean"},
+    "permissionId" : {"type" : "long"},
+    "ownerId" : {"type" :  "long"},
+    "accessMemberId" : {"type" : "long"},
+    "mapping" : {
+      "type" : "join",
+      "relations" : {
+        "apiInfo" : "accessMember"
+      }
+    }
   }
 }

@@ -19,9 +19,11 @@ import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.api.service.ApiRequestService;
 import com.jhsfully.domain.entity.ApiInfo;
+import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.ApiRequestInvite;
 import com.jhsfully.domain.entity.ApiUserPermission;
 import com.jhsfully.domain.entity.Member;
+import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.ApiRequestInviteRepository;
 import com.jhsfully.domain.repository.ApiUserPermissionRepository;
@@ -37,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +48,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ApiRequestServiceImpl implements ApiRequestService {
 
+  //ElasticSearch Repositories
+  private final ApiInfoElasticRepository apiInfoElasticRepository;
+
+  //MySQL Repositories
   private final MemberRepository memberRepository;
   private final ApiInfoRepository apiInfoRepository;
   private final ApiRequestInviteRepository apiRequestInviteRepository;
@@ -134,7 +141,17 @@ public class ApiRequestServiceImpl implements ApiRequestService {
         .member(request.getMember())
         .build();
 
-    apiUserPermissionRepository.save(permission);
+    //ElasticSearch 접근 가능한 멤버 추가함.
+    long permissionId = apiUserPermissionRepository.save(permission).getId();
+
+    ApiInfoElastic elastic = ApiInfoElastic.builder()
+        .accessMemberId(member.getId())
+        .permissionId(permissionId)
+        .mapping(new JoinField<>("accessMember", request.getApiInfo().getId()))
+        .build();
+
+    apiInfoElasticRepository.save(elastic);
+
   }
 
   @Override

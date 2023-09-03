@@ -47,8 +47,8 @@ public class ApiController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> createOpenApi(
       @ModelAttribute CreateApiInput input) throws JsonProcessingException {
-
-    apiService.createOpenApi(input);
+    long memberId = MemberUtil.getMemberId();
+    apiService.createOpenApi(input, memberId);
 
     return ResponseEntity.ok().build();
   }
@@ -116,11 +116,51 @@ public class ApiController {
   }
 
   /*
-      TODO MySQL에 질의하여, Api상세 데이터를 가져옴.
+    Elastic Search 에 질의하여, 자신 소유의 API 데이터 조회.
+ */
+  @GetMapping("/owner/{pageSize}/{pageIdx}")
+  public ResponseEntity<?> getApiListForOwner(
+      @PathVariable int pageSize,
+      @PathVariable int pageIdx,
+      @RequestParam String searchText,
+      @RequestParam SearchType type
+  ){
+    long memberId = MemberUtil.getMemberId();
+    return ResponseEntity.ok(
+        apiSearchService.getOpenApiListForOwner(
+            memberId, pageSize, pageIdx, searchText, type
+        )
+    );
+  }
+
+  /*
+  Elastic Search 에 질의하여, 자신이 접근 가능한 API목록 조회(본인 소유 미포함)
+*/
+  @GetMapping("/access/{pageSize}/{pageIdx}")
+  public ResponseEntity<?> getApiListForAccess(
+      @PathVariable int pageSize,
+      @PathVariable int pageIdx,
+      @RequestParam String searchText,
+      @RequestParam SearchType type
+  ){
+    long memberId = MemberUtil.getMemberId();
+
+    return ResponseEntity.ok(
+        apiSearchService.getOpenApiListForAccess(
+            memberId, pageSize, pageIdx, searchText, type
+        )
+    );
+  }
+
+  /*
+      MySQL에 질의하여, Api상세 데이터를 가져옴.
    */
   @GetMapping("/{apiId}")
-  public ResponseEntity<?> getOpenApi(){
-    return null;
+  public ResponseEntity<?> getOpenApiDetail(@PathVariable long apiId){
+    long memberId = MemberUtil.getMemberId();
+    return ResponseEntity.ok(
+        apiSearchService.getOpenApiDetail(apiId, memberId)
+    );
   }
 
 
