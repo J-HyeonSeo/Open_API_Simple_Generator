@@ -91,4 +91,6 @@ public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInf
   Page<ApiInfoElastic> searchByOwnerEmailForAccess(Long accessMemberId, String searchText, Pageable pageable);
 
 
+  //deletion
+  void deleteByPermissionId(Long permissionId);
 }
