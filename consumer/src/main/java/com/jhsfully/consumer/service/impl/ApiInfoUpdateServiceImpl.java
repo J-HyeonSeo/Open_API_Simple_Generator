@@ -23,7 +23,7 @@ public class ApiInfoUpdateServiceImpl implements ApiInfoUpdateService {
 
   public void successUpdateInfoData(long apiId){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
-        .orElseThrow();
+        .orElseThrow(() -> new RuntimeException("ApiInfo를 찾을 수 없습니다."));
 
     apiInfo.setApiState(ApiState.ENABLED);
 
