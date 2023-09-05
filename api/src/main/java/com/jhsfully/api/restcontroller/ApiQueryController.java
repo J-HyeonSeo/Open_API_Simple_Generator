@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/query")
 @RequiredArgsConstructor
-public class QueryController {
+public class ApiQueryController {
 
   private final QueryService queryService;
 

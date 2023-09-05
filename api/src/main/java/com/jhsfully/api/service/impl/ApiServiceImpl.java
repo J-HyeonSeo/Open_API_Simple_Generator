@@ -99,7 +99,7 @@ public class ApiServiceImpl implements ApiService {
   /*
       OpenAPI를 새로 생성함.
    */
-  public void createOpenApi(CreateApiInput input) throws JsonProcessingException {
+  public void createOpenApi(CreateApiInput input, long memberId) throws JsonProcessingException {
     validateCreateOpenApi(input);
 
     Map<String, ApiStructureType> schemaStructure = input.getSchemaStructure().stream()
@@ -112,8 +112,12 @@ public class ApiServiceImpl implements ApiService {
 
     String filePath = fileSave(input.getFile(), dataCollectionName);
 
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
     ApiInfo apiInfo = apiInfoRepository.save(ApiInfo.builder()
         .apiName(input.getApiName())
+        .member(member)
         .apiIntroduce(input.getApiIntroduce())
         .schemaStructure(schemaStructure)
         .queryParameter(queryParameter)

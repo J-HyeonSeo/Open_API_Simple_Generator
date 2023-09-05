@@ -27,6 +27,7 @@ spring:
             user-name-attribute: id
 
   data:
+
     mongodb:
       host: localhost
       port: 27017
@@ -34,6 +35,13 @@ spring:
       database: apiservice
       username: ${MONGODB_USERNAME}
       password: ${MONGODB_PASSWORD}
+
+#    elasticsearch:
+#      cluster-names: apiinfo
+#      cluster-node: localhost:9200
+
+  elasticsearch:
+    server: localhost:9200
 
   kafka:
     topic-name: excelparser

@@ -8,7 +8,7 @@ import com.jhsfully.api.model.api.InsertApiDataResponse;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
 
 public interface ApiService {
-  void createOpenApi(CreateApiInput input) throws JsonProcessingException;
+  void createOpenApi(CreateApiInput input, long memberId) throws JsonProcessingException;
   InsertApiDataResponse insertApiData(InsertApiDataInput input, long memberId);
   void updateApiData(UpdateApiDataInput input, long memberId);
   void deleteApiData(DeleteApiDataInput input, long memberId);
