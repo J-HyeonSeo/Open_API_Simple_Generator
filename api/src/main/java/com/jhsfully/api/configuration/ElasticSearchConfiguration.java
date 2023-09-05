@@ -10,7 +10,7 @@ import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfig
 @Configuration
 public class ElasticSearchConfiguration extends AbstractElasticsearchConfiguration {
 
-  @Value("${spring.elasticsearch.server")
+  @Value("${spring.elasticsearch.server}")
   private String elasticSearchServer;
 
   @Override

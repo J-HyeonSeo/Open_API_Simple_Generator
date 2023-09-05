@@ -24,11 +24,13 @@ public class Grade {
   private Long id;
   private String gradeName;
   private int gradePosition;
+  private long price;
   private int apiMaxCount;
   private int fieldMaxCount;
   private int queryMaxCount;
   private int recordMaxCount;
-  private int dataMaxLength;
-  private int fileMaxSize;
+  private int dbMaxSize;
+  private int accessorMaxCount;
+  private int historyStorageDays;
   private boolean isChanged;
 }

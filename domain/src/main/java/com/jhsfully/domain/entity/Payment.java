@@ -2,6 +2,7 @@ package com.jhsfully.domain.entity;
 
 import com.jhsfully.domain.type.PaymentStateType;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -27,6 +28,8 @@ public class Payment {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+  @Column(nullable = false, unique = true)
+  private String tid; //카카오페이 TransactionID
   @ManyToOne
   private Grade grade;
   @ManyToOne
