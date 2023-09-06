@@ -15,6 +15,8 @@ public enum PaymentErrorType {
   REFUND_COUNT_MORE_THAN_ONE("당월 환불 횟수가 2회 이상일 경우 결제가 불가능합니다."),
   YOU_ARE_NOT_PAYMENT_OWNER("해당 결제를 수행한 유저가 아닙니다."),
   PAYMENT_IS_ALREADY_REFUNDED("이미 환불된 결제입니다."),
-  REFUND_DEADLINE_IS_ONE_WEEK("환불 가능일은 구매일로부터 일주일 이내입니다.");
+  REFUND_DEADLINE_IS_ONE_WEEK("환불 가능일은 구매일로부터 일주일 이내입니다."),
+  CANNOT_BUY_THIS_GRADE("구매가 불가능한 등급입니다."),
+  ;
   private final String message;
 }

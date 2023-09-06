@@ -5,6 +5,7 @@ import static com.jhsfully.domain.type.PaymentStateType.SUCCESS;
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.GradeErrorType.GRADE_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.CANCEL_AMOUNT_IS_WRONG;
+import static com.jhsfully.domain.type.errortype.PaymentErrorType.CANNOT_BUY_THIS_GRADE;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_CANNOT_APPROVE;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_CANNOT_REFUND;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_IS_ALREADY_REFUNDED;
@@ -149,7 +150,7 @@ public class KakaoPayPaymentService implements PaymentService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    validatePayment(member);
+    validatePayment(member, gradeId);
 
     Grade grade = gradeRepository.findById(gradeId)
         .orElseThrow(() -> new GradeException(GRADE_NOT_FOUND));
@@ -190,8 +191,8 @@ public class KakaoPayPaymentService implements PaymentService {
     log.info("REDIS에 임시적으로 결제대기 데이터를 저장함.");
 
     return new PaymentReadyResponseForClient(
-        response.getNext_redirect_mobile_url(),
-        response.getNext_redirect_pc_url());
+        response.getNextRedirectMobileUrl(),
+        response.getNextRedirectPcUrl());
   }
   private HttpEntity<MultiValueMap<String, String>> getPaymentRequestEntity(String paymentUUID, Member member, Grade grade){
     // 카카오페이 요청 양식
@@ -393,13 +394,17 @@ public class KakaoPayPaymentService implements PaymentService {
       ################ Validates ##################
    */
 
-  private void validatePayment(Member member){
+  private void validatePayment(Member member, long gradeId){
     /*
         결제가 수행되면 안되는 상황
 
-        1. 등급 활성 일수가 1보다 큰 경우.
-        2. 멤버의 환불 횟수가 1회 초과인 경우.
+        1. gradeId가 0또는 1인 경우.
+        2. 등급 활성 일수가 1보다 큰 경우.
+        3. 멤버의 환불 횟수가 1회 초과인 경우.
      */
+    if(gradeId <= 1){
+      throw new PaymentException(CANNOT_BUY_THIS_GRADE);
+    }
 
     if(member.getRemainEnableDays() > 1){
       throw new PaymentException(REMAIN_ENABLE_DAYS_MORE_THAN_ONE);

@@ -13,7 +13,8 @@ public enum ApiInviteErrorType {
   CANNOT_ASSIGN_INVITE_NOT_TARGET("초대받은자 이외의 사람이 초대을 수락할 수 없습니다."),
   CANNOT_REJECT_INVITE_NOT_TARGET("초대받은자 이외의 사람이 초대을 거절할 수 없습니다."),
   INVITE_ALREADY_ASSIGN("이미 수락한 초대입니다."),
-  INVITE_ALREADY_REJECT("이미 거절한 초대입니다.");
+  INVITE_ALREADY_REJECT("이미 거절한 초대입니다."),
+  ;
 
   private final String message;
 }

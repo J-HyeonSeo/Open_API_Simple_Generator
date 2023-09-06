@@ -15,7 +15,8 @@ public enum ApiRequestErrorType {
   CANNOT_ASSIGN_REQUEST_NOT_OWNER("소유자 아닌 사람이 신청을 수락할 수 없습니다."),
   CANNOT_REJECT_REQUEST_NOT_OWNER("소유자 아닌 사람이 신청을 거절할 수 없습니다."),
   REQUEST_ALREADY_ASSIGN("이미 수락된 신청입니다."),
-  REQUEST_ALREADY_REJECT("이미 거절된 신청입니다.");
+  REQUEST_ALREADY_REJECT("이미 거절된 신청입니다."),
+  ;
 
   private final String message;
 }
