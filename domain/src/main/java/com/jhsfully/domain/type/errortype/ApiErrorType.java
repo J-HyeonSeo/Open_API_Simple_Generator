@@ -18,6 +18,7 @@ public enum ApiErrorType {
   FIELD_WAS_NOT_DEFINITION_IN_SCHEMA("스키마에 정의되지 않은 필드명입니다."),
   VALUE_STRUCTURE_IS_DIFFERENT("입력된 데이터의 자료구조가 다릅니다."),
   DOES_NOT_EXCEL_FILE("업로드 된 파일은 엑셀파일이 아닙니다."),
-  FILE_PARSE_ERROR("파일을 읽는 중에 오류가 발생하였습니다.");
+  FILE_PARSE_ERROR("파일을 읽는 중에 오류가 발생하였습니다."),
+  ;
   private final String message;
 }

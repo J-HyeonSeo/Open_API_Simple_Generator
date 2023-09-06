@@ -41,4 +41,7 @@ public class Member {
   private LocalDateTime updatedAt;
   private boolean isAdmin;
   private LocalDateTime latestPaidAt;
+  private int refundCount;
+  private boolean gradeChanged;
+  private int remainEnableDays;
 }

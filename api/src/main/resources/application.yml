@@ -6,6 +6,17 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  payment:
+      kakao:
+        request-url: https://kapi.kakao.com/v1/payment/ready
+        approve-url: https://kapi.kakao.com/v1/payment/approve
+        success-url: http://localhost:8080/payment/redirect/success
+        refund-url: https://kapi.kakao.com/v1/payment/cancel
+        fail-url: http://localhost:8080
+        cancel-url: http://localhost:8080
+        cid: TC0ONETIME
+        admin-key: ${KAKAO_ADMIN_KEY}
+
   security:
     oauth2:
       client:
