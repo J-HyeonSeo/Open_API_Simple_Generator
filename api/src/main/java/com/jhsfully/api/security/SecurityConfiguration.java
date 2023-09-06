@@ -57,6 +57,7 @@ public class SecurityConfiguration{
       web.ignoring()
           .antMatchers(
               "/test/**", //TODO for test will remove!!
+              "/",
               "/payment/redirect/**",
               "/query/**",  //데이터 질의는 로그인 대신 auth_key로 대체함.
               "/auth/**",

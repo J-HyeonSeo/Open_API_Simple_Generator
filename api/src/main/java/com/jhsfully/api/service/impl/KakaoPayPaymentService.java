@@ -4,10 +4,12 @@ import static com.jhsfully.domain.type.PaymentStateType.REFUND;
 import static com.jhsfully.domain.type.PaymentStateType.SUCCESS;
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.GradeErrorType.GRADE_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.PaymentErrorType.CANCEL_AMOUNT_IS_WRONG;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_CANNOT_APPROVE;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_CANNOT_REFUND;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_IS_ALREADY_REFUNDED;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.PaymentErrorType.PAYMENT_REQUEST_IS_WRONG;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.REFUND_COUNT_MORE_THAN_ONE;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.REFUND_DEADLINE_IS_ONE_WEEK;
 import static com.jhsfully.domain.type.errortype.PaymentErrorType.REMAIN_ENABLE_DAYS_MORE_THAN_ONE;
@@ -16,10 +18,12 @@ import static com.jhsfully.domain.type.errortype.PaymentErrorType.YOU_ARE_NOT_PA
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.exception.PaymentException;
+import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentApprovedResponse;
+import com.jhsfully.api.model.payment.PaymentReadyResponse;
+import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
 import com.jhsfully.api.model.payment.PaymentRefundResponse;
 import com.jhsfully.api.model.payment.PaymentResponse;
-import com.jhsfully.api.model.payment.RedirectUrlResponse;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
@@ -33,12 +37,15 @@ import com.jhsfully.domain.repository.PaymentRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -47,12 +54,40 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+/*
+      카카오페이의 결제로직은 다음과 같음.
+
+      1. 클라이언트 -> 백엔드 (결제 요청 날리기)
+      2. 백엔드 -> 카카오페이 (결제 요청을 데이터를 조합하여 요청을 보냄)
+      - 헤더에 KakaoAK {Admin_KEY} 데이터를 넣어주지 않은 경우 401에러를 반환하므로 넣어드려야함.
+      - 0원의 결제요청을 수행하면, 적어도 Amount가 존재해야한다고, 400 BadRequest에러가 발생하므로, 결제요청 값은 반드시 0원이상.
+      - 가이드에 따라서, POST 요청으로 처리함.
+      3. 카카오페이 -> 백엔드 (tid와 결제창으로 넘어갈 redirectURL을 같이 제공함.)
+       - 응답이 오면, tid와 RedirectURL이 제공이 되는데, 여기에서, 절대로 tid를 유저에게 공개해서는 안됨.
+       - 물론, 카카오페이 API가 CORS가 등록된 URL로 닫혀있고, ADMIN_KEY를 알아야 악용이 가능함.
+       - 하지만, 카카오페이 측에서는, 기본적으로 tid를 유저에게 노출시키 않을 것을 권장하고 있음.
+       - 이를 준수하여, tid를 임시적으로 저장하기 위해서, redis에 uuid와 tid를 맵핑하여, 임시적으로 데이터를 저장하기로 함.
+      4. 백엔드 -> 클라이언트 (응답받은 redirectURL을 유저에게 넘겨주어, 결제를 수행하도록 해야함.)
+      5. 클라이언트 -> 결제 수행 (유저가 직접 돈을 꺼내도록 유도함 ^_^;;)
+      6. 카카오페이 -> 백엔드 (REDIRECT)
+       - 결제 수행이 완료되면, 카카오페이 측에서, 우리가 임의로 지정한 approval_url 로 REDIRECT시킴.
+       - 이 때, 기본적으로 승인 토큰인 pg_token만 parameter로 넘어오는데, 이를 통해, tid를 식별하기가 힘듦.
+       - 이를 위해, 2번 단계에서 approval_url에 parameter를 추가적으로 넘겨주면, redirect하면 그대로 넘겨서 받을 수 있다고 함.
+       - 임의로 생성한 uuid를 2번단계에서 넘겨주어, 6번단계에서 parameter로 받을 수 있음.
+      7. 백엔드 -> 카카오페이 (승인 요청)
+       - 결제가 확실히 수행되었다고 판단되면, 백엔드단에서, 카카오페이서버로 approve요청을 날려서, 결제를 마무리지음.
+       - 이 때, tid, pg_token 등 여러데이터를 올바르게 실어서 POST요청을 보내야함.
+       - 정상 응답이 오면, 결제가 완료되었고, DB를 조작하여, 특정 기능을 제공해주면 끗!
+ */
+
+
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class KakaoPayPaymentService implements PaymentService {
 
+  private final static Long BRONZE_GRADE_ID = 1L;
   private final static int ONE_PAY_ADD_ENABLE_DAYS = 31;
   private final String PART_CANCEL_PAYMENT = "PART_CANCEL_PAYMENT";
   private final String CANCEL_PAYMENT = "CANCEL_PAYMENT";
@@ -81,13 +116,35 @@ public class KakaoPayPaymentService implements PaymentService {
   private final ApiInfoRepository apiInfoRepository;
 
 
+  /*
+      결제기록을 가져옵니다요~
+   */
   @Override
   public PaymentResponse getPaymentList(long memberId, int pageSize, int pageIdx) {
-    return null;
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    Pageable pageable = PageRequest.of(pageIdx, pageSize);
+
+    Page<Payment> paymentPage = paymentRepository.findByMember(member, pageable);
+
+    return PaymentResponse.builder()
+        .totalCount(paymentPage.getTotalElements())
+        .dataCount(paymentPage.getNumberOfElements())
+        .dataList(
+            paymentPage.getContent()
+                .stream()
+                .map(PaymentDto::of)
+                .collect(Collectors.toList())
+        )
+        .build();
   }
 
+  /*
+      결제 요청을 수행하는 메서드
+   */
   @Override
-  public RedirectUrlResponse payment(long memberId, long gradeId) {
+  public PaymentReadyResponseForClient payment(long memberId, long gradeId) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -100,6 +157,43 @@ public class KakaoPayPaymentService implements PaymentService {
     //맵핑시킬 uuid생성함.
     String paymentUUID = UUID.randomUUID().toString().replaceAll("-", "");
 
+    HttpEntity<MultiValueMap<String, String>> requestEntity = getPaymentRequestEntity(paymentUUID, member, grade);
+
+    // 카카오 요청할 URL
+    RestTemplate restTemplate = new RestTemplate();
+
+    PaymentReadyResponse response = null;
+
+    try {
+      log.info("카카오페이로 결제요청 날림");
+      response = restTemplate.postForObject(
+          REQUEST_URL,
+          requestEntity,
+          PaymentReadyResponse.class);
+    }catch (Exception e){
+      log.info("결제요청 중에, 오류가 발생함");
+      //카카오페이 측, 요청 요구 사항이 변경되었거나, 서버오류임.
+      throw new PaymentException(PAYMENT_REQUEST_IS_WRONG);
+    }
+    log.info("성공적으로 결제요청이 완료됨.");
+
+    //Redis에 임시 정보 저장하기.
+    PaymentReady paymentReady = PaymentReady.builder()
+        .paymentUUID(paymentUUID)
+        .tid(response.getTid())
+        .gradeId(grade.getId())
+        .memberId(memberId)
+        .paidAmount(grade.getPrice())
+        .build();
+
+    paymentReadyRepository.save(paymentReady);
+    log.info("REDIS에 임시적으로 결제대기 데이터를 저장함.");
+
+    return new PaymentReadyResponseForClient(
+        response.getNext_redirect_mobile_url(),
+        response.getNext_redirect_pc_url());
+  }
+  private HttpEntity<MultiValueMap<String, String>> getPaymentRequestEntity(String paymentUUID, Member member, Grade grade){
     // 카카오페이 요청 양식
     MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
     parameters.add("cid", CID);
@@ -115,32 +209,13 @@ public class KakaoPayPaymentService implements PaymentService {
     parameters.add("fail_url", FAIL_URL); // 실패 시 redirect url
 
     // 헤더 및 파라미터 셋팅
-    HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, getHeaders());
-
-    // 카카오 요청할 URL
-    RestTemplate restTemplate = new RestTemplate();
-
-    Map<String, String> response = restTemplate.postForObject(
-        REQUEST_URL,
-        requestEntity,
-        Map.class);
-
-    //Redis에 임시 정보 저장하기.
-    PaymentReady paymentReady = PaymentReady.builder()
-        .paymentUUID(paymentUUID)
-        .tid(response.get("tid"))
-        .gradeId(grade.getId())
-        .memberId(memberId)
-        .paidAmount(grade.getPrice())
-        .build();
-
-    paymentReadyRepository.save(paymentReady);
-
-    return new RedirectUrlResponse(
-        response.get("next_redirect_mobile_url"),
-        response.get("next_redirect_pc_url"));
+    return new HttpEntity<>(parameters, getHeaders());
   }
 
+
+  /*
+      환불 처리를 수행하는 메서드.
+   */
   @Override
   public void refund(long memberId, long paymentId) {
 
@@ -153,9 +228,45 @@ public class KakaoPayPaymentService implements PaymentService {
     validateRefund(member, payment);
 
     int diffDays = Period.between(payment.getPaidAt().toLocalDate(), LocalDate.now()).getDays();
+    Long cancelAmount = Math.round((payment.getPaymentAmount() * (ONE_PAY_ADD_ENABLE_DAYS - diffDays)) / (double)ONE_PAY_ADD_ENABLE_DAYS);
 
-    Long cancelAmount = Math.round((payment.getPaymentAmount() * (30 - diffDays)) / (double)30);
+    log.info("환불 유저 이메일 : " + member.getEmail() +
+        ", 결제 금액 : " + payment.getPaymentAmount() +
+        ", 기간 차이 : " + diffDays +
+        ", 환불 금액 : " + cancelAmount);
 
+    HttpEntity<MultiValueMap<String, String>> requestEntity = getRefundRequestEntity(payment, member, cancelAmount);
+
+    // 카카오페이 서버로 승인요청을 보냄.
+    RestTemplate restTemplate = new RestTemplate();
+
+    PaymentRefundResponse response = null;
+
+    try {
+      log.info("카카오페이 서버로 환불 요청 전송! id=" + payment.getId());
+      response = restTemplate.postForObject(REFUND_URL, requestEntity, PaymentRefundResponse.class);
+
+      if(response == null){
+        throw new PaymentException(PAYMENT_CANNOT_REFUND);
+      }
+
+    }catch (RuntimeException e){
+      log.info(e.getMessage() + ", 환불이 정상적으로 이루어지지 못했음, id=" + payment.getId());
+      throw new PaymentException(PAYMENT_CANNOT_REFUND); //API조작이나, 처리오류등.. 관리자가 추후에 강제로 환불해주어야함.
+    }
+
+    //카카오페이 문서에 공개된 취소에 관련된 상태 정보를 참고함.
+    //만약, 취소된 이력이 내려오지 않았으면, 무언가가 잘못되었는지 검토가 필요함.
+    if(!PART_CANCEL_PAYMENT.equals(response.getStatus()) && !CANCEL_PAYMENT.equals(response.getStatus())){
+      log.info("요청 응답이 날아왔지만, 취소 및 부분취소 상태가 아님, id=" + payment.getId());
+      throw new PaymentException(CANCEL_AMOUNT_IS_WRONG);
+    }
+
+    updateRelatedDataForRefund(payment, member, response);
+    log.info("정상적으로 DB에 데이터가 반영됨, id=" + payment.getId());
+
+  }
+  private HttpEntity<MultiValueMap<String, String>> getRefundRequestEntity(Payment payment, Member member, Long cancelAmount){
     //환불 요청을 카카오 쪽으로 보내야함.
     MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
     parameters.add("cid", CID);
@@ -165,39 +276,26 @@ public class KakaoPayPaymentService implements PaymentService {
     parameters.add("cancel_tax_free_amount", "0");
 
     // 헤더와 파라미터 셋팅.
-    HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, getHeaders());
-
-    // 카카오페이 서버로 승인요청을 보냄.
-    RestTemplate restTemplate = new RestTemplate();
-
-    PaymentRefundResponse response = null;
-
-    try {
-      response = restTemplate.postForObject(REFUND_URL, requestEntity, PaymentRefundResponse.class);
-
-      if(response == null){
-        throw new PaymentException(PAYMENT_CANNOT_REFUND);
-      }
-
-    }catch (RuntimeException e){
-      log.info(e.getMessage());
-      throw new PaymentException(PAYMENT_CANNOT_REFUND); //API조작이나, 처리오류등.. 관리자가 추후에 강제로 환불해주어야함.
-    }
-
-    if(!PART_CANCEL_PAYMENT.equals(response.getStatus()) && !CANCEL_PAYMENT.equals(response.getStatus())){
-      throw new PaymentException(PAYMENT_CANNOT_REFUND);
-    }
-
+    return new HttpEntity<>(parameters, getHeaders());
+  }
+  private void updateRelatedDataForRefund(Payment payment, Member member, PaymentRefundResponse response){
     //성공적으로 환불 처리가 되었으므로, 결제 정보를 변경함.
     payment.setRefundAt(LocalDateTime.now());
-    payment.setRefundAmount(cancelAmount);
+    payment.setRefundAmount(response.getAmount().getTotal());
+    payment.setPaymentStateType(REFUND);
 
     paymentRepository.save(payment);
 
     //등급 또한, 강제로 강등함.
     member.setGrade(
-        gradeRepository.findById(1L).orElseThrow(() -> new GradeException(GRADE_NOT_FOUND))
+        gradeRepository.findById(BRONZE_GRADE_ID).orElseThrow(() -> new GradeException(GRADE_NOT_FOUND))
     );
+
+    //유지일수 강제로 0일로 셋팅.
+    member.setRemainEnableDays(0);
+
+    //멤버 환불 카운트 올림.
+    member.setRefundCount(member.getRefundCount() + 1);
 
     memberRepository.save(member);
 
@@ -205,7 +303,8 @@ public class KakaoPayPaymentService implements PaymentService {
     apiInfoRepository.updateApiInfoToDisabledByMember(member);
   }
 
-  // ############### REDIRECT URL에 의해 트리거 되는 메소드 #####################
+
+  // ############### REDIRECT URL에 의해 트리거 되는 결제 승인 메소드 #####################
   @Override
   public void approvePayment(String paymentUUID, String pgToken) {
 
@@ -228,7 +327,9 @@ public class KakaoPayPaymentService implements PaymentService {
 
     PaymentApprovedResponse response = null;
 
+    //Approve 요청은 한 번만 수행이 가능하므로, 중복 결제가 일어날 수 없음.
     try {
+      log.info("카카오페이에 결제 승인 요청을 보냄, tid=" + paymentReady.getTid());
       response = restTemplate.postForObject(APPROVE_URL, requestEntity, PaymentApprovedResponse.class);
 
       if(response == null){
@@ -236,14 +337,15 @@ public class KakaoPayPaymentService implements PaymentService {
       }
 
     }catch (RuntimeException e){
-      System.out.println(e.getMessage());
+      log.info(e.getMessage() + "카카오페이 요청 중에 오류 발생, tid=" + paymentReady.getTid());
       throw new PaymentException(PAYMENT_CANNOT_APPROVE); //API조작이나, 처리오류등.. 관리자가 추후에 강제로 환불해주어야함.
     }
 
     //성공적으로 결제가 되었으므로, 결제 객체를 생성 및 멤버 객체 업데이트
     createAndUpdateRelatedEntities(paymentReady, response);
+    log.info("결제 승인 완료 후, DB에 데이터 갱신 수행! tid=" + paymentReady.getTid());
 
-    //중복 결제를 방지하기 위해, Redis에서 지워줌.
+    //tid 유출을 막기위해, 임시로 홀딩한 redis 데이터를 제거함.
     paymentReadyRepository.delete(paymentReady);
   }
 
@@ -273,7 +375,7 @@ public class KakaoPayPaymentService implements PaymentService {
   }
 
   /*
-      #################### UTILS ##############################
+      #################### UTILS ##################
    */
 
   private HttpHeaders getHeaders() {

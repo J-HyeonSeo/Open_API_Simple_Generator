@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RedirectUrlResponse {
+public class PaymentReadyResponseForClient {
   private String next_redirect_mobile_url;
   private String next_redirect_pc_url;
 }

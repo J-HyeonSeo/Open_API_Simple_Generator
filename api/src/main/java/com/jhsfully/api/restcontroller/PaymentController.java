@@ -1,9 +1,11 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
 import com.jhsfully.api.model.payment.PaymentResponse;
-import com.jhsfully.api.model.payment.RedirectUrlResponse;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.api.util.MemberUtil;
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +42,7 @@ public class PaymentController {
       @PathVariable long gradeId
   ){
     long memberId = MemberUtil.getMemberId();
-    RedirectUrlResponse urlResponse = paymentService.payment(memberId, gradeId);
+    PaymentReadyResponseForClient urlResponse = paymentService.payment(memberId, gradeId);
     return ResponseEntity.ok(urlResponse);
   }
 
@@ -59,16 +61,14 @@ public class PaymentController {
    */
 
   @GetMapping("/redirect/success")
-  public ResponseEntity<?> paymentSuccess(
+  public void paymentSuccess(
       @RequestParam("payment_uuid") String paymentUUID,
-      @RequestParam("pg_token") String pgToken
-  ){
-
-    System.out.println(paymentUUID);
-    System.out.println(pgToken);
+      @RequestParam("pg_token") String pgToken,
+      HttpServletResponse response
+  ) throws IOException {
 
     paymentService.approvePayment(paymentUUID, pgToken);
 
-    return ResponseEntity.ok().build();
+    response.sendRedirect("/");
   }
 }
