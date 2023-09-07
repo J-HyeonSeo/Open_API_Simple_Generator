@@ -5,6 +5,7 @@ import static com.jhsfully.domain.type.ApiQueryType.INCLUDE;
 import static com.jhsfully.domain.type.ApiQueryType.START;
 import static com.jhsfully.domain.type.ApiStructureType.STRING;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_FIELD_COUNT_IS_DIFFERENT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DATA_IS_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
@@ -12,18 +13,26 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_P
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FIELD_WAS_NOT_DEFINITION_IN_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_API_MAX_COUNT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_FIELD_MAX_COUNT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_MAX_DB_SIZE;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_MAX_FILE_SIZE;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_QUERY_MAX_COUNT;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_NOT_INCLUDE_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.SCHEMA_COUNT_IS_ZERO;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_PERMISSION;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.CreateApiInput.QueryData;
 import com.jhsfully.api.model.api.CreateApiInput.SchemaData;
@@ -35,10 +44,14 @@ import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
 import com.jhsfully.api.util.FileUtil;
+import com.jhsfully.api.util.MongoUtil;
 import com.jhsfully.domain.entity.ApiInfo;
+import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.ApiUserPermission;
+import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.kafkamodel.ExcelParserModel;
+import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.ApiUserPermissionRepository;
 import com.jhsfully.domain.repository.MemberRepository;
@@ -61,6 +74,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -82,6 +96,7 @@ public class ApiServiceImpl implements ApiService {
   private final ApiUserPermissionRepository apiUserPermissionRepository;
   private final MemberRepository memberRepository;
   private final MongoTemplate mongoTemplate;
+  private final ApiInfoElasticRepository apiInfoElasticRepository;
 
 
   //Service
@@ -100,7 +115,7 @@ public class ApiServiceImpl implements ApiService {
       OpenAPI를 새로 생성함.
    */
   public void createOpenApi(CreateApiInput input, long memberId) throws JsonProcessingException {
-    validateCreateOpenApi(input);
+    validateCreateOpenApi(input, memberId);
 
     Map<String, ApiStructureType> schemaStructure = input.getSchemaStructure().stream()
         .collect(Collectors.toMap(SchemaData::getField, SchemaData::getType));
@@ -110,10 +125,10 @@ public class ApiServiceImpl implements ApiService {
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
     String historyCollectionName = dataCollectionName + "-history";
 
-    String filePath = fileSave(input.getFile(), dataCollectionName);
-
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    boolean fileEmpty = input.getFile() == null || input.getFile().isEmpty();
 
     ApiInfo apiInfo = apiInfoRepository.save(ApiInfo.builder()
         .apiName(input.getApiName())
@@ -123,9 +138,32 @@ public class ApiServiceImpl implements ApiService {
         .queryParameter(queryParameter)
         .dataCollectionName(dataCollectionName)
         .historyCollectionName(historyCollectionName)
-        .apiState(ApiState.READY)
+        .apiState(fileEmpty ? ApiState.ENABLED : ApiState.READY)
         .isPublic(input.isPublic())
         .build());
+
+    /*
+        입력된 파일이 없는경우, 리턴처리.
+        공개 여부가 true 인 경우에는, ElasticSearch에 저장하고 리턴함.
+     */
+    if(fileEmpty){
+      if(input.isPublic()){
+        ApiInfoElastic apiInfoElastic = ApiInfoElastic.builder()
+            .id(apiInfo.getId())
+            .apiName(apiInfo.getApiName())
+            .apiIntroduce(apiInfo.getApiIntroduce())
+            .ownerEmail(apiInfo.getMember().getEmail())
+            .state(ApiState.ENABLED)
+            .isPublic(true)
+            .ownerMemberId(apiInfo.getMember().getId())
+            .mapping(new JoinField<>("apiInfo"))
+            .build();
+        apiInfoElasticRepository.save(apiInfoElastic);
+      }
+      return;
+    }
+
+    String filePath = fileSave(input.getFile(), dataCollectionName);
 
     //kafka가 받기 위한 모델임.
     ExcelParserModel model = ExcelParserModel.builder()
@@ -306,9 +344,48 @@ public class ApiServiceImpl implements ApiService {
   /*
       오픈 API를 만들기 전에, 수행하는 밸리데이션
    */
-  private void validateCreateOpenApi(CreateApiInput input) {
+  private void validateCreateOpenApi(CreateApiInput input, long memberId) {
 
-    //TODO 결제 기능과 등급기능이 추가되면, 해당 사항에 맞는 제한사항이 추가적으로 확인해야함.
+    /*
+        등급에 위반되는 데이터가 있는지 우선적으로 확인해야함.
+     */
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    Grade grade = member.getGrade();
+
+    if(member.getGrade() == null){
+      throw new GradeException(MEMBER_HAS_NOT_GRADE);
+    }
+
+    //엑셀 용량 확인하기. Byte단위로 들어옴.
+    if(input.getFile() != null && !input.getFile().isEmpty()){
+      if(input.getFile().getSize() > grade.getDbMaxSize()){
+        throw new ApiException(OVERFLOW_MAX_FILE_SIZE);
+      }
+    }
+
+    //field의 갯수 확인하기.
+    if(input.getSchemaStructure() == null || input.getSchemaStructure().size() == 0){
+      throw new ApiException(SCHEMA_COUNT_IS_ZERO);
+    }
+    if(input.getSchemaStructure().size() > grade.getFieldMaxCount()){
+      throw new ApiException(OVERFLOW_FIELD_MAX_COUNT);
+    }
+
+    //query parameter 갯수 확인하기.
+    if(input.getQueryParameter() != null && input.getQueryParameter().size() > 0){
+      if(input.getQueryParameter().size() > grade.getQueryMaxCount()){
+        throw new ApiException(OVERFLOW_QUERY_MAX_COUNT);
+      }
+    }
+
+    //현재 소유한 API 갯수 찾아오기.
+    int apiCount = apiInfoRepository.countByMember(member);
+
+    if(apiCount >= grade.getApiMaxCount()){
+      throw new ApiException(OVERFLOW_API_MAX_COUNT);
+    }
 
     //스키마의 구조에는 중복 필드가 없는가?
     Map<String, ApiStructureType> mapStructure = new HashMap<>();
@@ -357,8 +434,7 @@ public class ApiServiceImpl implements ApiService {
 
 
   /*
-      API의 데이터를 관리하는 밸리데이션 로직은,
-      TODO 추후에, 반드시 사용자의 등급에 관련된 제약사항을 확인해야 함.
+      API의 데이터를 관리하는 밸리데이션 로직
    */
 
   private void validateInsertApiData(InsertApiDataInput input, long memberId){
@@ -381,9 +457,6 @@ public class ApiServiceImpl implements ApiService {
         throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
       }
     }
-
-    //TODO 해당 api의 소유주의 등급 데이터를 가져와, 삽입가능한 상태인지 확인이 필요함.
-
   }
 
   private void validateUpdateApiData(UpdateApiDataInput input, long memberId){
@@ -401,8 +474,6 @@ public class ApiServiceImpl implements ApiService {
         throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
       }
     }
-
-    //TODO 해당 api의 소유주의 등급 데이터를 가져와, 삽입가능한 상태인지 확인이 필요함.
 
   }
 
@@ -429,6 +500,22 @@ public class ApiServiceImpl implements ApiService {
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    //API비활성화 여부 확인함.
+    if(apiInfo.getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
+    // INSERT, UPDATE 시에는 db의 용량이 제한된 용량을 넘어가는지 판단해야함.
+    if(type == ApiPermissionType.INSERT || type == ApiPermissionType.UPDATE){
+      Grade grade = member.getGrade();
+
+      long dbCollectionSize = MongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
+
+      if(dbCollectionSize > grade.getDbMaxSize()){
+        throw new ApiException(OVERFLOW_MAX_DB_SIZE);
+      }
+    }
 
     //소유주는 권한 확인이 필요없음.
     if(Objects.equals(apiInfo.getMember().getId(), member.getId())){

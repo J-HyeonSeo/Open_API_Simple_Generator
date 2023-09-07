@@ -3,7 +3,9 @@ package com.jhsfully.api.restcontroller;
 import com.jhsfully.api.security.TokenProvider;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.MemberRepository;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,4 +35,16 @@ public class AdminController {
     );
   }
 
+  @Autowired
+  private MongoTemplate mongoTemplate;
+  @GetMapping("/test/dbsize")
+  public ResponseEntity<?> getDbSize(){
+    // 실행할 명령
+    Document command = new Document("collStats", "5eabfda2108d46aeba7bf1e9d2628e6c");
+
+    // 명령 실행 및 결과 출력
+    Document result = mongoTemplate.getDb().runCommand(command);
+//    System.out.println(result.toJson());
+    return ResponseEntity.ok(result);
+  }
 }
