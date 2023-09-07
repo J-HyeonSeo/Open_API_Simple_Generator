@@ -1,5 +1,6 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_ASSIGN_INVITE_NOT_TARGET;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_ALREADY_HAS_PERMISSION;
@@ -28,6 +29,7 @@ import com.jhsfully.domain.repository.ApiUserPermissionRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
+import com.jhsfully.domain.type.ApiState;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -171,6 +173,12 @@ public class ApiInviteServiceImpl implements ApiInviteService {
    */
 
   private void validateApiInvite(ApiInfo apiInfo, Member ownerMember, Member targetMember) {
+
+    //API가 비활성화 상태인 경우 throw
+    if(apiInfo.getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
     //소유주가 아닌 경우 throw
     if(!Objects.equals(apiInfo.getMember().getId(), ownerMember.getId())){
       throw new ApiInviteException(CANNOT_INVITE_NOT_API_OWNER);
@@ -190,6 +198,12 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   }
 
   private static void validateApiInviteAssign(Member member, ApiRequestInvite invite) {
+
+    //API가 비활성화 상태인 경우 throw
+    if(invite.getApiInfo().getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
     //초대 받은이와 수락하는 이가 다르면, throw
     if(!Objects.equals(invite.getMember().getId(), member.getId())){
       throw new ApiInviteException(CANNOT_ASSIGN_INVITE_NOT_TARGET);
@@ -207,6 +221,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   }
 
   private static void validateApiInviteReject(Member member, ApiRequestInvite invite) {
+
     //초대 받은이와 거절하는 이가 다르면, throw
     if(!Objects.equals(invite.getMember().getId(), member.getId())){
       throw new ApiInviteException(CANNOT_REJECT_INVITE_NOT_TARGET);

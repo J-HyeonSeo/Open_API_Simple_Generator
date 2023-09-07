@@ -1,5 +1,6 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiRequestErrorType.CANNOT_ASSIGN_REQUEST_NOT_OWNER;
 import static com.jhsfully.domain.type.errortype.ApiRequestErrorType.CANNOT_REJECT_REQUEST_NOT_OWNER;
@@ -31,6 +32,7 @@ import com.jhsfully.domain.repository.BlackListRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
+import com.jhsfully.domain.type.ApiState;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -180,6 +182,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   /*
       API 사용 신청을 보내기전에, 밸리데이션이 수행되어야함.
 
+      0. 비활성화된 API는 신청불가능
       1. 공개 되지 않은 API는 신청불가능
       2. 자기 자신은 신청이 불가능.
       3. 이미 권한이 존재할 경우에도 신청이 불가능.
@@ -188,12 +191,17 @@ public class ApiRequestServiceImpl implements ApiRequestService {
    */
   private void validateApiRequest(Member member, ApiInfo apiInfo){
 
+    //0
+    if(apiInfo.getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
     //1
     if(!apiInfo.isPublic()){
       throw new ApiRequestException(CANNOT_REQUEST_IS_NOT_OPENED);
     }
 
-    // 2
+    //2
     if(Objects.equals(member.getId(), apiInfo.getMember().getId())){
       throw new ApiRequestException(CANNOT_REQUEST_API_OWNER);
     }
@@ -218,6 +226,10 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   }
 
   private void validateRequestAssign(Member member, ApiRequestInvite request){
+    if(request.getApiInfo().getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
     if(!Objects.equals(member.getId(), request.getApiInfo().getMember().getId())){
       throw new ApiRequestException(CANNOT_ASSIGN_REQUEST_NOT_OWNER);
     }

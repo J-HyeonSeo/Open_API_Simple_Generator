@@ -1,5 +1,6 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.API_KEY_NOT_ISSUED;
@@ -13,6 +14,7 @@ import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.ApiKeyRepository;
 import com.jhsfully.domain.type.ApiQueryType;
+import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -70,10 +72,16 @@ public class QueryServiceImpl implements QueryService {
    */
 
   private void validate(QueryInput input){
-    //authKey에 대한 검증
+
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
+    //사용가능한 상태인지 검증.
+    if(apiInfo.getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
+    //authKey에 대한 검증
     apiKeyRepository.findByApiInfoAndAuthKey(apiInfo, input.getAuthKey())
         .orElseThrow(() -> new ApiPermissionException(API_KEY_NOT_ISSUED));
 

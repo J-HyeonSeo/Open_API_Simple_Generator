@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ApiInfoRepository extends JpaRepository<ApiInfo, Long> {
 
+  int countByMember(Member member);
+
   @Modifying
   @Query(
       "UPDATE ApiInfo api set api.apiState='DISABLED' where api.member= :member"

@@ -1,5 +1,6 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.ALREADY_HAS_PERMISSION;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.API_KEY_ALREADY_ISSUED;
@@ -28,6 +29,7 @@ import com.jhsfully.domain.repository.ApiPermissionDetailRepository;
 import com.jhsfully.domain.repository.ApiUserPermissionRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiPermissionType;
+import com.jhsfully.domain.type.ApiState;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -233,6 +235,11 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    //API가 비활성 상태라면, 발급 불가
+    if(apiInfo.getApiState() == ApiState.DISABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
 
     //자신이 소유하고 있는 API라면, 바로 리턴.
     if(Objects.equals(apiInfo.getMember().getId(), member.getId())){
