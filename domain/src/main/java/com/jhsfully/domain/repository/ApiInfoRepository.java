@@ -2,6 +2,7 @@ package com.jhsfully.domain.repository;
 
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.Member;
+import com.jhsfully.domain.type.ApiState;
 import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface ApiInfoRepository extends JpaRepository<ApiInfo, Long> {
 
   int countByMember(Member member);
+  int countByMemberAndApiState(Member member, ApiState apiState);
 
   @Modifying
   @Query(

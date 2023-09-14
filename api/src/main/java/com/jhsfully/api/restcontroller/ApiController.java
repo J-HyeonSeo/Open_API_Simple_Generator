@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,7 +69,7 @@ public class ApiController {
   /*
       사용자가 OpenAPI에 데이터를 수정하기 위해서 호출하는 컨트롤러
    */
-  @PatchMapping("/data/manage")
+  @PutMapping("/data/manage")
   public ResponseEntity<?> updateApiData(@RequestBody UpdateApiDataInput input){
     long memberId = MemberUtil.getMemberId();
     apiService.updateApiData(input, memberId);
@@ -86,16 +87,22 @@ public class ApiController {
   }
 
   /*
-      OpenAPI를 영구적으로 삭제하는 컨트롤러
-      - MongoDB의 데이터는 전부 삭제함.
-      - history의 데이터도 전부 삭제함.
-      - apiInfo에 연관 데이터가 발생했을 경우에는 삭제 여부만 false로 지정,
-      - apiInfo에 연관 데이터가 없을 경우에는, api자체를 삭제하도록 함.
+      OpenAPI를 데이터를 삭제함. MySQL데이터는 SOFT DELETE로 처리함.
    */
   @DeleteMapping("/{apiId}")
   public ResponseEntity<?> deleteOpenApi(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     apiService.deleteOpenApi(apiId, memberId);
+    return ResponseEntity.ok().build();
+  }
+
+  /*
+      비활성화된, OpenAPI를 활성화시킴.
+   */
+  @PatchMapping("/enable/{apiId}")
+  public ResponseEntity<?> enableOpenApi(@PathVariable long apiId){
+    long memberId = MemberUtil.getMemberId();
+    apiService.enableOpenApi(apiId, memberId);
     return ResponseEntity.ok().build();
   }
 

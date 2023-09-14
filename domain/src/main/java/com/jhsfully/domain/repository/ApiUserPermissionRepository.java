@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface ApiUserPermissionRepository extends JpaRepository<ApiUserPermission, Long> {
   Optional<ApiUserPermission> findByApiInfoAndMember(ApiInfo apiInfo, Member member);
   Page<ApiUserPermission> findByApiInfo(ApiInfo apiInfo, Pageable pageable);
+  int countByApiInfo(ApiInfo apiInfo);
 }

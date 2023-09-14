@@ -5,6 +5,7 @@ import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoRepository;
+import com.jhsfully.domain.repository.ApiUserPermissionRepository;
 import com.jhsfully.domain.type.ApiState;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class ApiDisableJobConfig {
   private final EntityManagerFactory entityManagerFactory;
   private final MongoTemplate mongoTemplate;
   private final ApiInfoRepository apiInfoRepository;
+  private final ApiUserPermissionRepository apiUserPermissionRepository;
 
   private static final int CHUNK_SIZE = 1000;
 
@@ -97,12 +99,14 @@ public class ApiDisableJobConfig {
           .countDocuments();
       int queryCount = apiInfo.getQueryParameter().size();
       int schemaCount = apiInfo.getSchemaStructure().size();
-      int accessorCount = apiInfoRepository.countByMember(member);
+      int apiCount = apiInfoRepository.countByMemberAndApiState(member, ApiState.ENABLED);
+      int accessorCount = apiUserPermissionRepository.countByApiInfo(apiInfo);
 
       if (dbSize > grade.getDbMaxSize() ||
           recordCount > grade.getRecordMaxCount() ||
           queryCount > grade.getQueryMaxCount() ||
           schemaCount > grade.getFieldMaxCount() ||
+          apiCount > grade.getApiMaxCount() ||
           accessorCount > grade.getAccessorMaxCount()) {
         apiInfo.setApiState(ApiState.DISABLED);
         apiInfo.setDisabledAt(LocalDateTime.now());

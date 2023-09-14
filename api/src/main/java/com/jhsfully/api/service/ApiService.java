@@ -13,4 +13,5 @@ public interface ApiService {
   void updateApiData(UpdateApiDataInput input, long memberId);
   void deleteApiData(DeleteApiDataInput input, long memberId);
   void deleteOpenApi(long apiId, long memberId);
+  void enableOpenApi(long apiId, long memberId);
 }
