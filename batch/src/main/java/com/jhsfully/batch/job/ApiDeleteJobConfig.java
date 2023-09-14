@@ -1,6 +1,7 @@
 package com.jhsfully.batch.job;
 
 import com.jhsfully.domain.entity.ApiInfo;
+import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.type.ApiState;
 import lombok.RequiredArgsConstructor;
@@ -145,10 +146,11 @@ public class ApiDeleteJobConfig {
           try{
 
             //자식 도큐먼트를 찾아서 제거해야함.
-            log.info(item.getApiName()); //일단 구현 보류
+            List<ApiInfoElastic> accessors = apiInfoElasticRepository.findByAccessors(item.getId());
+            apiInfoElasticRepository.deleteAll(accessors);
 
             //자기 자신 제거해야함.
-            apiInfoElasticRepository.deleteById(item.getId());
+            apiInfoElasticRepository.deleteById(item.getId().toString());
 
           }catch (Exception e){
             log.error(e.getMessage());

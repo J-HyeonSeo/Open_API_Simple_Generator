@@ -95,8 +95,8 @@ public class ApiController {
   @DeleteMapping("/{apiId}")
   public ResponseEntity<?> deleteOpenApi(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
-
-    return null;
+    apiService.deleteOpenApi(apiId, memberId);
+    return ResponseEntity.ok().build();
   }
 
   /*

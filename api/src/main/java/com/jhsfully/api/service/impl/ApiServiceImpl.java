@@ -65,6 +65,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -74,7 +75,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -143,27 +143,12 @@ public class ApiServiceImpl implements ApiService {
         .build());
 
     /*
-        입력된 파일이 없는경우, 리턴처리.
-        공개 여부가 true 인 경우에는, ElasticSearch에 저장하고 리턴함.
+        입력된 파일이 있는 경우만, 파일 경로를 생성하도록 함.
      */
-    if(fileEmpty){
-      if(input.isPublic()){
-        ApiInfoElastic apiInfoElastic = ApiInfoElastic.builder()
-            .id(apiInfo.getId())
-            .apiName(apiInfo.getApiName())
-            .apiIntroduce(apiInfo.getApiIntroduce())
-            .ownerEmail(apiInfo.getMember().getEmail())
-            .state(ApiState.ENABLED)
-            .isPublic(true)
-            .ownerMemberId(apiInfo.getMember().getId())
-            .mapping(new JoinField<>("apiInfo"))
-            .build();
-        apiInfoElasticRepository.save(apiInfoElastic);
-      }
-      return;
+    String filePath = "";
+    if(!fileEmpty){
+      filePath = fileSave(input.getFile(), dataCollectionName);
     }
-
-    String filePath = fileSave(input.getFile(), dataCollectionName);
 
     //kafka가 받기 위한 모델임.
     ExcelParserModel model = ExcelParserModel.builder()
@@ -324,11 +309,46 @@ public class ApiServiceImpl implements ApiService {
   }
 
   /*
-      연관 데이터 존재시에는, 소프트 삭제,
-      연관 데이터가 없다면, 하드 삭제
+      DELETE는 기록 및 FK참조로 인해, SOFT DELETE방식으로 제거해야함.
    */
   public void deleteOpenApi(long apiId, long memberId){
-    //TODO 추후에 작성함.
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+
+    /*
+        MongoDB, ElasticSearch, MySQL의 데이터를 모두 참조하여 삭제를 진행하여야 함.
+     */
+
+    //MongoDB Deletions
+    if(mongoTemplate.collectionExists(apiInfo.getDataCollectionName())){//데이터 컬렉션 삭제
+      mongoTemplate.dropCollection(apiInfo.getDataCollectionName());
+    }
+
+    if(mongoTemplate.collectionExists(apiInfo.getHistoryCollectionName())){//히스토리 컬렉션 삭제
+      mongoTemplate.dropCollection(apiInfo.getHistoryCollectionName());
+    }
+
+
+    //ElasticSearch Deletions
+
+    //delete children
+    List<ApiInfoElastic> accessors = apiInfoElasticRepository.findByAccessors(apiInfo.getId());
+    apiInfoElasticRepository.deleteAll(accessors);
+
+    //delete apiinfo
+    apiInfoElasticRepository.deleteById(apiInfo.getId().toString());
+
+
+    //RDB Deletions
+    //@SQLDelete 어노테이션을 사용하기 때문에, 이렇게 삭제해도, SOFT DELETE가 적용됨.
+    apiInfoRepository.delete(apiInfo);
   }
 
 
