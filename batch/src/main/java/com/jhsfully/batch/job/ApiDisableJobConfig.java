@@ -6,9 +6,7 @@ import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.type.ApiState;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import javax.persistence.EntityManagerFactory;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -22,6 +20,11 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+
+import javax.persistence.EntityManagerFactory;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Configuration
 @Slf4j
@@ -63,9 +66,12 @@ public class ApiDisableJobConfig {
         .entityManagerFactory(entityManagerFactory)
         .pageSize(CHUNK_SIZE)
         .queryString("SELECT a FROM ApiInfo a WHERE "
-            + "a.member.remainEnableDays = 1 "
-            + "or a.member.gradeChanged = true "
-            + "or a.member.grade.isChanged = true")
+            + "(a.apiState = 'ENABLED' "
+            + "AND a.member.grade.gradeName <> 'BRONZE' "
+            + "AND a.member.expiredEnabledAt > :dateNow) "
+            + "OR (a.member.gradeChanged = true "
+            + "OR a.member.grade.isChanged = true)")
+        .parameterValues(Collections.singletonMap("dateNow", LocalDate.now()))
         .build();
   }
 
@@ -75,8 +81,8 @@ public class ApiDisableJobConfig {
 
       Member member = apiInfo.getMember();
 
-      //우선적으로 member의 remainEnableDays가 1인 경우에는, 바로 비활성화 처리함.
-      if (member.getRemainEnableDays() == 1) {
+      //우선적으로 member의 API 활성 만료 기한이 오늘을 넘길 경우, 비활성화 시킴.
+      if (member.getExpiredEnabledAt().isAfter(LocalDate.now())) {
         apiInfo.setApiState(ApiState.DISABLED);
         apiInfo.setDisabledAt(LocalDateTime.now());
         return apiInfo;

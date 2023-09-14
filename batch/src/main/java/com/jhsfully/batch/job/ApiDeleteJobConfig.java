@@ -3,12 +3,6 @@ package com.jhsfully.batch.job;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.type.ApiState;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -24,6 +18,13 @@ import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+
+import javax.persistence.EntityManagerFactory;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @Slf4j
@@ -125,8 +126,8 @@ public class ApiDeleteJobConfig {
             mongoTemplate.dropCollection(item.getDataCollectionName());
             mongoTemplate.dropCollection(item.getHistoryCollectionName());
           }catch (Exception e){
-            log.info(e.getMessage());
-            log.info("{} 컬렉션의 데이터를 삭제하지 못하였습니다.", item.getDataCollectionName());
+            log.error(e.getMessage());
+            log.error("{} 컬렉션의 데이터를 삭제하지 못하였습니다.", item.getDataCollectionName());
           }
         }
 
@@ -150,7 +151,8 @@ public class ApiDeleteJobConfig {
             apiInfoElasticRepository.deleteById(item.getId());
 
           }catch (Exception e){
-            log.info("API_ID {}에 해당되는 엘라스틱서치 데이터를 삭제하지 못하였습니다.", item.getId());
+            log.error(e.getMessage());
+            log.error("API_ID {}에 해당되는 엘라스틱서치 데이터를 삭제하지 못하였습니다.", item.getId());
           }
         }
 

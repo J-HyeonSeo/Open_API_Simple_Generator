@@ -2,6 +2,7 @@ package com.jhsfully.domain.repository;
 
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.Member;
+import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,8 @@ public interface ApiInfoRepository extends JpaRepository<ApiInfo, Long> {
 
   @Modifying
   @Query(
-      "UPDATE ApiInfo api set api.apiState='DISABLED' where api.member= :member"
+      "UPDATE ApiInfo api set api.apiState='DISABLED', api.disabledAt= :dateNow where api.member= :member"
   )
-  void updateApiInfoToDisabledByMember(@Param("member") Member member);
+  void updateApiInfoToDisabledByMember(@Param("member") Member member, @Param("dateNow")LocalDate dateNow);
 
 }

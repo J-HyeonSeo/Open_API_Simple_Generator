@@ -2,7 +2,7 @@ package com.jhsfully.batch.scheduler;
 
 import com.jhsfully.batch.job.ApiDeleteJobConfig;
 import com.jhsfully.batch.job.ApiDisableJobConfig;
-import com.jhsfully.batch.job.MemberMinusDaysJobConfig;
+import com.jhsfully.batch.job.MemberChangeStateJobConfig;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.repository.GradeRepository;
 import java.util.Date;
@@ -25,10 +25,10 @@ public class JobScheduler {
   private final JobLauncher jobLauncher;
   private final ApiDisableJobConfig apiDisableJobConfig;
   private final ApiDeleteJobConfig apiDeleteJobConfig;
-  private final MemberMinusDaysJobConfig memberMinusDaysJobConfig;
+  private final MemberChangeStateJobConfig memberChangeStateJobConfig;
   private final GradeRepository gradeRepository;
 
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0/10 0 0 * * *")
   public void launchJobs()
       throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
@@ -51,7 +51,7 @@ public class JobScheduler {
     jobLauncher.run(apiDeleteJobConfig.apiDeleteJob(), jobParameters);
 
     //third job
-    jobLauncher.run(memberMinusDaysJobConfig.memberMinusDaysJob(), jobParameters);
+    jobLauncher.run(memberChangeStateJobConfig.memberChangeStateJob(), jobParameters);
 
 
     //모든 잡이 수행이 되었다면, Grade의 변경사항을 전부 false로 변경해줌.
