@@ -62,7 +62,6 @@ public class MemberChangeStateJobConfig {
   @Bean
   public ItemProcessor<Member, Member> memberItemProcessor() {
     return member -> {
-//      member.setRemainEnableDays(Math.max(member.getRemainEnableDays() - 1, 0));
       member.setGradeChanged(false);
       return member;
     };

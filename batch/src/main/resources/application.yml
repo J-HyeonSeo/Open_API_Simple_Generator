@@ -3,6 +3,9 @@ spring:
     include:
       - domain
 
+#  main:
+#    allow-bean-definition-overriding: true
+
   batch:
     jdbc:
       initialize-schema: always

@@ -68,7 +68,7 @@ public class ApiDisableJobConfig {
         .queryString("SELECT a FROM ApiInfo a WHERE "
             + "(a.apiState = 'ENABLED' "
             + "AND a.member.grade.gradeName <> 'BRONZE' "
-            + "AND a.member.expiredEnabledAt > :dateNow) "
+            + "AND a.member.expiredEnabledAt < :dateNow) "
             + "OR (a.member.gradeChanged = true "
             + "OR a.member.grade.isChanged = true)")
         .parameterValues(Collections.singletonMap("dateNow", LocalDate.now()))
@@ -82,7 +82,7 @@ public class ApiDisableJobConfig {
       Member member = apiInfo.getMember();
 
       //우선적으로 member의 API 활성 만료 기한이 오늘을 넘길 경우, 비활성화 시킴.
-      if (member.getExpiredEnabledAt().isAfter(LocalDate.now())) {
+      if (LocalDate.now().isAfter(member.getExpiredEnabledAt())) {
         apiInfo.setApiState(ApiState.DISABLED);
         apiInfo.setDisabledAt(LocalDateTime.now());
         return apiInfo;

@@ -28,7 +28,7 @@ public class JobScheduler {
   private final MemberChangeStateJobConfig memberChangeStateJobConfig;
   private final GradeRepository gradeRepository;
 
-  @Scheduled(cron = "0/10 0 0 * * *")
+  @Scheduled(cron = "0/10 * * * * *")
   public void launchJobs()
       throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
