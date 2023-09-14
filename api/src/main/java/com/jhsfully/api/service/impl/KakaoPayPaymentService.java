@@ -292,8 +292,8 @@ public class KakaoPayPaymentService implements PaymentService {
         gradeRepository.findById(BRONZE_GRADE_ID).orElseThrow(() -> new GradeException(GRADE_NOT_FOUND))
     );
 
-    //유지일수 강제로 0일로 셋팅.
-    member.setRemainEnableDays(0);
+    //만료기한을 이미 지난날로 셋팅해버림.
+    member.setExpiredEnabledAt(LocalDate.now().minusDays(1));
 
     //멤버 환불 카운트 올림.
     member.setRefundCount(member.getRefundCount() + 1);
@@ -301,7 +301,7 @@ public class KakaoPayPaymentService implements PaymentService {
     memberRepository.save(member);
 
     //추가적으로 소유한 모든 API를 비활성화 조치함.
-    apiInfoRepository.updateApiInfoToDisabledByMember(member);
+    apiInfoRepository.updateApiInfoToDisabledByMember(member, LocalDate.now());
   }
 
 
@@ -370,7 +370,7 @@ public class KakaoPayPaymentService implements PaymentService {
 
     //멤버 객체 또한, 수정해야함.
     member.setGrade(grade);
-    member.setRemainEnableDays(member.getRemainEnableDays() + ONE_PAY_ADD_ENABLE_DAYS);
+    member.setExpiredEnabledAt(member.getExpiredEnabledAt().plusDays(ONE_PAY_ADD_ENABLE_DAYS));
     member.setLatestPaidAt(payment.getPaidAt());
     memberRepository.save(member);
   }
@@ -406,7 +406,8 @@ public class KakaoPayPaymentService implements PaymentService {
       throw new PaymentException(CANNOT_BUY_THIS_GRADE);
     }
 
-    if(member.getRemainEnableDays() > 1){
+    //추후에 로직 검증이 필요함.
+    if(member.getExpiredEnabledAt() != null && member.getExpiredEnabledAt().isAfter(LocalDate.now())){
       throw new PaymentException(REMAIN_ENABLE_DAYS_MORE_THAN_ONE);
     }
 
