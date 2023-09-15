@@ -564,7 +564,7 @@ public class ApiServiceImpl implements ApiService {
 
     // INSERT, UPDATE 시에는 db의 용량이 제한된 용량을 넘어가는지 판단해야함.
     if(type == ApiPermissionType.INSERT || type == ApiPermissionType.UPDATE){
-      Grade grade = member.getGrade();
+      Grade grade = apiInfo.getMember().getGrade();
 
       long dbCollectionSize = MongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
 
