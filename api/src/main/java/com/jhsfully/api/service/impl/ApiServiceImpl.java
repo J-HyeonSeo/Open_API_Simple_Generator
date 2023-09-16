@@ -50,7 +50,6 @@ import com.jhsfully.api.util.ConvertUtil;
 import com.jhsfully.api.util.FileUtil;
 import com.jhsfully.api.util.MongoUtil;
 import com.jhsfully.domain.entity.ApiInfo;
-import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.ApiUserPermission;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
@@ -70,7 +69,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -80,6 +78,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -102,6 +101,7 @@ public class ApiServiceImpl implements ApiService {
   private final MemberRepository memberRepository;
   private final MongoTemplate mongoTemplate;
   private final ApiInfoElasticRepository apiInfoElasticRepository;
+  private final ElasticsearchOperations elasticsearchOperations;
 
 
   //Service
@@ -150,10 +150,7 @@ public class ApiServiceImpl implements ApiService {
     /*
         입력된 파일이 있는 경우만, 파일 경로를 생성하도록 함.
      */
-    String filePath = "";
-    if(!fileEmpty){
-      filePath = fileSave(input.getFile(), dataCollectionName);
-    }
+    String filePath = fileEmpty ? "" : fileSave(input.getFile(), dataCollectionName);
 
     //kafka가 받기 위한 모델임.
     ExcelParserModel model = ExcelParserModel.builder()
@@ -344,8 +341,22 @@ public class ApiServiceImpl implements ApiService {
     //ElasticSearch Deletions
 
     //delete children
-    List<ApiInfoElastic> accessors = apiInfoElasticRepository.findByAccessors(apiInfo.getId());
-    apiInfoElasticRepository.deleteAll(accessors);
+//    org.springframework.data.elasticsearch.core.query.Query query = new NativeQueryBuilder()
+//        .withQuery(
+//            h -> h.hasParent(
+//                p -> p.parentType("apiInfo")
+//                    .query(q -> q.match(
+//                        m -> m.field("id").query(apiInfo.getId())
+//                    ))
+//            )
+//        )
+//        .build();
+
+//    List<ApiInfoElastic> accessors = apiInfoElasticRepository.findByAccessors(apiInfo.getId());
+//    apiInfoElasticRepository.deleteAll(accessors);
+
+//    elasticsearchOperations.delete(query, ApiInfoElastic.class);
+    apiInfoElasticRepository.deleteAccessors(apiInfo.getId());
 
     //delete apiinfo
     apiInfoElasticRepository.deleteById(apiInfo.getId().toString());

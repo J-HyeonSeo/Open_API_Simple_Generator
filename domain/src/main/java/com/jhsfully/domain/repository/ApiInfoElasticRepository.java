@@ -1,6 +1,7 @@
 package com.jhsfully.domain.repository;
 
 import com.jhsfully.domain.entity.ApiInfoElastic;
+import com.jhsfully.domain.repository.custom.ApiInfoElasticCustomRepository;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +10,8 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInfoElastic, String>{
+public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInfoElastic, String>,
+    ApiInfoElasticCustomRepository {
 
   /*
       ########## FOR ALL SEARCH METHOD ###########

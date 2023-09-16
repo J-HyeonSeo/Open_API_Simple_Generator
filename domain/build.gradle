@@ -13,6 +13,7 @@ dependencies {
     api 'org.springframework.boot:spring-boot-starter-data-jpa'
     api 'org.springframework.boot:spring-boot-starter-data-redis'
     api 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    api 'jakarta.json:jakarta.json-api:2.0.1'
     runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
