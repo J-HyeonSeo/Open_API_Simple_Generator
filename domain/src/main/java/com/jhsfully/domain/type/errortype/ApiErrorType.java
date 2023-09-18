@@ -8,6 +8,10 @@ import lombok.Getter;
 public enum ApiErrorType {
 
   API_NOT_FOUND("존재하지 않는 API입니다."),
+  API_IS_ALREADY_ENABLED("이미 활성화된 API입니다."),
+  CANNOT_ENABLE_FAILED_API("엑셀 파싱에 실패한 API는 활성화 할 수 없습니다. 삭제 부탁드립니다."),
+  CANNOT_ENABLE_READY_API("API가 준비 중입니다. 활성화 될 때 까지, 잠시만 기다려주세요."),
+  TODAY_IS_AFTER_EXPIRED_AT("등급 기한이 만료되었습니다."),
   DATA_IS_NOT_FOUND("존재하지 데이터 번호 입니다."),
   API_DATA_CANNOT_PARSE("데이터 구조가 맞지 않아 변환할 수 없습니다."),
   API_FIELD_COUNT_IS_DIFFERENT("API에 존재하는 필드 갯수보다 적습니다."),

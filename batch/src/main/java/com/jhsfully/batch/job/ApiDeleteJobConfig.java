@@ -3,6 +3,12 @@ package com.jhsfully.batch.job;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.type.ApiState;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -18,13 +24,6 @@ import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-
-import javax.persistence.EntityManagerFactory;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @Configuration
 @Slf4j
@@ -145,10 +144,10 @@ public class ApiDeleteJobConfig {
           try{
 
             //자식 도큐먼트를 찾아서 제거해야함.
-            log.info(item.getApiName()); //일단 구현 보류
+            apiInfoElasticRepository.deleteAccessors(item.getId());
 
             //자기 자신 제거해야함.
-            apiInfoElasticRepository.deleteById(item.getId());
+            apiInfoElasticRepository.deleteById(item.getId().toString());
 
           }catch (Exception e){
             log.error(e.getMessage());

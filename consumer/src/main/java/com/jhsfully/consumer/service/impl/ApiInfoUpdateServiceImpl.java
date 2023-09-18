@@ -38,7 +38,7 @@ public class ApiInfoUpdateServiceImpl implements ApiInfoUpdateService {
     }
 
     ApiInfoElastic apiInfoElastic = ApiInfoElastic.builder()
-        .id(apiInfo.getId())
+        .id(apiInfo.getId().toString())
         .apiName(apiInfo.getApiName())
         .apiIntroduce(apiInfo.getApiIntroduce())
         .ownerEmail(apiInfo.getMember().getEmail())

@@ -5,8 +5,11 @@ import static com.jhsfully.domain.type.ApiQueryType.INCLUDE;
 import static com.jhsfully.domain.type.ApiQueryType.START;
 import static com.jhsfully.domain.type.ApiStructureType.STRING;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_FIELD_COUNT_IS_DIFFERENT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_ALREADY_ENABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.CANNOT_ENABLE_FAILED_API;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.CANNOT_ENABLE_READY_API;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DATA_IS_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
@@ -21,6 +24,7 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_QUERY_MAX
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_NOT_INCLUDE_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.SCHEMA_COUNT_IS_ZERO;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.TODAY_IS_AFTER_EXPIRED_AT;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_PERMISSION;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
@@ -46,7 +50,6 @@ import com.jhsfully.api.util.ConvertUtil;
 import com.jhsfully.api.util.FileUtil;
 import com.jhsfully.api.util.MongoUtil;
 import com.jhsfully.domain.entity.ApiInfo;
-import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.ApiUserPermission;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
@@ -64,6 +67,7 @@ import com.mongodb.client.result.InsertOneResult;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +78,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.elasticsearch.core.join.JoinField;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -97,6 +101,7 @@ public class ApiServiceImpl implements ApiService {
   private final MemberRepository memberRepository;
   private final MongoTemplate mongoTemplate;
   private final ApiInfoElasticRepository apiInfoElasticRepository;
+  private final ElasticsearchOperations elasticsearchOperations;
 
 
   //Service
@@ -143,27 +148,9 @@ public class ApiServiceImpl implements ApiService {
         .build());
 
     /*
-        입력된 파일이 없는경우, 리턴처리.
-        공개 여부가 true 인 경우에는, ElasticSearch에 저장하고 리턴함.
+        입력된 파일이 있는 경우만, 파일 경로를 생성하도록 함.
      */
-    if(fileEmpty){
-      if(input.isPublic()){
-        ApiInfoElastic apiInfoElastic = ApiInfoElastic.builder()
-            .id(apiInfo.getId())
-            .apiName(apiInfo.getApiName())
-            .apiIntroduce(apiInfo.getApiIntroduce())
-            .ownerEmail(apiInfo.getMember().getEmail())
-            .state(ApiState.ENABLED)
-            .isPublic(true)
-            .ownerMemberId(apiInfo.getMember().getId())
-            .mapping(new JoinField<>("apiInfo"))
-            .build();
-        apiInfoElasticRepository.save(apiInfoElastic);
-      }
-      return;
-    }
-
-    String filePath = fileSave(input.getFile(), dataCollectionName);
+    String filePath = fileEmpty ? "" : fileSave(input.getFile(), dataCollectionName);
 
     //kafka가 받기 위한 모델임.
     ExcelParserModel model = ExcelParserModel.builder()
@@ -324,13 +311,93 @@ public class ApiServiceImpl implements ApiService {
   }
 
   /*
-      연관 데이터 존재시에는, 소프트 삭제,
-      연관 데이터가 없다면, 하드 삭제
+      DELETE는 기록 및 FK참조로 인해, SOFT DELETE방식으로 제거해야함.
    */
   public void deleteOpenApi(long apiId, long memberId){
-    //TODO 추후에 작성함.
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+
+    /*
+        MongoDB, ElasticSearch, MySQL의 데이터를 모두 참조하여 삭제를 진행하여야 함.
+     */
+
+    //MongoDB Deletions
+    if(mongoTemplate.collectionExists(apiInfo.getDataCollectionName())){//데이터 컬렉션 삭제
+      mongoTemplate.dropCollection(apiInfo.getDataCollectionName());
+    }
+
+    if(mongoTemplate.collectionExists(apiInfo.getHistoryCollectionName())){//히스토리 컬렉션 삭제
+      mongoTemplate.dropCollection(apiInfo.getHistoryCollectionName());
+    }
+
+
+    //ElasticSearch Deletions
+
+    //delete children
+//    org.springframework.data.elasticsearch.core.query.Query query = new NativeQueryBuilder()
+//        .withQuery(
+//            h -> h.hasParent(
+//                p -> p.parentType("apiInfo")
+//                    .query(q -> q.match(
+//                        m -> m.field("id").query(apiInfo.getId())
+//                    ))
+//            )
+//        )
+//        .build();
+
+//    List<ApiInfoElastic> accessors = apiInfoElasticRepository.findByAccessors(apiInfo.getId());
+//    apiInfoElasticRepository.deleteAll(accessors);
+
+//    elasticsearchOperations.delete(query, ApiInfoElastic.class);
+    apiInfoElasticRepository.deleteAccessors(apiInfo.getId());
+
+    //delete apiinfo
+    apiInfoElasticRepository.deleteById(apiInfo.getId().toString());
+
+
+    //RDB Deletions
+    //@SQLDelete 어노테이션을 사용하기 때문에, 이렇게 삭제해도, SOFT DELETE가 적용됨.
+    apiInfoRepository.delete(apiInfo);
   }
 
+  //유저가 직접 비활성화 된, OpenAPI를 활성화 시키는 메서드
+  public void enableOpenApi(long apiId, long memberId){
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateEnableOpenApi(apiInfo, member);
+
+    Grade grade = member.getGrade();
+
+    //비교해서, 가능 할 경우, API를 활성화 하도록 함.
+    long dbSize = MongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
+    long recordCount = mongoTemplate.getCollection(apiInfo.getDataCollectionName())
+        .countDocuments();
+    int queryCount = apiInfo.getQueryParameter().size();
+    int schemaCount = apiInfo.getSchemaStructure().size();
+    int apiCount = apiInfoRepository.countByMemberAndApiState(member, ApiState.ENABLED);
+    int accessorCount = apiUserPermissionRepository.countByApiInfo(apiInfo);
+
+    if (dbSize <= grade.getDbMaxSize() &&
+        recordCount <= grade.getRecordMaxCount() &&
+        queryCount <= grade.getQueryMaxCount() &&
+        schemaCount <= grade.getFieldMaxCount() &&
+        apiCount <= grade.getApiMaxCount() &&
+        accessorCount <= grade.getAccessorMaxCount()) {
+      apiInfo.setApiState(ApiState.ENABLED);
+      apiInfoRepository.save(apiInfo);
+    }
+  }
 
 
   /*
@@ -501,14 +568,14 @@ public class ApiServiceImpl implements ApiService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    //API비활성화 여부 확인함.
-    if(apiInfo.getApiState() == ApiState.DISABLED){
+    //활성화 된 API가 아닌 경우 THROW
+    if(apiInfo.getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 
     // INSERT, UPDATE 시에는 db의 용량이 제한된 용량을 넘어가는지 판단해야함.
     if(type == ApiPermissionType.INSERT || type == ApiPermissionType.UPDATE){
-      Grade grade = member.getGrade();
+      Grade grade = apiInfo.getMember().getGrade();
 
       long dbCollectionSize = MongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
 
@@ -533,4 +600,21 @@ public class ApiServiceImpl implements ApiService {
 
   }
 
+  private void validateEnableOpenApi(ApiInfo apiInfo, Member member){
+    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+
+    if(LocalDate.now().isAfter(member.getExpiredEnabledAt())){
+      throw new ApiException(TODAY_IS_AFTER_EXPIRED_AT);
+    }
+
+    if(apiInfo.getApiState() == ApiState.ENABLED){
+      throw new ApiException(API_IS_ALREADY_ENABLED);
+    } else if(apiInfo.getApiState() == ApiState.FAILED){
+      throw new ApiException(CANNOT_ENABLE_FAILED_API);
+    } else if(apiInfo.getApiState() == ApiState.READY) {
+      throw new ApiException(CANNOT_ENABLE_READY_API);
+    }
+  }
 }

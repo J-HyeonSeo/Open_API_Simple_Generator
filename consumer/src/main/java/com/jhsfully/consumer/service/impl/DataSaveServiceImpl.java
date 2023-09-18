@@ -51,6 +51,13 @@ public class DataSaveServiceImpl implements DataSaveService {
 
     log.info("DB Indexes Created");
 
+    //file경로가 비어있다고 한다면, 그대로 true를 반환해서 넘김.
+    if(model.getExcelPath() == null || model.getExcelPath().isEmpty()){
+      log.info("File is Empty, Only Create MongoDB Collections!");
+      return true;
+    }
+
+    //그 외는 Excel Parsing처리를 수행하고, MongoDB에 데이터 저장을 수행하여야 함.
     File file = new File(model.getExcelPath());
     InputStream inputStream = null;
 

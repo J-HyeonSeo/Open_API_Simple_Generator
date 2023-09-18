@@ -1,6 +1,8 @@
 package com.jhsfully.domain.repository;
 
 import com.jhsfully.domain.entity.ApiInfoElastic;
+import com.jhsfully.domain.repository.custom.ApiInfoElasticCustomRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
@@ -8,7 +10,8 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInfoElastic, Long>{
+public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInfoElastic, String>,
+    ApiInfoElasticCustomRepository {
 
   /*
       ########## FOR ALL SEARCH METHOD ###########
@@ -91,6 +94,15 @@ public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInf
   Page<ApiInfoElastic> searchByOwnerEmailForAccess(Long accessMemberId, String searchText, Pageable pageable);
 
 
-  //deletion
-  void deleteByPermissionId(Long permissionId);
+  //for deletions
+  void deleteByPermissionId(Long permissionId); //자기 자신을 제거.
+
+  @Query(
+      "{\"has_parent\": {"
+      +"\"parent_type\": \"apiInfo\","
+      +"\"query\": {"
+      +"\"match\": {"
+      +"\"id\": \"?0\"}}}}"
+  )
+  List<ApiInfoElastic> findByAccessors(Long parentId);
 }

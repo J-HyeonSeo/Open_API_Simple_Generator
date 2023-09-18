@@ -22,7 +22,7 @@ import org.springframework.data.elasticsearch.core.join.JoinField;
 @Setting(settingPath = "/elasticsearch/analyzer-setting.json")
 public class ApiInfoElastic {
   @Id
-  private Long id;
+  private String id;
   private String apiName; //for search and response
   private String apiIntroduce; //for search and response
   private String ownerEmail; //for search and response
