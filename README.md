@@ -1,5 +1,8 @@
 # OpenAPI 간단 구축 서비스(Open Api Simple Generator)
 
+
+![LOGO](doc/logo/logo.png)
+
 ---
 
 ### 프로젝트 개요
