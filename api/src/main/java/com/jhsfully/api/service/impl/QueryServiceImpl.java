@@ -192,9 +192,9 @@ public class QueryServiceImpl implements QueryService {
     //full-text-search - field filtering
     List<Criteria> fieldFilterCriteria = new ArrayList<Criteria>();
 
-    fullTextField.forEach(field -> {
-      fieldFilterCriteria.add(Criteria.where(field).regex(field));
-    });
+    for (int i = 0; i < fullTextField.size(); i++) {
+      fieldFilterCriteria.add(Criteria.where(fullTextField.get(i)).regex(fullTextValue.get(i)));
+    }
 
     query.addCriteria(new Criteria().orOperator(fieldFilterCriteria));
     return query;
