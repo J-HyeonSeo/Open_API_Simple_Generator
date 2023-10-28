@@ -1,9 +1,5 @@
 package com.jhsfully.api.service.impl;
 
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
-
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
@@ -19,12 +15,17 @@ import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.ApiUserPermissionRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.SearchType;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 
 /*
     데이터 검색은, Elastic Search로 진행하고,

@@ -108,7 +108,7 @@ public class ApiServiceImpl implements ApiService {
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
     String historyCollectionName = dataCollectionName + HISTORY_SUFFIX;
 
-    boolean fileEmpty = input.getFile() == null || input.getFile().isEmpty();
+    boolean fileEmpty = Objects.isNull(input.getFile()) || input.getFile().isEmpty();
 
     ApiInfo apiInfo = apiInfoRepository.save(ApiInfo.builder()
         .apiName(input.getApiName())
@@ -383,19 +383,19 @@ public class ApiServiceImpl implements ApiService {
 
     Grade grade = member.getGrade();
 
-    if(member.getGrade() == null){
+    if(Objects.isNull(member.getGrade())){
       throw new GradeException(MEMBER_HAS_NOT_GRADE);
     }
 
     //엑셀 용량 확인하기. Byte단위로 들어옴.
-    if(input.getFile() != null && !input.getFile().isEmpty()){
+    if(!Objects.isNull(input.getFile()) && !input.getFile().isEmpty()){
       if(input.getFile().getSize() > grade.getDbMaxSize()){
         throw new ApiException(OVERFLOW_MAX_FILE_SIZE);
       }
     }
 
     //field의 갯수 확인하기.
-    if(input.getSchemaStructure() == null || input.getSchemaStructure().isEmpty()){
+    if(Objects.isNull(input.getSchemaStructure()) || input.getSchemaStructure().isEmpty()){
       throw new ApiException(SCHEMA_COUNT_IS_ZERO);
     }
     if(input.getSchemaStructure().size() > grade.getFieldMaxCount()){
@@ -403,7 +403,7 @@ public class ApiServiceImpl implements ApiService {
     }
 
     //query parameter 갯수 확인하기.
-    if(input.getQueryParameter() != null && !input.getQueryParameter().isEmpty()){
+    if(!Objects.isNull(input.getQueryParameter()) && !input.getQueryParameter().isEmpty()){
       if(input.getQueryParameter().size() > grade.getQueryMaxCount()){
         throw new ApiException(OVERFLOW_QUERY_MAX_COUNT);
       }
