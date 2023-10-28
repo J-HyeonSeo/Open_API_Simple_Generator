@@ -17,8 +17,8 @@ public interface ApiRequestInviteRepository extends JpaRepository<ApiRequestInvi
   Page<ApiRequestInvite> findByMemberAndApiRequestType(
       Member member, ApiRequestType requestType, Pageable pageable);
 
-  Page<ApiRequestInvite> findByApiInfoAndApiRequestType(
-      ApiInfo apiInfo, ApiRequestType requestType, Pageable pageable);
+  Page<ApiRequestInvite> findByMemberAndApiInfoAndApiRequestType(
+      Member member, ApiInfo apiInfo, ApiRequestType requestType, Pageable pageable);
 
   Optional<ApiRequestInvite> findByMemberAndApiInfoAndApiRequestTypeAndRequestStateType(
       Member member, ApiInfo apiInfo, ApiRequestType requestType, ApiRequestStateType requestStateType);

@@ -1,49 +1,14 @@
 package com.jhsfully.api.service.impl;
 
-import static com.jhsfully.domain.type.ApiQueryType.EQUAL;
-import static com.jhsfully.domain.type.ApiQueryType.INCLUDE;
-import static com.jhsfully.domain.type.ApiQueryType.START;
-import static com.jhsfully.domain.type.ApiStructureType.STRING;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_FIELD_COUNT_IS_DIFFERENT;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_ALREADY_ENABLED;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.CANNOT_ENABLE_FAILED_API;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.CANNOT_ENABLE_READY_API;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.DATA_IS_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.FIELD_WAS_NOT_DEFINITION_IN_SCHEMA;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_API_MAX_COUNT;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_FIELD_MAX_COUNT;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_MAX_DB_SIZE;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_MAX_FILE_SIZE;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_QUERY_MAX_COUNT;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_NOT_INCLUDE_SCHEMA;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.SCHEMA_COUNT_IS_ZERO;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.TODAY_IS_AFTER_EXPIRED_AT;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_PERMISSION;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
-import com.jhsfully.api.model.api.CreateApiInput;
+import com.jhsfully.api.model.api.*;
 import com.jhsfully.api.model.api.CreateApiInput.QueryData;
 import com.jhsfully.api.model.api.CreateApiInput.SchemaData;
-import com.jhsfully.api.model.api.DeleteApiDataInput;
-import com.jhsfully.api.model.api.InsertApiDataInput;
-import com.jhsfully.api.model.api.InsertApiDataResponse;
-import com.jhsfully.api.model.api.UpdateApiDataInput;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
@@ -64,21 +29,11 @@ import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -89,11 +44,32 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.jhsfully.domain.type.ApiQueryType.*;
+import static com.jhsfully.domain.type.ApiStructureType.STRING;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.*;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.*;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
+
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ApiServiceImpl implements ApiService {
+
+  //constants
+  private static final String MONGODB_ID = "_id";
+  private static final String HISTORY_SUFFIX = "-history";
 
   //repositories
   private final ApiInfoRepository apiInfoRepository;
@@ -101,10 +77,8 @@ public class ApiServiceImpl implements ApiService {
   private final MemberRepository memberRepository;
   private final MongoTemplate mongoTemplate;
   private final ApiInfoElasticRepository apiInfoElasticRepository;
-  private final ElasticsearchOperations elasticsearchOperations;
 
-
-  //Service
+  //service
   private final ApiHistoryService apiHistoryService;
 
 
@@ -120,7 +94,11 @@ public class ApiServiceImpl implements ApiService {
       OpenAPI를 새로 생성함.
    */
   public void createOpenApi(CreateApiInput input, long memberId) throws JsonProcessingException {
-    validateCreateOpenApi(input, memberId);
+
+    Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateCreateOpenApi(input, member);
 
     Map<String, ApiStructureType> schemaStructure = input.getSchemaStructure().stream()
         .collect(Collectors.toMap(SchemaData::getField, SchemaData::getType));
@@ -128,10 +106,7 @@ public class ApiServiceImpl implements ApiService {
             .collect(Collectors.toMap(QueryData::getField, QueryData::getType));
 
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
-    String historyCollectionName = dataCollectionName + "-history";
-
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+    String historyCollectionName = dataCollectionName + HISTORY_SUFFIX;
 
     boolean fileEmpty = input.getFile() == null || input.getFile().isEmpty();
 
@@ -200,10 +175,13 @@ public class ApiServiceImpl implements ApiService {
       데이터 추가시에는, 반드시 모든 데이터를 기입해야함.
    */
   public InsertApiDataResponse insertApiData(InsertApiDataInput input, long memberId){
-    validateInsertApiData(input, memberId);
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    validateInsertApiData(input, apiInfo, member);
 
     Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
 
@@ -221,7 +199,7 @@ public class ApiServiceImpl implements ApiService {
 
     InsertOneResult result = collection.insertOne(document);
 
-    input.getInsertData().put("_id", result.getInsertedId().asObjectId().getValue());
+    input.getInsertData().put(MONGODB_ID, result.getInsertedId().asObjectId().getValue());
 
     //히스토리 로그 남기기.
     apiHistoryService.writeInsertHistory(
@@ -240,15 +218,18 @@ public class ApiServiceImpl implements ApiService {
       데이터 수정은 일부만 포함되도 됨.
    */
   public void updateApiData(UpdateApiDataInput input, long memberId){
-    validateUpdateApiData(input, memberId);
+    Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
+    validateUpdateApiData(input, apiInfo, member);
+
     Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
 
     //변경 할 데이터를 검색할 쿼리 생성
-    Query query = new Query(Criteria.where("_id").is(new ObjectId(input.getDataId())));
+    Query query = new Query(Criteria.where(MONGODB_ID).is(new ObjectId(input.getDataId())));
 
     //id가 존재하는지 확인하기.
     if(!mongoTemplate.exists(query, apiInfo.getDataCollectionName())){
@@ -262,16 +243,16 @@ public class ApiServiceImpl implements ApiService {
     Update update = new Update();
 
     //데이터 형변환
-    for(Map.Entry<String, Object> data : input.getUpdateData().entrySet()){
-      ApiStructureType structureType = schemaMap.get(data.getKey());
-      update.set(data.getKey(), ConvertUtil.ObjectToStructureType(data.getValue(), structureType));
-    }
+    input.getUpdateData().forEach((key, value) -> {
+        ApiStructureType structureType = schemaMap.get(key);
+        update.set(key, ConvertUtil.ObjectToStructureType(value, structureType));
+    });
 
     //데이터 업데이트
     mongoTemplate.updateFirst(query, update, apiInfo.getDataCollectionName());
 
     //히스토리에 로그 남기기
-    input.getUpdateData().put("_id", new ObjectId(input.getDataId()));
+    input.getUpdateData().put(MONGODB_ID, new ObjectId(input.getDataId()));
     apiHistoryService.writeUpdateHistory(
         originalData,
         input.getUpdateData(),
@@ -284,12 +265,16 @@ public class ApiServiceImpl implements ApiService {
       id만 일치하면 삭제 할 수 있음.
    */
   public void deleteApiData(DeleteApiDataInput input, long memberId){
-    validateDeleteApiData(input, memberId);
+
+    Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    Query query = new Query(Criteria.where("_id").is(new ObjectId(input.getDataId())));
+    validateDeleteApiData(apiInfo, member);
+
+    Query query = new Query(Criteria.where(MONGODB_ID).is(new ObjectId(input.getDataId())));
 
     //기존 데이터 가져오기.
     Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
@@ -320,9 +305,7 @@ public class ApiServiceImpl implements ApiService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
-      throw new ApiPermissionException(USER_HAS_NOT_API);
-    }
+    validateDeleteOpenApi(apiInfo, member);
 
     /*
         MongoDB, ElasticSearch, MySQL의 데이터를 모두 참조하여 삭제를 진행하여야 함.
@@ -337,25 +320,6 @@ public class ApiServiceImpl implements ApiService {
       mongoTemplate.dropCollection(apiInfo.getHistoryCollectionName());
     }
 
-
-    //ElasticSearch Deletions
-
-    //delete children
-//    org.springframework.data.elasticsearch.core.query.Query query = new NativeQueryBuilder()
-//        .withQuery(
-//            h -> h.hasParent(
-//                p -> p.parentType("apiInfo")
-//                    .query(q -> q.match(
-//                        m -> m.field("id").query(apiInfo.getId())
-//                    ))
-//            )
-//        )
-//        .build();
-
-//    List<ApiInfoElastic> accessors = apiInfoElasticRepository.findByAccessors(apiInfo.getId());
-//    apiInfoElasticRepository.deleteAll(accessors);
-
-//    elasticsearchOperations.delete(query, ApiInfoElastic.class);
     apiInfoElasticRepository.deleteAccessors(apiInfo.getId());
 
     //delete apiinfo
@@ -411,13 +375,11 @@ public class ApiServiceImpl implements ApiService {
   /*
       오픈 API를 만들기 전에, 수행하는 밸리데이션
    */
-  private void validateCreateOpenApi(CreateApiInput input, long memberId) {
+  private void validateCreateOpenApi(CreateApiInput input, Member member) {
 
     /*
         등급에 위반되는 데이터가 있는지 우선적으로 확인해야함.
      */
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     Grade grade = member.getGrade();
 
@@ -433,7 +395,7 @@ public class ApiServiceImpl implements ApiService {
     }
 
     //field의 갯수 확인하기.
-    if(input.getSchemaStructure() == null || input.getSchemaStructure().size() == 0){
+    if(input.getSchemaStructure() == null || input.getSchemaStructure().isEmpty()){
       throw new ApiException(SCHEMA_COUNT_IS_ZERO);
     }
     if(input.getSchemaStructure().size() > grade.getFieldMaxCount()){
@@ -441,7 +403,7 @@ public class ApiServiceImpl implements ApiService {
     }
 
     //query parameter 갯수 확인하기.
-    if(input.getQueryParameter() != null && input.getQueryParameter().size() > 0){
+    if(input.getQueryParameter() != null && !input.getQueryParameter().isEmpty()){
       if(input.getQueryParameter().size() > grade.getQueryMaxCount()){
         throw new ApiException(OVERFLOW_QUERY_MAX_COUNT);
       }
@@ -504,11 +466,8 @@ public class ApiServiceImpl implements ApiService {
       API의 데이터를 관리하는 밸리데이션 로직
    */
 
-  private void validateInsertApiData(InsertApiDataInput input, long memberId){
-    validateApiDataManageCommon(input.getApiId(), memberId, ApiPermissionType.INSERT);
-
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+  private void validateInsertApiData(InsertApiDataInput input, ApiInfo apiInfo, Member member){
+    validateApiDataManageCommon(apiInfo, member, ApiPermissionType.INSERT);
 
     Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
 
@@ -518,41 +477,37 @@ public class ApiServiceImpl implements ApiService {
     }
 
     // 존재하지 하지 않는 필드명 확인.
-    for(Map.Entry<String, Object> apiData : input.getInsertData().entrySet()){
+    input.getInsertData().entrySet().stream()
+            .filter(apiData -> !schemaMap.containsKey(apiData.getKey()))
+            .findAny()
+            .ifPresent(x ->
+              {
+                throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
+              }
+            );
 
-      if (!schemaMap.containsKey(apiData.getKey())){
-        throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
-      }
-    }
   }
 
-  private void validateUpdateApiData(UpdateApiDataInput input, long memberId){
-    validateApiDataManageCommon(input.getApiId(), memberId, ApiPermissionType.UPDATE);
-
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+  private void validateUpdateApiData(UpdateApiDataInput input, ApiInfo apiInfo, Member member){
+    validateApiDataManageCommon(apiInfo, member, ApiPermissionType.UPDATE);
 
     Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
 
     // 존재하지 하지 않는 필드명 확인.
-    for(Map.Entry<String, Object> apiData : input.getUpdateData().entrySet()){
-
-      if (!schemaMap.containsKey(apiData.getKey())){
-        throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
-      }
-    }
+    input.getUpdateData().entrySet().stream()
+            .filter(apiData -> !schemaMap.containsKey(apiData.getKey()))
+            .findAny()
+            .ifPresent(x -> {
+              throw new ApiException(FIELD_WAS_NOT_DEFINITION_IN_SCHEMA);
+            });
 
   }
 
-  private void validateDeleteApiData(DeleteApiDataInput input, long memberId){
-    validateApiDataManageCommon(input.getApiId(), memberId, ApiPermissionType.DELETE);
+  private void validateDeleteApiData(ApiInfo apiInfo, Member member){
+    validateApiDataManageCommon(apiInfo, member, ApiPermissionType.DELETE);
   }
 
-  private void validateDeleteOpenApi(long apiId, long memberId){
-    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+  private void validateDeleteOpenApi(ApiInfo apiInfo, Member member){
 
     //소유주는 권한 확인이 필요없음.
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
@@ -561,12 +516,7 @@ public class ApiServiceImpl implements ApiService {
 
   }
 
-  private void validateApiDataManageCommon(long apiId, long memberId, ApiPermissionType type){
-
-    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+  private void validateApiDataManageCommon(ApiInfo apiInfo, Member member, ApiPermissionType type){
 
     //활성화 된 API가 아닌 경우 THROW
     if(apiInfo.getApiState() != ApiState.ENABLED){
