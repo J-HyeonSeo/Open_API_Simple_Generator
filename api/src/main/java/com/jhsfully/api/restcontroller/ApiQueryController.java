@@ -19,12 +19,12 @@ public class ApiQueryController {
 
   private final QueryService queryService;
 
-  @GetMapping("/{apiId}/{authKey}/{pageSize}/{pageIdx}")
+  @GetMapping("/{apiId}/{authKey}/{pageIdx}/{pageSize}")
   public ResponseEntity<QueryResponse> getOpenAPIDataList(
       @PathVariable long apiId,
       @PathVariable String authKey,
-      @PathVariable int pageSize,
       @PathVariable int pageIdx,
+      @PathVariable int pageSize,
       @RequestParam Map<String, Object> queryParameter
   ){
     QueryInput input = QueryInput.builder()

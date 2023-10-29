@@ -1,32 +1,44 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_ASSIGN_INVITE_NOT_TARGET;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_ALREADY_HAS_PERMISSION;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_ALREADY_INVITED;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_NOT_API_OWNER;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_REJECT_INVITE_NOT_TARGET;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.INVITE_ALREADY_ASSIGN;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.INVITE_ALREADY_REJECT;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.INVITE_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiInviteException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.api.service.ApiInviteService;
-import com.jhsfully.domain.entity.*;
-import com.jhsfully.domain.repository.*;
+import com.jhsfully.domain.entity.ApiInfo;
+import com.jhsfully.domain.entity.ApiInfoElastic;
+import com.jhsfully.domain.entity.ApiRequestInvite;
+import com.jhsfully.domain.entity.ApiUserPermission;
+import com.jhsfully.domain.entity.Member;
+import com.jhsfully.domain.repository.ApiInfoElasticRepository;
+import com.jhsfully.domain.repository.ApiInfoRepository;
+import com.jhsfully.domain.repository.ApiRequestInviteRepository;
+import com.jhsfully.domain.repository.ApiUserPermissionRepository;
+import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.join.JoinField;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.*;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.join.JoinField;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -43,16 +55,13 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   private final MemberRepository memberRepository;
 
   @Override
-  public List<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, int pageSize,
-      int pageIdx) {
+  public List<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
 
     return apiRequestInviteRepository.
             findByMemberAndApiInfoAndApiRequestType(member,
@@ -64,13 +73,10 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   }
 
   @Override
-  public List<ApiRequestInviteDto> getInviteListForMember(long memberId, int pageSize,
-      int pageIdx) {
+  public List<ApiRequestInviteDto> getInviteListForMember(long memberId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
 
     return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.INVITE, pageable)
         .getContent()

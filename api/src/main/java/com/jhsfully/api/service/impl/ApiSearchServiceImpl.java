@@ -17,7 +17,6 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.SearchType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -44,11 +43,10 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   private final MemberRepository memberRepository;
   private final ApiUserPermissionRepository apiUserPermissionRepository;
 
+  @Override
   public ApiSearchResponse getOpenApiList(
-      int pageSize, int pageIdx, String searchText, SearchType type
+      String searchText, SearchType type, Pageable pageable
   ){
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
 
     Page<ApiInfoElastic> apiInfoElasticPage = null;
 
@@ -100,9 +98,8 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   }
 
   @Override
-  public ApiSearchResponse getOpenApiListForOwner(long memberId, int pageSize, int pageIdx,
-      String searchText, SearchType type) {
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
+  public ApiSearchResponse getOpenApiListForOwner(long memberId,
+      String searchText, SearchType type, Pageable pageable) {
 
     Page<ApiInfoElastic> apiInfoElasticPage = null;
 
@@ -126,9 +123,8 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   }
 
   @Override
-  public ApiSearchResponse getOpenApiListForAccess(long memberId, int pageSize, int pageIdx,
-      String searchText, SearchType type) {
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
+  public ApiSearchResponse getOpenApiListForAccess(long memberId,
+      String searchText, SearchType type, Pageable pageable) {
 
     Page<ApiInfoElastic> apiInfoElasticPage = null;
 

@@ -7,6 +7,8 @@ import com.jhsfully.api.util.MemberUtil;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,13 +29,14 @@ public class PaymentController {
 
   private final PaymentService paymentService;
 
-  @GetMapping("/{pageSize}/{pageIdx}")
+  @GetMapping("/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getPaymentList(
-      @PathVariable int pageSize,
-      @PathVariable int pageIdx
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
-    PaymentResponse response = paymentService.getPaymentList(memberId, pageSize, pageIdx);
+    PaymentResponse response = paymentService.getPaymentList(memberId,
+        PageRequest.of(pageIdx, pageSize, Sort.by("paidAt").descending()));
     return ResponseEntity.ok(response);
   }
 

@@ -13,9 +13,7 @@ import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.BlackListRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +38,7 @@ public class ApiBlackListServiceImpl implements ApiBlackListService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<BlackListDto> getBlackList(long apiId, long memberId, int pageSize, int pageIdx) {
+  public List<BlackListDto> getBlackList(long apiId, long memberId, Pageable pageable) {
 
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
@@ -49,8 +47,6 @@ public class ApiBlackListServiceImpl implements ApiBlackListService {
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     validateGetBlackList(apiInfo, member);
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
 
     return blackListRepository.findByApiInfo(apiInfo, pageable)
         .getContent()

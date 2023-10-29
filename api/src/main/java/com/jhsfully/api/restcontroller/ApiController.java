@@ -10,22 +10,14 @@ import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.MemberUtil;
 import com.jhsfully.domain.type.SearchType;
-import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 /**
  *  API의 등록,
@@ -109,33 +101,33 @@ public class ApiController {
   /*
       Elastic Search 로 공개된 OpenAPI 를 검색해서, 리스트 반환
    */
-  @GetMapping("/{pageSize}/{pageIdx}")
+  @GetMapping("/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getOpenApiList(
-      @PathVariable int pageSize,
       @PathVariable int pageIdx,
+      @PathVariable int pageSize,
       @RequestParam String searchText,
       @RequestParam SearchType type
   ){
 
     return ResponseEntity.ok(
-        apiSearchService.getOpenApiList(pageSize, pageIdx, searchText, type)
+        apiSearchService.getOpenApiList(searchText, type, PageRequest.of(pageIdx, pageSize))
     );
   }
 
   /*
     Elastic Search 에 질의하여, 자신 소유의 API 데이터 조회.
  */
-  @GetMapping("/owner/{pageSize}/{pageIdx}")
+  @GetMapping("/owner/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getApiListForOwner(
-      @PathVariable int pageSize,
       @PathVariable int pageIdx,
+      @PathVariable int pageSize,
       @RequestParam String searchText,
       @RequestParam SearchType type
   ){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
         apiSearchService.getOpenApiListForOwner(
-            memberId, pageSize, pageIdx, searchText, type
+            memberId, searchText, type, PageRequest.of(pageIdx, pageSize)
         )
     );
   }
@@ -143,10 +135,10 @@ public class ApiController {
   /*
   Elastic Search 에 질의하여, 자신이 접근 가능한 API목록 조회(본인 소유 미포함)
 */
-  @GetMapping("/access/{pageSize}/{pageIdx}")
+  @GetMapping("/access/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getApiListForAccess(
-      @PathVariable int pageSize,
       @PathVariable int pageIdx,
+      @PathVariable int pageSize,
       @RequestParam String searchText,
       @RequestParam SearchType type
   ){
@@ -154,7 +146,7 @@ public class ApiController {
 
     return ResponseEntity.ok(
         apiSearchService.getOpenApiListForAccess(
-            memberId, pageSize, pageIdx, searchText, type
+            memberId, searchText, type, PageRequest.of(pageIdx, pageSize)
         )
     );
   }
@@ -174,11 +166,11 @@ public class ApiController {
   /*
       API소유주는 startDate ~ endDate 기간의 히스토리 데이터를 조회할 수 있음.
    */
-  @GetMapping("history/{apiId}/{pageSize}/{pageIdx}")
+  @GetMapping("history/{apiId}/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getApiHistories(
       @PathVariable long apiId,
-      @PathVariable int pageSize,
       @PathVariable int pageIdx,
+      @PathVariable int pageSize,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
   ){
@@ -186,8 +178,7 @@ public class ApiController {
 
     return ResponseEntity.ok(
       apiHistoryService.getApiHistories(
-          apiId, memberId, pageSize, pageIdx,
-          startDate, endDate
+          apiId, memberId, startDate, endDate, PageRequest.of(pageIdx, pageSize)
       )
     );
   }

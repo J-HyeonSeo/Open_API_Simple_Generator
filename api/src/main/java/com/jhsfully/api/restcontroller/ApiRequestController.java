@@ -3,6 +3,8 @@ package com.jhsfully.api.restcontroller;
 import com.jhsfully.api.service.ApiRequestService;
 import com.jhsfully.api.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,29 +23,31 @@ public class ApiRequestController {
   /*
       내가 보냈던 API 신청 목록 조회.
    */
-  @GetMapping("/member/{pageSize}/{pageIdx}")
+  @GetMapping("/member/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getRequestListForMember(
-      @PathVariable int pageSize,
-      @PathVariable int pageIdx
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiRequestService.getRequestListForMember(memberId, pageSize, pageIdx)
+        apiRequestService.getRequestListForMember(memberId,
+            PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending()))
     );
   }
 
   /*
       API 소유주가 해당 API 에 대해 들어온 요청 목록 조회.
    */
-  @GetMapping("/owner/{apiId}/{pageSize}/{pageIdx}")
+  @GetMapping("/owner/{apiId}/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getRequestListForOwner(
       @PathVariable long apiId,
-      @PathVariable int pageSize,
-      @PathVariable int pageIdx
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiRequestService.getRequestListForOwner(memberId, apiId, pageSize, pageIdx)
+        apiRequestService.getRequestListForOwner(memberId, apiId,
+            PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending()))
     );
   }
 

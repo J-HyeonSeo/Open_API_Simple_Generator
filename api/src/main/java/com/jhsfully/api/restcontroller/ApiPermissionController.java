@@ -6,6 +6,7 @@ import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.api.util.MemberUtil;
 import com.jhsfully.domain.type.ApiPermissionType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,14 +40,15 @@ public class ApiPermissionController {
   }
 
   //Owner가 해당 API에 대한 Member의 Permission들을 페이징하여 조회함.
-  @GetMapping("/owner/{apiId}/{pageSize}/{pageIdx}")
+  @GetMapping("/owner/{apiId}/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getPermissionListForOwner(
       @PathVariable long apiId,
-      @PathVariable int pageSize,
-      @PathVariable int pageIdx
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
-    PermissionResponse permissionResponse = apiPermissionService.getPermissionListForOwner(apiId, memberId, pageSize, pageIdx);
+    PermissionResponse permissionResponse = apiPermissionService
+        .getPermissionListForOwner(apiId, memberId, PageRequest.of(pageIdx, pageSize));
     return ResponseEntity.ok(permissionResponse);
   }
 

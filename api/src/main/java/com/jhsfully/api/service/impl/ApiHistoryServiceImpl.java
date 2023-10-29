@@ -1,12 +1,5 @@
 package com.jhsfully.api.service.impl;
 
-import static com.jhsfully.domain.type.ApiPermissionType.DELETE;
-import static com.jhsfully.domain.type.ApiPermissionType.INSERT;
-import static com.jhsfully.domain.type.ApiPermissionType.UPDATE;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
-
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
@@ -17,16 +10,8 @@ import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.mongodb.client.MongoCollection;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -34,19 +19,42 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.jhsfully.domain.type.ApiPermissionType.*;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ApiHistoryServiceImpl implements ApiHistoryService {
 
+  //constants
+  private static final String MONGODB_ID = "_id";
+  private static final String MONGODB_AT_COL = "at";
+  private static final String MONGODB_MEMBER_COL = "member";
+  private static final String MONGODB_TYPE_COL = "type";
+  private static final String MONGODB_ORIGINAL_COL = "original_data";
+  private static final String MONGODB_NEW_COL = "new_data";
+
   private final MongoTemplate mongoTemplate;
   private final MemberRepository memberRepository;
   private final ApiInfoRepository apiInfoRepository;
 
+  @Override
   public HistoryResponse getApiHistories(
-      long apiId, long memberId, int pageSize, int pageIdx,
+      long apiId, long memberId,
       LocalDate startDate,
-      LocalDate endDate
+      LocalDate endDate,
+      Pageable pageable
   ){
 
     validateGetHistories(apiId, memberId);
@@ -58,10 +66,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     //질의문 생성
-    Query query = new Query(Criteria.where("at").gte(startDateTime).lte(endDateTime));
-
-    //페이징 객체
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
+    Query query = new Query(Criteria.where(MONGODB_AT_COL).gte(startDateTime).lte(endDateTime));
 
     //총 데이터 갯수
     long totalCount = mongoTemplate.count(query, apiInfo.getHistoryCollectionName());
@@ -71,7 +76,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
     //데이터 질의
     List<Map> queriedDataList = mongoTemplate.find(query, Map.class, apiInfo.getHistoryCollectionName())
         .stream()
-        .peek(x -> x.put("_id", x.get("_id").toString()))
+        .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
         .collect(Collectors.toList());
 
     //반환객체 생성
@@ -83,6 +88,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
         .build();
   }
 
+  @Override
   public void writeInsertHistory(
       Map<String, Object> insertData,
       String historyCollection,
@@ -94,16 +100,17 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //기록할 데이터 생성하기.
     Document document = new Document();
-    document.append("at", LocalDateTime.now());
-    document.append("member", member.getEmail());
-    document.append("type", INSERT.name());
-    document.append("new_data", insertData);
+    document.append(MONGODB_AT_COL, LocalDateTime.now());
+    document.append(MONGODB_MEMBER_COL, member.getEmail());
+    document.append(MONGODB_TYPE_COL, INSERT.name());
+    document.append(MONGODB_NEW_COL, insertData);
 
     //DB에 데이터 기록.
     collection.insertOne(document);
 
   }
 
+  @Override
   public void writeUpdateHistory(
       Map<String, Object> originalData,
       Map<String, Object> newData,
@@ -116,16 +123,17 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //기록할 데이터 생성하기.
     Document document = new Document();
-    document.append("at", LocalDateTime.now());
-    document.append("member", member.getEmail());
-    document.append("type", UPDATE.name());
-    document.append("original_data", originalData);
-    document.append("new_data", newData);
+    document.append(MONGODB_AT_COL, LocalDateTime.now());
+    document.append(MONGODB_MEMBER_COL, member.getEmail());
+    document.append(MONGODB_TYPE_COL, UPDATE.name());
+    document.append(MONGODB_ORIGINAL_COL, originalData);
+    document.append(MONGODB_NEW_COL, newData);
 
     //DB에 데이터 기록.
     collection.insertOne(document);
   }
 
+  @Override
   public void writeDeleteHistory(
       Map<String, Object> originalData,
       String historyCollection,
@@ -137,10 +145,10 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //기록할 데이터 생성하기.
     Document document = new Document();
-    document.append("at", LocalDateTime.now());
-    document.append("member", member.getEmail());
-    document.append("type", DELETE.name());
-    document.append("original_data", originalData);
+    document.append(MONGODB_AT_COL, LocalDateTime.now());
+    document.append(MONGODB_MEMBER_COL, member.getEmail());
+    document.append(MONGODB_TYPE_COL, DELETE.name());
+    document.append(MONGODB_ORIGINAL_COL, originalData);
 
     //DB에 데이터 기록.
     collection.insertOne(document);
