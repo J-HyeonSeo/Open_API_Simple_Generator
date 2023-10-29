@@ -38,9 +38,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,14 +60,11 @@ public class ApiRequestServiceImpl implements ApiRequestService {
 
   @Override
   public List<ApiRequestInviteDto> getRequestListForMember(
-      long memberId,
-      int pageSize,
-      int pageIdx) {
+        long memberId,
+        Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
 
     return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.REQUEST, pageable)
         .getContent()
@@ -80,10 +75,9 @@ public class ApiRequestServiceImpl implements ApiRequestService {
 
   @Override
   public List<ApiRequestInviteDto> getRequestListForOwner(
-      long memberId,
-      long apiId,
-      int pageSize,
-      int pageIdx) {
+        long memberId,
+        long apiId,
+        Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -91,9 +85,9 @@ public class ApiRequestServiceImpl implements ApiRequestService {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
-
-    return apiRequestInviteRepository.findByApiInfoAndApiRequestType(apiInfo, ApiRequestType.REQUEST, pageable)
+    return apiRequestInviteRepository
+            .findByMemberAndApiInfoAndApiRequestType(member,
+                    apiInfo, ApiRequestType.REQUEST, pageable)
         .getContent()
         .stream()
         .map(ApiRequestInviteDto::of)

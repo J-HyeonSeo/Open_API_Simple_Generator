@@ -1,14 +1,17 @@
 package com.jhsfully.api.service;
 
 import com.jhsfully.api.model.history.HistoryResponse;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.util.Map;
 
 public interface ApiHistoryService {
   HistoryResponse getApiHistories(
-      long apiId, long memberId, int pageSize, int pageIdx,
+      long apiId, long memberId,
       LocalDate startDate,
-      LocalDate endDate
+      LocalDate endDate,
+      Pageable pageable
   );
   void writeInsertHistory(
       Map<String, Object> insertData,

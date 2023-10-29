@@ -3,6 +3,8 @@ package com.jhsfully.api.restcontroller;
 import com.jhsfully.api.service.ApiInviteService;
 import com.jhsfully.api.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,29 +23,31 @@ public class ApiInviteController {
   /*
     API 소유주가 해당 API 에 대해 보낸 초대 목록 조회.
  */
-  @GetMapping("/owner/{apiId}/{pageSize}/{pageIdx}")
+  @GetMapping("/owner/{apiId}/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getInviteListForOwner(
       @PathVariable long apiId,
-      @PathVariable int pageSize,
-      @PathVariable int pageIdx
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiInviteService.getInviteListForOwner(memberId, apiId, pageSize, pageIdx)
+        apiInviteService.getInviteListForOwner(memberId, apiId,
+            PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending()))
     );
   }
 
   /*
       멤버가 초대받은 API 목록 조회.
    */
-  @GetMapping("/member/{pageSize}/{pageIdx}")
+  @GetMapping("/member/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getInviteListForMember(
-      @PathVariable int pageSize,
-      @PathVariable int pageIdx
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiInviteService.getInviteListForMember(memberId, pageSize, pageIdx)
+        apiInviteService.getInviteListForMember(memberId,
+            PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending()))
     );
   }
 

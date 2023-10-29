@@ -22,7 +22,6 @@ import com.jhsfully.domain.type.SearchType;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -43,25 +42,12 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   private final MemberRepository memberRepository;
   private final ApiUserPermissionRepository apiUserPermissionRepository;
 
+  @Override
   public ApiSearchResponse getOpenApiList(
-      int pageSize, int pageIdx, String searchText, SearchType type
+      String searchText, SearchType type, Pageable pageable
   ){
 
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
-
-    Page<ApiInfoElastic> apiInfoElasticPage = null;
-
-    switch (type){
-      case API_NAME:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByApiName(searchText, pageable);
-        break;
-      case API_INTRODUCE:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByApiIntroduce(searchText, pageable);
-        break;
-      case API_OWNER_EMAIL:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByOwnerEmail(searchText, pageable);
-        break;
-    }
+    Page<ApiInfoElastic> apiInfoElasticPage = apiInfoElasticRepository.search(searchText, type, pageable);
 
     return ApiSearchResponse.builder()
         .totalCount(apiInfoElasticPage.getTotalElements())
@@ -99,23 +85,10 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   }
 
   @Override
-  public ApiSearchResponse getOpenApiListForOwner(long memberId, int pageSize, int pageIdx,
-      String searchText, SearchType type) {
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
+  public ApiSearchResponse getOpenApiListForOwner(long memberId,
+      String searchText, SearchType type, Pageable pageable) {
 
-    Page<ApiInfoElastic> apiInfoElasticPage = null;
-
-    switch (type){
-      case API_NAME:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByApiNameForOwner(memberId, searchText, pageable);
-        break;
-      case API_INTRODUCE:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByApiIntroduceForOwner(memberId, searchText, pageable);
-        break;
-      case API_OWNER_EMAIL:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByOwnerEmailForOwner(memberId, searchText, pageable);
-        break;
-    }
+    Page<ApiInfoElastic> apiInfoElasticPage = apiInfoElasticRepository.searchForOwner(memberId, searchText, type, pageable);
 
     return ApiSearchResponse.builder()
         .totalCount(apiInfoElasticPage.getTotalElements())
@@ -125,23 +98,10 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   }
 
   @Override
-  public ApiSearchResponse getOpenApiListForAccess(long memberId, int pageSize, int pageIdx,
-      String searchText, SearchType type) {
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
+  public ApiSearchResponse getOpenApiListForAccess(long memberId,
+      String searchText, SearchType type, Pageable pageable) {
 
-    Page<ApiInfoElastic> apiInfoElasticPage = null;
-
-    switch (type){
-      case API_NAME:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByApiNameForAccess(memberId, searchText, pageable);
-        break;
-      case API_INTRODUCE:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByApiIntroduceForAccess(memberId, searchText, pageable);
-        break;
-      case API_OWNER_EMAIL:
-        apiInfoElasticPage = apiInfoElasticRepository.searchByOwnerEmailForAccess(memberId, searchText, pageable);
-        break;
-    }
+    Page<ApiInfoElastic> apiInfoElasticPage = apiInfoElasticRepository.searchForAccessor(memberId, searchText, type, pageable);
 
     return ApiSearchResponse.builder()
         .totalCount(apiInfoElasticPage.getTotalElements())

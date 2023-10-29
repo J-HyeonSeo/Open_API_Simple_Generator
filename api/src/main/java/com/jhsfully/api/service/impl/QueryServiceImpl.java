@@ -1,10 +1,5 @@
 package com.jhsfully.api.service.impl;
 
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.API_KEY_NOT_ISSUED;
-
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.model.query.QueryInput;
@@ -16,11 +11,6 @@ import com.jhsfully.domain.repository.ApiKeyRepository;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,9 +20,21 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.jhsfully.domain.type.errortype.ApiErrorType.*;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.API_KEY_NOT_ISSUED;
+
 @Service
 @RequiredArgsConstructor
 public class QueryServiceImpl implements QueryService {
+
+  private static final String MONGODB_ID = "_id";
+  private static final String DELIMITER = " ";
 
   private final ApiInfoRepository apiInfoRepository;
   private final ApiKeyRepository apiKeyRepository;
@@ -52,7 +54,7 @@ public class QueryServiceImpl implements QueryService {
 
     List<Map> results = mongoTemplate.find(query, Map.class, apiInfo.getDataCollectionName())
         .stream()
-        .peek(x -> x.put("_id", x.get("_id").toString()))
+        .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
         .collect(Collectors.toList());
 
     return QueryResponse.builder()
@@ -120,7 +122,7 @@ public class QueryServiceImpl implements QueryService {
       String field = inputQueryParam.getKey();
       ApiStructureType structureType = structureTypeMap.get(field);
 
-      Object value = "";
+      Object value;
 
       try {
         switch (structureType) {
@@ -168,7 +170,7 @@ public class QueryServiceImpl implements QueryService {
       }
     }
 
-    if (fullTextField.size() == 0){
+    if (fullTextField.isEmpty()){
       return query;
     }
 
@@ -176,10 +178,11 @@ public class QueryServiceImpl implements QueryService {
     for (int i = 0; i < fullTextValue.size(); i++) {
       fullTextSearchWord.append(fullTextValue.get(i));
 
-      if(i == fullTextValue.size()-1){
+      if(i == fullTextValue.size() - 1){
         break;
       }
-      fullTextSearchWord.append(" ");
+
+      fullTextSearchWord.append(DELIMITER);
     }
 
     TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matchingAny(

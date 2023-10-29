@@ -35,7 +35,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,8 +72,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     return PermissionDto.of(permission);
   }
 
-  public PermissionResponse getPermissionListForOwner(long apiId, long memberId, int pageSize,
-      int pageIdx){
+  public PermissionResponse getPermissionListForOwner(long apiId, long memberId, Pageable pageable){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
@@ -84,8 +82,6 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
       throw new ApiPermissionException(USER_HAS_NOT_API);
     }
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
 
     Page<ApiUserPermission> permissionPage = apiUserPermissionRepository.findByApiInfo(apiInfo, pageable);
 

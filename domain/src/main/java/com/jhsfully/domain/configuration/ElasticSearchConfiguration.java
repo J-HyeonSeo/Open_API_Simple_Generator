@@ -10,6 +10,7 @@ public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
 
   @Value("${spring.elasticsearch.server}")
   private String elasticSearchServer;
+
   @SuppressWarnings("NullableProblems")
   @Override
   public ClientConfiguration clientConfiguration() {
@@ -17,4 +18,5 @@ public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
         .connectedTo(elasticSearchServer)
         .build();
   }
+
 }

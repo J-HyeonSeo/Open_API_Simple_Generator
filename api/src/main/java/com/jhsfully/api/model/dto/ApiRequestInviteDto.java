@@ -3,6 +3,7 @@ package com.jhsfully.api.model.dto;
 import com.jhsfully.domain.entity.ApiRequestInvite;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,9 +25,9 @@ public class ApiRequestInviteDto {
   public static ApiRequestInviteDto of(ApiRequestInvite entity){
     return ApiRequestInviteDto.builder()
         .id(entity.getId())
-        .apiInfoId(entity.getId())
+        .apiInfoId(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getId())
         .memberId(entity.getId())
-        .apiName(entity.getApiInfo().getApiName())
+        .apiName(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getApiName())
         .memberEmail(entity.getMember().getEmail())
         .registeredAt(entity.getRegisteredAt())
         .requestStateType(entity.getRequestStateType())

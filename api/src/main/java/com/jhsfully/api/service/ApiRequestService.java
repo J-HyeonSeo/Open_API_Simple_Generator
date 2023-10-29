@@ -2,20 +2,19 @@ package com.jhsfully.api.service;
 
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface ApiRequestService {
 
   List<ApiRequestInviteDto> getRequestListForMember(
       long memberId,
-      int pageSize,
-      int pageIdx
+      Pageable pageable
   );
 
   List<ApiRequestInviteDto> getRequestListForOwner(
       long memberId,
       long apiId,
-      int pageSize,
-      int pageIdx
+      Pageable pageable
   );
 
   void apiRequest(

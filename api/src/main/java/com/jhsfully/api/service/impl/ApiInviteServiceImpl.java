@@ -35,9 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.join.JoinField;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,8 +55,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   private final MemberRepository memberRepository;
 
   @Override
-  public List<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, int pageSize,
-      int pageIdx) {
+  public List<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -66,9 +63,9 @@ public class ApiInviteServiceImpl implements ApiInviteService {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
-
-    return apiRequestInviteRepository.findByApiInfoAndApiRequestType(apiInfo, ApiRequestType.INVITE, pageable)
+    return apiRequestInviteRepository.
+            findByMemberAndApiInfoAndApiRequestType(member,
+                    apiInfo, ApiRequestType.INVITE, pageable)
         .getContent()
         .stream()
         .map(ApiRequestInviteDto::of)
@@ -76,13 +73,10 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   }
 
   @Override
-  public List<ApiRequestInviteDto> getInviteListForMember(long memberId, int pageSize,
-      int pageIdx) {
+  public List<ApiRequestInviteDto> getInviteListForMember(long memberId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize, Sort.by("registeredAt").descending());
 
     return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.INVITE, pageable)
         .getContent()

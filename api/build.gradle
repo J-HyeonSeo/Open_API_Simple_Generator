@@ -26,6 +26,7 @@ dependencies {
     implementation 'io.springfox:springfox-boot-starter:3.0.0'
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     implementation 'org.apache.tika:tika-core:2.5.0'
+    implementation 'jakarta.json:jakarta.json-api:2.0.1'
 
     //for test
     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'

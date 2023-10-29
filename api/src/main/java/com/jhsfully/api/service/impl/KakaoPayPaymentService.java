@@ -45,7 +45,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -121,11 +120,9 @@ public class KakaoPayPaymentService implements PaymentService {
       결제기록을 가져옵니다요~
    */
   @Override
-  public PaymentResponse getPaymentList(long memberId, int pageSize, int pageIdx) {
+  public PaymentResponse getPaymentList(long memberId, Pageable pageable) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
-
-    Pageable pageable = PageRequest.of(pageIdx, pageSize);
 
     Page<Payment> paymentPage = paymentRepository.findByMember(member, pageable);
 
@@ -163,7 +160,7 @@ public class KakaoPayPaymentService implements PaymentService {
     // 카카오 요청할 URL
     RestTemplate restTemplate = new RestTemplate();
 
-    PaymentReadyResponse response = null;
+    PaymentReadyResponse response;
 
     try {
       log.info("카카오페이로 결제요청 날림");
@@ -181,7 +178,7 @@ public class KakaoPayPaymentService implements PaymentService {
     //Redis에 임시 정보 저장하기.
     PaymentReady paymentReady = PaymentReady.builder()
         .paymentUUID(paymentUUID)
-        .tid(response.getTid())
+        .tid(Objects.requireNonNull(response).getTid())
         .gradeId(grade.getId())
         .memberId(memberId)
         .paidAmount(grade.getPrice())
@@ -241,13 +238,13 @@ public class KakaoPayPaymentService implements PaymentService {
     // 카카오페이 서버로 승인요청을 보냄.
     RestTemplate restTemplate = new RestTemplate();
 
-    PaymentRefundResponse response = null;
+    PaymentRefundResponse response;
 
     try {
       log.info("카카오페이 서버로 환불 요청 전송! id=" + payment.getId());
       response = restTemplate.postForObject(REFUND_URL, requestEntity, PaymentRefundResponse.class);
 
-      if(response == null){
+      if(Objects.isNull(response)){
         throw new PaymentException(PAYMENT_CANNOT_REFUND);
       }
 
@@ -326,14 +323,14 @@ public class KakaoPayPaymentService implements PaymentService {
     // 카카오페이 서버로 승인요청을 보냄.
     RestTemplate restTemplate = new RestTemplate();
 
-    PaymentApprovedResponse response = null;
+    PaymentApprovedResponse response;
 
     //Approve 요청은 한 번만 수행이 가능하므로, 중복 결제가 일어날 수 없음.
     try {
       log.info("카카오페이에 결제 승인 요청을 보냄, tid=" + paymentReady.getTid());
       response = restTemplate.postForObject(APPROVE_URL, requestEntity, PaymentApprovedResponse.class);
 
-      if(response == null){
+      if(Objects.isNull(response)){
         throw new PaymentException(PAYMENT_CANNOT_APPROVE);
       }
 
@@ -407,7 +404,7 @@ public class KakaoPayPaymentService implements PaymentService {
     }
 
     //추후에 로직 검증이 필요함.
-    if(member.getExpiredEnabledAt() != null && member.getExpiredEnabledAt().isAfter(LocalDate.now())){
+    if(!Objects.isNull(member.getExpiredEnabledAt()) && member.getExpiredEnabledAt().isAfter(LocalDate.now())){
       throw new PaymentException(REMAIN_ENABLE_DAYS_MORE_THAN_ONE);
     }
 
