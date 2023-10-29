@@ -10,6 +10,7 @@ import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.MemberUtil;
 import com.jhsfully.domain.type.SearchType;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -39,7 +40,7 @@ public class ApiController {
    */
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> createOpenApi(
-      @ModelAttribute CreateApiInput input) throws JsonProcessingException {
+      @ModelAttribute @Valid CreateApiInput input) throws JsonProcessingException {
     long memberId = MemberUtil.getMemberId();
     apiService.createOpenApi(input, memberId);
 
