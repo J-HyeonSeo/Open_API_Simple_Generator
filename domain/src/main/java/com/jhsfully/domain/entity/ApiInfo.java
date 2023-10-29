@@ -35,7 +35,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @Builder
 @Entity
-@Where(clause = "apiState <> 'DELETED'")
+@Where(clause = "apiState != 'DELETED'")
 @SQLDelete(sql = "UPDATE api_info SET apiState = 'DELETED' WHERE id = ?")
 @Table(name = "api_info")
 public class ApiInfo {

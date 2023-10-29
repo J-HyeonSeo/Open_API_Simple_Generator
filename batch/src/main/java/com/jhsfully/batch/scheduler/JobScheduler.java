@@ -30,7 +30,7 @@ public class JobScheduler {
   private final ApiHistoryDeleteJobConfig apiHistoryDeleteJobConfig;
   private final GradeRepository gradeRepository;
 
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0/12 * * * * *")
   public void launchJobs()
       throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
