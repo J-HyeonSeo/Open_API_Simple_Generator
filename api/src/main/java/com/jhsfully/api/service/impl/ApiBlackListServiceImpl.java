@@ -1,5 +1,14 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.errortype.ApiBlackListErrorType.ALREADY_REGISTERED_TARGET;
+import static com.jhsfully.domain.type.errortype.ApiBlackListErrorType.BLACKLIST_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiBlackListErrorType.CANNOT_DELETE_NOT_OWNER;
+import static com.jhsfully.domain.type.errortype.ApiBlackListErrorType.CANNOT_REGISTER_NOT_OWNER;
+import static com.jhsfully.domain.type.errortype.ApiBlackListErrorType.CANNOT_REGISTER_TARGET_IS_OWNER;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+
 import com.jhsfully.api.exception.ApiBlackListException;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
@@ -12,20 +21,14 @@ import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.BlackListRepository;
 import com.jhsfully.domain.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.jhsfully.domain.type.errortype.ApiBlackListErrorType.*;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -57,7 +60,7 @@ public class ApiBlackListServiceImpl implements ApiBlackListService {
   }
 
   @Override
-  public void registerBlackList(long apiId, long ownerMemberId, long targetMemberId) {
+  public void registerBlackList(long apiId, long ownerMemberId, long targetMemberId, LocalDateTime nowTime) {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
@@ -72,7 +75,7 @@ public class ApiBlackListServiceImpl implements ApiBlackListService {
     BlackList blackList = BlackList.builder()
         .apiInfo(apiInfo)
         .member(targetMember)
-        .registeredAt(LocalDateTime.now())
+        .registeredAt(nowTime)
         .build();
 
     blackListRepository.save(blackList);
