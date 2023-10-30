@@ -1,5 +1,12 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.ApiPermissionType.DELETE;
+import static com.jhsfully.domain.type.ApiPermissionType.INSERT;
+import static com.jhsfully.domain.type.ApiPermissionType.UPDATE;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
@@ -10,6 +17,13 @@ import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.mongodb.client.MongoCollection;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.domain.Pageable;
@@ -18,19 +32,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static com.jhsfully.domain.type.ApiPermissionType.*;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 
 @Service
 @Transactional
@@ -57,13 +58,16 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
       Pageable pageable
   ){
 
-    validateGetHistories(apiId, memberId);
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateGetHistories(apiInfo, member);
 
     LocalDateTime startDateTime = startDate.atStartOfDay();
     LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
-
-    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     //질의문 생성
     Query query = new Query(Criteria.where(MONGODB_AT_COL).gte(startDateTime).lte(endDateTime));
@@ -92,7 +96,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
   public void writeInsertHistory(
       Map<String, Object> insertData,
       String historyCollection,
-      long memberId){
+      long memberId, LocalDateTime nowTime){
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -100,7 +104,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //기록할 데이터 생성하기.
     Document document = new Document();
-    document.append(MONGODB_AT_COL, LocalDateTime.now());
+    document.append(MONGODB_AT_COL, nowTime);
     document.append(MONGODB_MEMBER_COL, member.getEmail());
     document.append(MONGODB_TYPE_COL, INSERT.name());
     document.append(MONGODB_NEW_COL, insertData);
@@ -115,7 +119,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
       Map<String, Object> originalData,
       Map<String, Object> newData,
       String historyCollection,
-      long memberId){
+      long memberId, LocalDateTime nowTime){
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -123,7 +127,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //기록할 데이터 생성하기.
     Document document = new Document();
-    document.append(MONGODB_AT_COL, LocalDateTime.now());
+    document.append(MONGODB_AT_COL, nowTime);
     document.append(MONGODB_MEMBER_COL, member.getEmail());
     document.append(MONGODB_TYPE_COL, UPDATE.name());
     document.append(MONGODB_ORIGINAL_COL, originalData);
@@ -137,7 +141,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
   public void writeDeleteHistory(
       Map<String, Object> originalData,
       String historyCollection,
-      long memberId){
+      long memberId, LocalDateTime nowTime){
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -145,7 +149,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     //기록할 데이터 생성하기.
     Document document = new Document();
-    document.append(MONGODB_AT_COL, LocalDateTime.now());
+    document.append(MONGODB_AT_COL, nowTime);
     document.append(MONGODB_MEMBER_COL, member.getEmail());
     document.append(MONGODB_TYPE_COL, DELETE.name());
     document.append(MONGODB_ORIGINAL_COL, originalData);
@@ -163,12 +167,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
       ###############################################################
    */
 
-  private void validateGetHistories(long apiId, long memberId){
-    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
-
+  private void validateGetHistories(ApiInfo apiInfo, Member member){
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
       throw new ApiPermissionException(YOU_ARE_NOT_API_OWNER);
     }

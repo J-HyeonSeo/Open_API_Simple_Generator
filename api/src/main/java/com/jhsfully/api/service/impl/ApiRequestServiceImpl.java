@@ -69,7 +69,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
     return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.REQUEST, pageable)
         .getContent()
         .stream()
-        .map(ApiRequestInviteDto::of)
+        .map(x -> ApiRequestInviteDto.of(x, true))
         .collect(Collectors.toList());
   }
 
@@ -90,7 +90,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
                     apiInfo, ApiRequestType.REQUEST, pageable)
         .getContent()
         .stream()
-        .map(ApiRequestInviteDto::of)
+        .map(x -> ApiRequestInviteDto.of(x, false))
         .collect(Collectors.toList());
   }
 
