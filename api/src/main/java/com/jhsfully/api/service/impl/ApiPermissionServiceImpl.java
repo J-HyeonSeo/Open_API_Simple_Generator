@@ -79,9 +79,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
-      throw new ApiPermissionException(USER_HAS_NOT_API);
-    }
+    validateGetPermissionListForOwner(apiInfo, member);
 
     Page<ApiUserPermission> permissionPage = apiUserPermissionRepository.findByApiInfo(apiInfo, pageable);
 
@@ -101,14 +99,10 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     ApiUserPermission userPermission = apiUserPermissionRepository.findById(permissionId)
         .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_PERMISSION));
 
-    if(userPermission.getApiInfo().getMember().getId() != memberId){
-      throw new ApiPermissionException(USER_HAS_NOT_API);
-    }
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    if(userPermission.getApiPermissionDetails().stream()
-        .anyMatch(it -> it.getType() == type)){
-      throw new ApiPermissionException(ALREADY_HAS_PERMISSION);
-    }
+    validateAddPermission(member, type, userPermission);
 
     ApiPermissionDetail permissionDetail = ApiPermissionDetail.builder()
         .apiUserPermission(userPermission)
@@ -122,9 +116,10 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     ApiPermissionDetail permissionDetail = apiPermissionDetailRepository.findById(permissionDetailId)
         .orElseThrow(() -> new ApiPermissionException(PERMISSION_DETAIL_NOT_FOUND));
 
-    if(permissionDetail.getApiUserPermission().getApiInfo().getMember().getId() != memberId){
-      throw new ApiPermissionException(USER_HAS_NOT_API);
-    }
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateSubPermission(permissionDetail, member);
 
     apiPermissionDetailRepository.delete(permissionDetail);
   }
@@ -133,15 +128,13 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     ApiUserPermission userPermission = apiUserPermissionRepository.findById(permissionId)
         .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_PERMISSION));
 
-    if(userPermission.getApiInfo().getMember().getId() != memberId){
-      throw new ApiPermissionException(USER_HAS_NOT_API);
-    }
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateDeletePermission(userPermission, member);
 
     //delete all permission details.
-    userPermission.getApiPermissionDetails()
-        .forEach(
-            apiPermissionDetailRepository::delete
-        );
+    apiPermissionDetailRepository.deleteAll(userPermission.getApiPermissionDetails());
 
     //delete permission.
     apiUserPermissionRepository.delete(userPermission);
@@ -158,12 +151,12 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
   @Override
   public AuthKeyResponse getAuthKey(long memberId, long apiId) {
-    validate(memberId, apiId);
-
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    validateForManageAuthkey(apiInfo, member);
 
     ApiKey apiKey = apiKeyRepository.findByApiInfoAndMember(apiInfo, member)
         .orElseThrow(() -> new ApiPermissionException(API_KEY_NOT_ISSUED));
@@ -172,12 +165,12 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
   @Override
   public AuthKeyResponse createAuthKey(long memberId, long apiId) {
-    validate(memberId, apiId);
-
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    validateForManageAuthkey(apiInfo, member);
 
     if(apiKeyRepository.findByApiInfoAndMember(apiInfo, member).isPresent()){
       throw new ApiPermissionException(API_KEY_ALREADY_ISSUED);
@@ -198,12 +191,12 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
   @Override
   public AuthKeyResponse refreshAuthKey(long memberId, long apiId) {
-    validate(memberId, apiId);
-
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    validateForManageAuthkey(apiInfo, member);
 
     ApiKey apiKey = apiKeyRepository.findByApiInfoAndMember(apiInfo, member)
         .orElseThrow(() -> new ApiPermissionException(API_KEY_NOT_ISSUED));
@@ -225,12 +218,38 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
       ###############################################################
    */
 
-  private void validate(long memberId, long apiId){
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+  private void validateGetPermissionListForOwner(ApiInfo apiInfo, Member member){
+    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+  }
 
-    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
-        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+  private void validateAddPermission(Member member, ApiPermissionType type,
+      ApiUserPermission userPermission) {
+    if(!Objects.equals(userPermission.getApiInfo().getMember().getId(), member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+
+    if(userPermission.getApiPermissionDetails().stream()
+        .anyMatch(it -> it.getType() == type)){
+      throw new ApiPermissionException(ALREADY_HAS_PERMISSION);
+    }
+  }
+
+  private void validateSubPermission(ApiPermissionDetail permissionDetail, Member member) {
+    if(!Objects.equals(permissionDetail.getApiUserPermission().getApiInfo().getMember().getId(),
+        member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+  }
+
+  private static void validateDeletePermission(ApiUserPermission userPermission, Member member) {
+    if(!Objects.equals(userPermission.getApiInfo().getMember().getId(), member.getId())){
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+  }
+
+  private void validateForManageAuthkey(ApiInfo apiInfo, Member member){
 
     //API가 비활성 상태라면, 발급 불가
     if(apiInfo.getApiState() == ApiState.DISABLED){
