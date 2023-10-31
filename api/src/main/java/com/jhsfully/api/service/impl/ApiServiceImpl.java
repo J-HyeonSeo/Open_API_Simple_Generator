@@ -1,14 +1,49 @@
 package com.jhsfully.api.service.impl;
 
+import static com.jhsfully.domain.type.ApiQueryType.EQUAL;
+import static com.jhsfully.domain.type.ApiQueryType.INCLUDE;
+import static com.jhsfully.domain.type.ApiQueryType.START;
+import static com.jhsfully.domain.type.ApiStructureType.STRING;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_FIELD_COUNT_IS_DIFFERENT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_ALREADY_ENABLED;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_DISABLED;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.CANNOT_ENABLE_FAILED_API;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.CANNOT_ENABLE_READY_API;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.DATA_IS_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.FIELD_WAS_NOT_DEFINITION_IN_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_API_MAX_COUNT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_FIELD_MAX_COUNT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_MAX_DB_SIZE;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_MAX_FILE_SIZE;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_QUERY_MAX_COUNT;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_NOT_INCLUDE_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.SCHEMA_COUNT_IS_ZERO;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.TODAY_IS_AFTER_EXPIRED_AT;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_PERMISSION;
+import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
+import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
+import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
-import com.jhsfully.api.model.api.*;
+import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.CreateApiInput.QueryData;
 import com.jhsfully.api.model.api.CreateApiInput.SchemaData;
+import com.jhsfully.api.model.api.DeleteApiDataInput;
+import com.jhsfully.api.model.api.InsertApiDataInput;
+import com.jhsfully.api.model.api.InsertApiDataResponse;
+import com.jhsfully.api.model.api.UpdateApiDataInput;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
@@ -29,6 +64,16 @@ import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -43,23 +88,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.jhsfully.domain.type.ApiQueryType.*;
-import static com.jhsfully.domain.type.ApiStructureType.STRING;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.*;
-import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.*;
-import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
-import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
 
 @Slf4j
 @Service
@@ -93,6 +121,7 @@ public class ApiServiceImpl implements ApiService {
   /*
       OpenAPI를 새로 생성함.
    */
+  @Override
   public void createOpenApi(CreateApiInput input, long memberId) throws JsonProcessingException {
 
     Member member = memberRepository.findById(memberId)
@@ -174,7 +203,8 @@ public class ApiServiceImpl implements ApiService {
       API에 데이터 추가함.
       데이터 추가시에는, 반드시 모든 데이터를 기입해야함.
    */
-  public InsertApiDataResponse insertApiData(InsertApiDataInput input, long memberId){
+  @Override
+  public InsertApiDataResponse insertApiData(InsertApiDataInput input, long memberId, LocalDateTime nowTime){
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
@@ -205,7 +235,7 @@ public class ApiServiceImpl implements ApiService {
     apiHistoryService.writeInsertHistory(
         input.getInsertData(),
         apiInfo.getHistoryCollectionName(),
-        memberId
+        memberId, nowTime
     );
 
     return new InsertApiDataResponse(
@@ -217,7 +247,8 @@ public class ApiServiceImpl implements ApiService {
       API의 데이터를 수정함.
       데이터 수정은 일부만 포함되도 됨.
    */
-  public void updateApiData(UpdateApiDataInput input, long memberId){
+  @Override
+  public void updateApiData(UpdateApiDataInput input, long memberId, LocalDateTime nowTime){
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
@@ -257,14 +288,15 @@ public class ApiServiceImpl implements ApiService {
         originalData,
         input.getUpdateData(),
         apiInfo.getHistoryCollectionName(),
-        memberId
+        memberId, nowTime
     );
   }
 
   /*
       id만 일치하면 삭제 할 수 있음.
    */
-  public void deleteApiData(DeleteApiDataInput input, long memberId){
+  @Override
+  public void deleteApiData(DeleteApiDataInput input, long memberId, LocalDateTime nowTime){
 
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -291,7 +323,7 @@ public class ApiServiceImpl implements ApiService {
     apiHistoryService.writeDeleteHistory(
         originalData,
         apiInfo.getHistoryCollectionName(),
-        memberId
+        memberId, nowTime
     );
   }
 

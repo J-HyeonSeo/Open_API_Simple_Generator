@@ -30,7 +30,6 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -68,7 +67,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
                     apiInfo, ApiRequestType.INVITE, pageable)
         .getContent()
         .stream()
-        .map(ApiRequestInviteDto::of)
+        .map(x -> ApiRequestInviteDto.of(x, false))
         .collect(Collectors.toList());
   }
 
@@ -81,7 +80,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
     return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.INVITE, pageable)
         .getContent()
         .stream()
-        .map(ApiRequestInviteDto::of)
+        .map(x -> ApiRequestInviteDto.of(x, true))
         .collect(Collectors.toList());
   }
 
@@ -104,7 +103,6 @@ public class ApiInviteServiceImpl implements ApiInviteService {
         .apiInfo(apiInfo)
         .apiRequestType(ApiRequestType.INVITE)
         .requestStateType(ApiRequestStateType.REQUEST)
-        .registeredAt(LocalDateTime.now())
         .build();
 
     apiRequestInviteRepository.save(invite);

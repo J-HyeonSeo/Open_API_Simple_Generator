@@ -10,6 +10,7 @@ import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.MemberUtil;
 import com.jhsfully.domain.type.SearchType;
+import java.time.LocalDateTime;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -55,7 +56,7 @@ public class ApiController {
   public ResponseEntity<?> insertApiData(@RequestBody InsertApiDataInput input){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiService.insertApiData(input, memberId)
+        apiService.insertApiData(input, memberId, LocalDateTime.now())
     );
   }
 
@@ -65,7 +66,7 @@ public class ApiController {
   @PutMapping("/data/manage")
   public ResponseEntity<?> updateApiData(@RequestBody UpdateApiDataInput input){
     long memberId = MemberUtil.getMemberId();
-    apiService.updateApiData(input, memberId);
+    apiService.updateApiData(input, memberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 
@@ -75,7 +76,7 @@ public class ApiController {
   @DeleteMapping("/data/manage")
   public ResponseEntity<?> deleteApiData(@RequestBody DeleteApiDataInput input){
     long memberId = MemberUtil.getMemberId();
-    apiService.deleteApiData(input, memberId);
+    apiService.deleteApiData(input, memberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 

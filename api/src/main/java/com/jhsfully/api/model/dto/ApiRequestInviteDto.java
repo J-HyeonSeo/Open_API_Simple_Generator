@@ -22,13 +22,13 @@ public class ApiRequestInviteDto {
   private LocalDateTime registeredAt;
   private ApiRequestStateType requestStateType;
 
-  public static ApiRequestInviteDto of(ApiRequestInvite entity){
+  public static ApiRequestInviteDto of(ApiRequestInvite entity, boolean isShowOwner){
     return ApiRequestInviteDto.builder()
         .id(entity.getId())
         .apiInfoId(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getId())
-        .memberId(entity.getId())
+        .memberId(isShowOwner ? entity.getApiInfo().getMember().getId() : entity.getMember().getId())
         .apiName(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getApiName())
-        .memberEmail(entity.getMember().getEmail())
+        .memberEmail(isShowOwner ? entity.getApiInfo().getMember().getEmail() : entity.getMember().getEmail())
         .registeredAt(entity.getRegisteredAt())
         .requestStateType(entity.getRequestStateType())
         .build();

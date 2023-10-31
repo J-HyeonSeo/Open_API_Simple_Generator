@@ -2,6 +2,7 @@ package com.jhsfully.api.restcontroller;
 
 import com.jhsfully.api.service.ApiBlackListService;
 import com.jhsfully.api.util.MemberUtil;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,7 +47,7 @@ public class ApiBlackListController {
       @PathVariable long targetMemberId
   ) {
     long ownerMemberId = MemberUtil.getMemberId();
-    apiBlackListService.registerBlackList(apiId, ownerMemberId, targetMemberId);
+    apiBlackListService.registerBlackList(apiId, ownerMemberId, targetMemberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 

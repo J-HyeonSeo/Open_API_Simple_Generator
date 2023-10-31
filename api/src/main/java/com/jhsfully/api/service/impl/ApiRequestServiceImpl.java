@@ -33,7 +33,6 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -69,7 +68,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
     return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.REQUEST, pageable)
         .getContent()
         .stream()
-        .map(ApiRequestInviteDto::of)
+        .map(x -> ApiRequestInviteDto.of(x, true))
         .collect(Collectors.toList());
   }
 
@@ -90,7 +89,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
                     apiInfo, ApiRequestType.REQUEST, pageable)
         .getContent()
         .stream()
-        .map(ApiRequestInviteDto::of)
+        .map(x -> ApiRequestInviteDto.of(x, false))
         .collect(Collectors.toList());
   }
 
@@ -110,7 +109,6 @@ public class ApiRequestServiceImpl implements ApiRequestService {
         .apiInfo(apiInfo)
         .apiRequestType(ApiRequestType.REQUEST)
         .requestStateType(ApiRequestStateType.REQUEST)
-        .registeredAt(LocalDateTime.now())
         .build();
 
     apiRequestInviteRepository.save(request);
@@ -141,7 +139,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
     long permissionId = apiUserPermissionRepository.save(permission).getId();
 
     ApiInfoElastic elastic = ApiInfoElastic.builder()
-        .accessMemberId(member.getId())
+        .accessMemberId(request.getMember().getId())
         .permissionId(permissionId)
         .mapping(new JoinField<>("accessMember", request.getApiInfo().getId()))
         .build();
