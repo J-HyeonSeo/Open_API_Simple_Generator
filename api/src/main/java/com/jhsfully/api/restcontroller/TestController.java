@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  *  관리자 기능을 수행하는 컨트롤러
  */
 @RestController
-public class AdminController {
-
-
+public class TestController {
 
   /*
       테스트를 위한 토큰 발급
@@ -35,16 +33,4 @@ public class AdminController {
     );
   }
 
-  @Autowired
-  private MongoTemplate mongoTemplate;
-  @GetMapping("/test/dbsize")
-  public ResponseEntity<?> getDbSize(){
-    // 실행할 명령
-    Document command = new Document("collStats", "5eabfda2108d46aeba7bf1e9d2628e6c");
-
-    // 명령 실행 및 결과 출력
-    Document result = mongoTemplate.getDb().runCommand(command);
-//    System.out.println(result.toJson());
-    return ResponseEntity.ok(result);
-  }
 }

@@ -14,33 +14,6 @@ import lombok.NoArgsConstructor;
 
 public class ApiInfoDto {
 
-//  @Getter
-//  @NoArgsConstructor
-//  @AllArgsConstructor
-//  @Builder
-//  public static class ApiInfoTopResponse{
-//    private long id;
-//    private String apiName;
-//    private String apiIntroduce;
-//    private String ownerEmail;
-//    private List<ApiPermissionType> permissions;
-//    private ApiState apiState;
-//    private boolean isPublic;
-//  }
-//
-//  public static ApiInfoTopResponse topOf(ApiInfo entity, ApiUserPermission permission){
-//    return ApiInfoTopResponse.builder()
-//        .id(entity.getId())
-//        .apiName(entity.getApiName())
-//        .apiIntroduce(entity.getApiIntroduce())
-//        .ownerEmail(entity.getMember().getEmail())
-//        .permissions(permission.getApiPermissionDetails().stream().map( x -> x.getType()).collect(
-//            Collectors.toList()))
-//        .apiState(entity.getApiState())
-//        .isPublic(entity.isPublic())
-//        .build();
-//  }
-
   @Getter
   @NoArgsConstructor
   @AllArgsConstructor
