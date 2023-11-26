@@ -58,6 +58,8 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
         ######### PERMISSION AREA ############
    */
 
+  @Override
+  @Transactional(readOnly = true)
   public PermissionDto getPermissionForMember(long apiId, long memberId){
 
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
@@ -72,6 +74,8 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     return PermissionDto.of(permission);
   }
 
+  @Override
+  @Transactional(readOnly = true)
   public PermissionResponse getPermissionListForOwner(long apiId, long memberId, Pageable pageable){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
@@ -95,6 +99,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
         .build();
   }
 
+  @Override
   public void addPermission(long permissionId, long memberId, ApiPermissionType type){
     ApiUserPermission userPermission = apiUserPermissionRepository.findById(permissionId)
         .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_PERMISSION));
@@ -112,6 +117,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     apiPermissionDetailRepository.save(permissionDetail);
   }
 
+  @Override
   public void subPermission(long permissionDetailId, long memberId){
     ApiPermissionDetail permissionDetail = apiPermissionDetailRepository.findById(permissionDetailId)
         .orElseThrow(() -> new ApiPermissionException(PERMISSION_DETAIL_NOT_FOUND));
@@ -124,6 +130,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
     apiPermissionDetailRepository.delete(permissionDetail);
   }
 
+  @Override
   public void deletePermission(long permissionId, long memberId){
     ApiUserPermission userPermission = apiUserPermissionRepository.findById(permissionId)
         .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_PERMISSION));
@@ -150,6 +157,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
    */
 
   @Override
+  @Transactional(readOnly = true)
   public AuthKeyResponse getAuthKey(long memberId, long apiId) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));

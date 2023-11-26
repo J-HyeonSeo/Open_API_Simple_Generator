@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,8 @@ public class QueryServiceImpl implements QueryService {
   private final ApiKeyRepository apiKeyRepository;
   private final MongoTemplate mongoTemplate;
 
+  @Override
+  @Transactional(readOnly = true)
   public QueryResponse getDataList(QueryInput input){
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));

@@ -330,6 +330,7 @@ public class ApiServiceImpl implements ApiService {
   /*
       DELETE는 기록 및 FK참조로 인해, SOFT DELETE방식으로 제거해야함.
    */
+  @Override
   public void deleteOpenApi(long apiId, long memberId){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
@@ -364,6 +365,7 @@ public class ApiServiceImpl implements ApiService {
   }
 
   //유저가 직접 비활성화 된, OpenAPI를 활성화 시키는 메서드
+  @Override
   public void enableOpenApi(long apiId, long memberId){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));

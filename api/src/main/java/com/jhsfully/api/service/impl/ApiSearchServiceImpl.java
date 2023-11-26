@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /*
     데이터 검색은, Elastic Search로 진행하고,
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ApiSearchServiceImpl implements ApiSearchService {
 
