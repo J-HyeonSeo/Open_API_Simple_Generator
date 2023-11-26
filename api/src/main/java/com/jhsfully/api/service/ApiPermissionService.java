@@ -1,7 +1,7 @@
 package com.jhsfully.api.service;
 
 import com.jhsfully.api.model.permission.AuthKeyResponse;
-import com.jhsfully.api.model.permission.PermissionDto;
+import com.jhsfully.api.model.dto.PermissionDto;
 import com.jhsfully.api.model.permission.PermissionResponse;
 import com.jhsfully.domain.type.ApiPermissionType;
 import org.springframework.data.domain.Pageable;

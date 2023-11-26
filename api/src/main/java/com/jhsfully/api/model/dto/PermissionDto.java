@@ -1,4 +1,4 @@
-package com.jhsfully.api.model.permission;
+package com.jhsfully.api.model.dto;
 
 import com.jhsfully.domain.entity.ApiPermissionDetail;
 import com.jhsfully.domain.entity.ApiUserPermission;

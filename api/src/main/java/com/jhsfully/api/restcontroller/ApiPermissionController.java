@@ -1,6 +1,6 @@
 package com.jhsfully.api.restcontroller;
 
-import com.jhsfully.api.model.permission.PermissionDto;
+import com.jhsfully.api.model.dto.PermissionDto;
 import com.jhsfully.api.model.permission.PermissionResponse;
 import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.api.util.MemberUtil;

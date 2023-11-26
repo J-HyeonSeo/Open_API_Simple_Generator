@@ -14,7 +14,7 @@ import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.permission.AuthKeyResponse;
-import com.jhsfully.api.model.permission.PermissionDto;
+import com.jhsfully.api.model.dto.PermissionDto;
 import com.jhsfully.api.model.permission.PermissionResponse;
 import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.domain.entity.ApiInfo;
