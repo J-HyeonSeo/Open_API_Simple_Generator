@@ -51,6 +51,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
   private final ApiInfoRepository apiInfoRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public HistoryResponse getApiHistories(
       long apiId, long memberId,
       LocalDate startDate,
