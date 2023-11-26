@@ -32,7 +32,6 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
@@ -112,7 +111,7 @@ public class ApiServiceImpl implements ApiService {
 
   //for kafka
   private final KafkaTemplate<String, ExcelParserModel> kafkaTemplate;
-  private final ObjectMapper objectMapper;
+
   @Value("${spring.excel-storage-path}")
   private String EXCEL_STORAGE_PATH;
   @Value("${spring.kafka.topic-name}")
