@@ -12,25 +12,16 @@ public class FileUtil {
 
   public static boolean validFileExtension(MultipartFile file) throws IOException {
 
-    InputStream inputStream = file.getInputStream();
-
-    try{
+    try(InputStream inputStream = file.getInputStream()){
       String mimeType = tika.detect(inputStream);
-
-      if (EXCEL_MIME_TYPE.equals(mimeType)){
-
-        String extension = file.getOriginalFilename().split("\\.")[1];
-
+      if (EXCEL_MIME_TYPE.equals(mimeType) &&
+        file.getOriginalFilename() != null){
+        String[] periodSeparated = file.getOriginalFilename().split("\\.");
+        String extension = periodSeparated[periodSeparated.length-1];
         if(extension.equals("xlsx") || extension.equals("xls")){
           return true;
         }
-
       }
-
-    }catch (IOException e){
-      return false;
-    }finally {
-      inputStream.close();
     }
     return false;
   }

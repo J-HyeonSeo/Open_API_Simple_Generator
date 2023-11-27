@@ -14,9 +14,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+/*
+    ModelAttribute로 입력받기 위해 Setter를 유지.
+ */
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CreateApiInput {

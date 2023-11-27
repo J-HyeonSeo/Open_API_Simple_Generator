@@ -15,6 +15,7 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FIL
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FIELD_WAS_NOT_DEFINITION_IN_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_NAME_IS_NULL;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_API_MAX_COUNT;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_FIELD_MAX_COUNT;
@@ -178,10 +179,12 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiException(FILE_PARSE_ERROR);
     }
 
-    /*
-        상단에서, 이미 검사를 마쳤기 때문에, split해서 확장자를 가져올 수 있음.
-     */
-    String fileExtension = file.getOriginalFilename().split("\\.")[1];
+    if(file.getOriginalFilename() == null) {
+      throw new ApiException(FILE_NAME_IS_NULL);
+    }
+
+    String[] periodSeparated = file.getOriginalFilename().split("\\.");
+    String fileExtension = periodSeparated[periodSeparated.length-1];
     String filepath = EXCEL_STORAGE_PATH + "/" + fileName + "." + fileExtension;
     try {
       File newFile = new File(filepath);
@@ -229,7 +232,7 @@ public class ApiServiceImpl implements ApiService {
 
     InsertOneResult result = collection.insertOne(document);
 
-    input.getInsertData().put(MONGODB_ID, result.getInsertedId().asObjectId().getValue());
+    input.getInsertData().put(MONGODB_ID, Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue());
 
     //히스토리 로그 남기기.
     apiHistoryService.writeInsertHistory(
@@ -268,7 +271,7 @@ public class ApiServiceImpl implements ApiService {
     }
 
     //기존 데이터 가져오기.
-    Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
+    Document originalData = mongoTemplate.findOne(query, Document.class, apiInfo.getDataCollectionName());
 
     //업데이트 할 데이터 설정.
     Update update = new Update();
@@ -309,7 +312,7 @@ public class ApiServiceImpl implements ApiService {
     Query query = new Query(Criteria.where(MONGODB_ID).is(new ObjectId(input.getDataId())));
 
     //기존 데이터 가져오기.
-    Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
+    Document originalData = mongoTemplate.findOne(query, Document.class, apiInfo.getDataCollectionName());
 
     //id가 존재하는지 확인하기.
     if(!mongoTemplate.exists(query, apiInfo.getDataCollectionName())){

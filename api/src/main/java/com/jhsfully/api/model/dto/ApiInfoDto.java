@@ -9,13 +9,11 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 
 public class ApiInfoDto {
 
   @Getter
-  @NoArgsConstructor
   @AllArgsConstructor
   @Builder
   public static class ApiInfoDetailResponse{

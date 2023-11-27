@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.bson.Document;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +94,7 @@ class QueryServiceImplTest {
     //given
     ApiInfo apiInfo = getApiInfo();
     String testAuthKey = "testAuthKey";
-    Map<String, Object> responseData = new HashMap<>();
+    Document responseData = new Document();
     responseData.put(MONGODB_ID, "2a2b4c");
     responseData.put("test", "test");
 

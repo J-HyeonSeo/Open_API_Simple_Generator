@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -57,7 +58,7 @@ public class QueryServiceImpl implements QueryService {
 
     query.with(pageable);
 
-    List<Map> results = mongoTemplate.find(query, Map.class, apiInfo.getDataCollectionName())
+    List<Document> results = mongoTemplate.find(query, Document.class, apiInfo.getDataCollectionName())
         .stream()
         .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
         .collect(Collectors.toList());

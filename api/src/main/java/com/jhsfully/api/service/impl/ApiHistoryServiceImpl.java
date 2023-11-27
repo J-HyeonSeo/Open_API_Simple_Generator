@@ -79,7 +79,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
     query.with(pageable);
 
     //데이터 질의
-    List<Map> queriedDataList = mongoTemplate.find(query, Map.class, apiInfo.getHistoryCollectionName())
+    List<Document> queriedDataList = mongoTemplate.find(query, Document.class, apiInfo.getHistoryCollectionName())
         .stream()
         .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
         .collect(Collectors.toList());
