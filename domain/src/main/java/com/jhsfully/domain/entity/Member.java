@@ -30,7 +30,6 @@ public class Member {
   private LocalDateTime registeredAt;
   @LastModifiedDate
   private LocalDateTime updatedAt;
-  private boolean isAdmin;
   private LocalDateTime latestPaidAt;
   private int refundCount;
   private boolean gradeChanged;

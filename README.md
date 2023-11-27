@@ -1,7 +1,7 @@
 # OpenAPI 간단 구축 서비스(Open Api Simple Generator)
 
 
-![LOGO](doc/logo/logo.png)
+![LOGO](doc/logo/new-logo.png)
 
 ---
 
@@ -69,9 +69,9 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 - 환불은 결제일로부터 7일 이내로 수행이 가능합니다.
 - 환불시, 전 API는 비활성화 됩니다.
 - 환불시, 등급은 BRONZE로 강등됩니다.
-- 환불시, 등급 유지 일수는 0일이 됩니다.
+- 환불시, 등급 유지 기한을 만료된 기한(오늘날짜 - 1)로 설정합니다.
 - 환불을 2회 이상 진행한 경우에는, 환불은 수행가능하지만 한 달간 결제 진행이 불가능합니다.
-- 결제일로부터 해당 등급을 유지하는 기한 31일이 부여됩니다.
+- 결제일로부터 해당 등급을 유지하는 기한이 31일 뒤로 설정됩니다.
 - 등급 유지 기한이 1일이 남은 날에, 동등급 이상으로 재결제를 수행하지 않을경우, 다음날 새벽에 소유한 전 API가 비활성화 됩니다.
 
 **[재결제 미스로 인한 API활성화]**
@@ -82,10 +82,8 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 **[유지 일수 및 등급에 따른 배치처리]**
 
-- 스케줄러는 새벽 0시 5분에 수행됩니다.
-- 등급 유지 일수가 이미 0이라면, 아무런 조치를 수행하지 않음.
-- 등급 유지 일수를 재 할당 합니다. 등급 유지 일수 = 등급 유지 일수 - 1
-- 등급 유지 일수가 0인 경우에는, 해당 Member 소유한 전 API를 비활성화 조치를 수행합니다.
+- 스케줄러는 새벽에 수행됩니다.
+- 등급 유지 기한이 초과된 경우, 해당 Member 소유한 전 API를 비활성화 조치를 수행합니다.
 - 등급데이터와 유저가 소유한 API데이터를 불러와, 적합하지 않는 API가 존재할 경우, 유저의 전 API를 비활성화 조치함.(등급 변경 이슈)
 - 변경된 등급데이터가 있었다면, 배치처리가 종료된 이후에 변경사항을 False로 다시 변경해줌.
 
@@ -177,7 +175,7 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 ---
 
-### 프로젝트 구조
+### 프로젝트 아키텍처
 
 - 해당 프로젝트는 Multi-Module-Gradle 형태의 프로젝트입니다.
 - 각각의 모듈이 맡은 기능은 다음과 같습니다.
@@ -194,7 +192,7 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 - ```consumer모듈 : kafka에서 메세지를 가져와서, 순서대로 엑셀 데이터 파싱을 수행하는 모듈```
 
-![structure](doc/structure/project-structure.png)
+![architecture](doc/architecture/architecture.png)
 
 ---
 
@@ -203,6 +201,21 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 [클릭하면, 프로젝트의 트러블 슈팅을 확인할 수 있습니다!](doc/TROUBLE_SHOOTING.md)
 
 ---
+
+### 시연 화면 (with Postman)
+
+#### 엑셀 파일 정의
+![excelimage](doc/demonstration/exceldata.png)
+
+#### OpenAPI 생성하기 
+
+![apicreate1](doc/demonstration/api-create-1.png)
+![apicreate2](doc/demonstration/api-create-2.png)
+
+#### 쿼리 조회하기
+
+![query-ex-1](doc/demonstration/query-ex1.png)
+![query-ex-2](doc/demonstration/query-ex2.png)
 
 ### 기술 스택
 
@@ -218,15 +231,16 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 ### 의존성
 
-|       의존성       |버전|               용도               |
-|:---------------:|:---:|:------------------------------:|
-|   SpringBoot    |2.7.14|           웹개발 프레임워크            |
-| Spring-Security |2.7.14|               인증               |
-|  Oauth2-client  |2.7.14|             소셜로그인              |
-|  Spring-batch   |2.7.14|             배치 처리              |
-| Spring-mongodb  |2.7.14|         OpenAPI 데이터 저장         |
-|  Spring-redis   |2.7.14|          Locking 및 캐싱          |
-|  Spring-kafka   |2.7.14|        엑셀 파싱을 위한 메세지 전달        |
-| Spring-data-jpa |2.7.14|              ORM               |
-| Mysql-Connector |8.0.33|            MySQL 연결            |
-|     Lombok      |1.18.28| Getter, Setter, Constructor 생성 |
+|         의존성          |   버전    |               용도               |
+|:--------------------:|:-------:|:------------------------------:|
+|      SpringBoot      | 2.7.14  |           웹개발 프레임워크            |
+|   Spring-Security    | 2.7.14  |               인증               |
+|    Oauth2-client     | 2.7.14  |             소셜로그인              |
+|     Spring-batch     | 2.7.14  |             배치 처리              |
+|    Spring-mongodb    | 2.7.14  |         OpenAPI 데이터 저장         |
+|     Spring-redis     | 2.7.14  |        RefreshToken 저장         |
+| Spring-elasticsearch | 2.7.14  |       빠른 검색을 위한 검색엔진 사용        |
+|     Spring-kafka     | 2.7.14  |        엑셀 파싱을 위한 메세지 전달        |
+|   Spring-data-jpa    | 2.7.14  |              ORM               |
+|   Mysql-Connector    | 8.0.33  |            MySQL 연결            |
+|        Lombok        | 1.18.28 | Getter, Setter, Constructor 생성 |

@@ -120,6 +120,7 @@ public class KakaoPayPaymentService implements PaymentService {
       결제기록을 가져옵니다요~
    */
   @Override
+  @Transactional(readOnly = true)
   public PaymentResponse getPaymentList(long memberId, Pageable pageable) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));

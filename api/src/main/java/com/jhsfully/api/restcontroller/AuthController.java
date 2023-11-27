@@ -5,12 +5,7 @@ import com.jhsfully.api.model.auth.TokenResponse;
 import com.jhsfully.api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,10 +35,20 @@ public class AuthController {
   }
 
   @PostMapping
-  ResponseEntity<TokenResponse> refresh(@RequestBody TokenInput token){
+  public ResponseEntity<TokenResponse> refresh(@RequestBody TokenInput token){
     return ResponseEntity.ok(
         authService.generateAccessToken(token.getRefreshToken())
     );
+  }
+
+  /**
+   *  Redis 저장되어 있는 RefreshToken을 삭제하기 때문에
+   *  DeleteMapping 으로 지정하였음.
+   */
+  @DeleteMapping("/signout")
+  public ResponseEntity<?> logout(@RequestBody TokenInput tokenInput) {
+    authService.logout(tokenInput.getRefreshToken());
+    return ResponseEntity.ok().build();
   }
 
 }

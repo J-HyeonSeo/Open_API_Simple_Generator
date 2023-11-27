@@ -3,13 +3,12 @@ package com.jhsfully.api.security;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.domain.entity.RefreshToken;
 import com.jhsfully.domain.repository.RefreshTokenRepository;
-import com.jhsfully.domain.type.errortype.AuthenticationErrorType;
 import com.jhsfully.domain.type.RoleType;
+import com.jhsfully.domain.type.errortype.AuthenticationErrorType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class TokenProvider {
   @Value("${spring.jwt.secret}")
   private String secretKey;
   private static final String MEMBER_ID = "memberId";
-  private static final String IS_ADMIN = "admin";
+  private static final String ROLES = "roles";
   private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;//1초 -> 1분 -> 30분
   private static final long REFRESH_TOKEN_EXPIRE_TIME =
       1000 * 60 * 60 * 24 * 14;//1초 -> 1분 -> 1시간 -> 1일 -> 2주
@@ -40,10 +39,10 @@ public class TokenProvider {
 
 
   //Access 토큰 생성
-  public String generateAccessToken(Long memberId, boolean isAdmin) {
+  public String generateAccessToken(Long memberId) {
     Claims claims = Jwts.claims();
     claims.put(MEMBER_ID, memberId);
-    claims.put(IS_ADMIN, isAdmin);
+    claims.put(ROLES, List.of(RoleType.ROLE_USER.name()));
 
     Date now = new Date();
     Date expiredDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
@@ -67,13 +66,11 @@ public class TokenProvider {
     //memberId 가져오기
     Long memberId = getMemberId(refreshToken);
 
-    //refreshToken에서 isAdmin과 isPartner를 가져올 수 있음.
-
-    return generateAccessToken(memberId, refreshTokenEntity.isAdmin());
+    return generateAccessToken(memberId);
   }
 
   //Refresh 토큰 생성
-  public String generateRefreshToken(Long memberId, String email, boolean isAdmin) {
+  public String generateRefreshToken(Long memberId, String email) {
     Claims claims = Jwts.claims();
     claims.put(MEMBER_ID, memberId);
 
@@ -88,7 +85,7 @@ public class TokenProvider {
         .compact();
 
     //Redis에 refreshToken을 저장함.
-    RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, email, isAdmin);
+    RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, email);
     refreshTokenRepository.save(refreshTokenEntity);
 
     return refreshToken;
@@ -111,15 +108,10 @@ public class TokenProvider {
   private List<String> getRoles(String token) {
     Claims claims = parseClaims(token);
 
-    boolean isAdmin = claims.get(IS_ADMIN, Boolean.class);
+    List<?> roles = claims.get(ROLES, List.class);
 
-    List<String> roles = new ArrayList<>();
-
-    if (isAdmin) {
-      roles.add(RoleType.ROLE_ADMIN.name());
-    }
-
-    return roles;
+    return roles.stream().map(String::valueOf)
+        .collect(Collectors.toList());
   }
 
   //회원 번호 가져오기.

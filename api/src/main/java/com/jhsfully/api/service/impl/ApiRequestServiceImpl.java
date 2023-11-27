@@ -58,6 +58,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   private final BlackListRepository blackListRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public List<ApiRequestInviteDto> getRequestListForMember(
         long memberId,
         Pageable pageable) {
@@ -73,6 +74,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ApiRequestInviteDto> getRequestListForOwner(
         long memberId,
         long apiId,

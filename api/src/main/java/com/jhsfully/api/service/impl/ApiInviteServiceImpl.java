@@ -54,6 +54,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   private final MemberRepository memberRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public List<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
@@ -72,6 +73,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ApiRequestInviteDto> getInviteListForMember(long memberId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)

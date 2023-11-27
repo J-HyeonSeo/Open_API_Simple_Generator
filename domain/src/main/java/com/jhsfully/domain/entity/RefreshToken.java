@@ -14,5 +14,4 @@ public class RefreshToken {
   private String refreshToken;
   @Indexed
   private String email;
-  private boolean isAdmin;
 }

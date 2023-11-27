@@ -1,4 +1,4 @@
-package com.jhsfully.api.model.permission;
+package com.jhsfully.api.model.dto;
 
 import com.jhsfully.domain.entity.ApiPermissionDetail;
 import com.jhsfully.domain.entity.ApiUserPermission;
@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class PermissionDto {
   private long permissionId;

@@ -1,15 +1,12 @@
 package com.jhsfully.api.model.permission;
 
+import com.jhsfully.api.model.dto.PermissionDto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PermissionResponse {
