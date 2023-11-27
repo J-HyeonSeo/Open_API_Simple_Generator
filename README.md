@@ -202,6 +202,21 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 ---
 
+### 시연 화면 (with Postman)
+
+#### 엑셀 파일 정의
+![excelimage](doc/demonstration/exceldata.png)
+
+#### OpenAPI 생성하기 
+
+![apicreate1](doc/demonstration/api-create-1.png)
+![apicreate2](doc/demonstration/api-create-2.png)
+
+#### 쿼리 조회하기
+
+![query-ex-1](doc/demonstration/query-ex1.png)
+![query-ex-2](doc/demonstration/query-ex2.png)
+
 ### 기술 스택
 
 <div align=center> 
