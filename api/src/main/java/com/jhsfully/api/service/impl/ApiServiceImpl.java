@@ -15,6 +15,7 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FIL
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FIELD_WAS_NOT_DEFINITION_IN_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_NAME_IS_NULL;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_API_MAX_COUNT;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_FIELD_MAX_COUNT;
@@ -178,10 +179,12 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiException(FILE_PARSE_ERROR);
     }
 
-    /*
-        상단에서, 이미 검사를 마쳤기 때문에, split해서 확장자를 가져올 수 있음.
-     */
-    String fileExtension = file.getOriginalFilename().split("\\.")[1];
+    if(file.getOriginalFilename() == null) {
+      throw new ApiException(FILE_NAME_IS_NULL);
+    }
+
+    String[] periodSeparated = file.getOriginalFilename().split("\\.");
+    String fileExtension = periodSeparated[periodSeparated.length-1];
     String filepath = EXCEL_STORAGE_PATH + "/" + fileName + "." + fileExtension;
     try {
       File newFile = new File(filepath);

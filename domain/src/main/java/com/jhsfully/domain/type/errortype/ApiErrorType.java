@@ -23,6 +23,7 @@ public enum ApiErrorType {
   VALUE_STRUCTURE_IS_DIFFERENT("입력된 데이터의 자료구조가 다릅니다."),
   DOES_NOT_EXCEL_FILE("업로드 된 파일은 엑셀파일이 아닙니다."),
   FILE_PARSE_ERROR("파일을 읽는 중에 오류가 발생하였습니다."),
+  FILE_NAME_IS_NULL("파일이름이 존재하지 않습니다."),
   SCHEMA_COUNT_IS_ZERO("정의된 스키마 구조가 존재하지 않습니다."),
   OVERFLOW_MAX_FILE_SIZE("지정된 파일 용량을 초과하였습니다."),
   OVERFLOW_MAX_DB_SIZE("지정된 DB 용량을 초과하였습니다."),
