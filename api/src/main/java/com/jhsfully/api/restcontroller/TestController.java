@@ -3,9 +3,7 @@ package com.jhsfully.api.restcontroller;
 import com.jhsfully.api.security.TokenProvider;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.MemberRepository;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +27,7 @@ public class TestController {
   public ResponseEntity<?> getAccessToken(@PathVariable long memberId){
     Member member = memberRepository.findById(memberId).orElseThrow();
     return ResponseEntity.ok(
-        tokenProvider.generateAccessToken(member.getId(), member.isAdmin())
+        tokenProvider.generateAccessToken(member.getId())
     );
   }
 
