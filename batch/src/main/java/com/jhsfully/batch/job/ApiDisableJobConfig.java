@@ -71,8 +71,7 @@ public class ApiDisableJobConfig {
             + "(a.apiState = 'ENABLED' "
             + "AND a.member.grade.gradeName <> 'BRONZE' "
             + "AND a.member.expiredEnabledAt < :dateNow) "
-            + "OR (a.member.gradeChanged = true "
-            + "OR a.member.grade.isChanged = true)")
+            + "OR (a.member.gradeChanged = true)")
         .parameterValues(Collections.singletonMap("dateNow", LocalDate.now()))
         .build();
   }

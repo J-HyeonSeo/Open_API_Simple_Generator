@@ -4,6 +4,7 @@ import com.jhsfully.api.security.TokenProvider;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.MemberRepository;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -38,8 +39,8 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
 
     Map<String, Object> accountInfo = oAuth2User.getAttribute("kakao_account");
 
-    String email = (String) accountInfo.get("email");
-    String nickname = (String) ((Map) accountInfo.get("profile")).get("nickname");
+    String email = (String) Objects.requireNonNull(accountInfo).get("email");
+    String nickname = (String) ((Map<?, ?>) accountInfo.get("profile")).get("nickname");
 
     log.info(email);
     log.info(nickname);
@@ -48,9 +49,8 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
     Member member = saveOrUpdate(email, nickname);
 
     //JWT(AccessToken, RefreshToken) 발급해야함.
-    String accessToken = tokenProvider.generateAccessToken(member.getId(), member.isAdmin());
-    String refreshToken = tokenProvider.generateRefreshToken(member.getId(), email,
-        member.isAdmin());
+    String accessToken = tokenProvider.generateAccessToken(member.getId());
+    String refreshToken = tokenProvider.generateRefreshToken(member.getId(), email);
 
     /*
         로그인에 성공하면, 쿠키에 토큰을 임시적으로 저장함.
@@ -96,7 +96,6 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
         Member.builder()
             .email(email)
             .nickname(nickname)
-            .isAdmin(false)
             .build()
     );
   }

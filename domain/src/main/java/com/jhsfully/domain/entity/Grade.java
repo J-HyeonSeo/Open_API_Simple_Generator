@@ -32,5 +32,4 @@ public class Grade {
   private int dbMaxSize;
   private int accessorMaxCount;
   private int historyStorageDays;
-  private boolean isChanged;
 }
