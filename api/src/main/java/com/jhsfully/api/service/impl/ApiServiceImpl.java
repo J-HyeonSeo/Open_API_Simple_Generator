@@ -232,7 +232,7 @@ public class ApiServiceImpl implements ApiService {
 
     InsertOneResult result = collection.insertOne(document);
 
-    input.getInsertData().put(MONGODB_ID, result.getInsertedId().asObjectId().getValue());
+    input.getInsertData().put(MONGODB_ID, Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue());
 
     //히스토리 로그 남기기.
     apiHistoryService.writeInsertHistory(
@@ -271,7 +271,7 @@ public class ApiServiceImpl implements ApiService {
     }
 
     //기존 데이터 가져오기.
-    Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
+    Document originalData = mongoTemplate.findOne(query, Document.class, apiInfo.getDataCollectionName());
 
     //업데이트 할 데이터 설정.
     Update update = new Update();
@@ -312,7 +312,7 @@ public class ApiServiceImpl implements ApiService {
     Query query = new Query(Criteria.where(MONGODB_ID).is(new ObjectId(input.getDataId())));
 
     //기존 데이터 가져오기.
-    Map<String, Object> originalData = mongoTemplate.findOne(query, Map.class, apiInfo.getDataCollectionName());
+    Document originalData = mongoTemplate.findOne(query, Document.class, apiInfo.getDataCollectionName());
 
     //id가 존재하는지 확인하기.
     if(!mongoTemplate.exists(query, apiInfo.getDataCollectionName())){
