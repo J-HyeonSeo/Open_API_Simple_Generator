@@ -96,7 +96,7 @@ public class ApiController {
   @PatchMapping("/enable/{apiId}")
   public ResponseEntity<?> enableOpenApi(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
-    apiService.enableOpenApi(apiId, memberId);
+    apiService.enableOpenApi(apiId, memberId, LocalDate.now());
     return ResponseEntity.ok().build();
   }
 
