@@ -6,6 +6,7 @@ import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataResponse;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public interface ApiService {
@@ -14,5 +15,5 @@ public interface ApiService {
   void updateApiData(UpdateApiDataInput input, long memberId, LocalDateTime nowTime);
   void deleteApiData(DeleteApiDataInput input, long memberId, LocalDateTime nowTime);
   void deleteOpenApi(long apiId, long memberId);
-  void enableOpenApi(long apiId, long memberId);
+  void enableOpenApi(long apiId, long memberId, LocalDate nowDate);
 }

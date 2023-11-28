@@ -33,7 +33,6 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
@@ -110,10 +109,12 @@ public class ApiServiceImpl implements ApiService {
   //service
   private final ApiHistoryService apiHistoryService;
 
-
   //for kafka
   private final KafkaTemplate<String, ExcelParserModel> kafkaTemplate;
-  private final ObjectMapper objectMapper;
+
+  //util components
+  private final MongoUtil mongoUtil;
+
   @Value("${spring.excel-storage-path}")
   private String EXCEL_STORAGE_PATH;
   @Value("${spring.kafka.topic-name}")
@@ -311,13 +312,13 @@ public class ApiServiceImpl implements ApiService {
 
     Query query = new Query(Criteria.where(MONGODB_ID).is(new ObjectId(input.getDataId())));
 
-    //기존 데이터 가져오기.
-    Document originalData = mongoTemplate.findOne(query, Document.class, apiInfo.getDataCollectionName());
-
     //id가 존재하는지 확인하기.
     if(!mongoTemplate.exists(query, apiInfo.getDataCollectionName())){
       throw new ApiException(DATA_IS_NOT_FOUND);
     }
+
+    //기존 데이터 가져오기.
+    Document originalData = mongoTemplate.findOne(query, Document.class, apiInfo.getDataCollectionName());
 
     //데이터 지우기
     mongoTemplate.remove(query, apiInfo.getDataCollectionName());
@@ -369,19 +370,19 @@ public class ApiServiceImpl implements ApiService {
 
   //유저가 직접 비활성화 된, OpenAPI를 활성화 시키는 메서드
   @Override
-  public void enableOpenApi(long apiId, long memberId){
+  public void enableOpenApi(long apiId, long memberId, LocalDate nowDate){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    validateEnableOpenApi(apiInfo, member);
+    validateEnableOpenApi(apiInfo, member, nowDate);
 
     Grade grade = member.getGrade();
 
     //비교해서, 가능 할 경우, API를 활성화 하도록 함.
-    long dbSize = MongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
+    long dbSize = mongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
     long recordCount = mongoTemplate.getCollection(apiInfo.getDataCollectionName())
         .countDocuments();
     int queryCount = apiInfo.getQueryParameter().size();
@@ -564,7 +565,7 @@ public class ApiServiceImpl implements ApiService {
     if(type == ApiPermissionType.INSERT || type == ApiPermissionType.UPDATE){
       Grade grade = apiInfo.getMember().getGrade();
 
-      long dbCollectionSize = MongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
+      long dbCollectionSize = mongoUtil.getDbSizeByCollection(mongoTemplate, apiInfo.getDataCollectionName());
 
       if(dbCollectionSize > grade.getDbMaxSize()){
         throw new ApiException(OVERFLOW_MAX_DB_SIZE);
@@ -587,12 +588,12 @@ public class ApiServiceImpl implements ApiService {
 
   }
 
-  private void validateEnableOpenApi(ApiInfo apiInfo, Member member){
+  private void validateEnableOpenApi(ApiInfo apiInfo, Member member, LocalDate nowDate){
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
       throw new ApiPermissionException(USER_HAS_NOT_API);
     }
 
-    if(LocalDate.now().isAfter(member.getExpiredEnabledAt())){
+    if(nowDate.isAfter(member.getExpiredEnabledAt())){
       throw new ApiException(TODAY_IS_AFTER_EXPIRED_AT);
     }
 
