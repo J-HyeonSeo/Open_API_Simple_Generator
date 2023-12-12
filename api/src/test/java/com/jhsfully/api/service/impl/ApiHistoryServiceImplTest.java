@@ -52,7 +52,8 @@ class ApiHistoryServiceImplTest {
   //constants
   private static final String MONGODB_ID = "_id";
   private static final String MONGODB_AT_COL = "at";
-  private static final String MONGODB_MEMBER_COL = "member";
+  private static final String MONGODB_MEMBER_NAME_COL = "member_name";
+  private static final String MONGODB_MEMBER_EMAIL_COL = "member_email";
   private static final String MONGODB_TYPE_COL = "type";
   private static final String MONGODB_ORIGINAL_COL = "original_data";
   private static final String MONGODB_NEW_COL = "new_data";
@@ -70,6 +71,7 @@ class ApiHistoryServiceImplTest {
   private Member getOwnerMember(){
     return Member.builder()
         .id(1L)
+        .nickname("test")
         .email("test@test.com")
         .build();
   }
@@ -220,7 +222,8 @@ class ApiHistoryServiceImplTest {
 
       assertAll(
           () -> assertEquals(nowTime, expectedDocument.get(MONGODB_AT_COL)),
-          () -> assertEquals(ownerMember.getEmail(), expectedDocument.get(MONGODB_MEMBER_COL)),
+          () -> assertEquals(ownerMember.getNickname(), expectedDocument.get(MONGODB_MEMBER_NAME_COL)),
+          () -> assertEquals(ownerMember.getEmail(), expectedDocument.get(MONGODB_MEMBER_EMAIL_COL)),
           () -> assertEquals(INSERT.name(), expectedDocument.get(MONGODB_TYPE_COL)),
           () -> assertEquals("test", ((Map<?, ?>)expectedDocument.get(MONGODB_NEW_COL)).get("test"))
       );
@@ -279,7 +282,8 @@ class ApiHistoryServiceImplTest {
 
       assertAll(
           () -> assertEquals(nowTime, expectedDocument.get(MONGODB_AT_COL)),
-          () -> assertEquals(ownerMember.getEmail(), expectedDocument.get(MONGODB_MEMBER_COL)),
+          () -> assertEquals(ownerMember.getNickname(), expectedDocument.get(MONGODB_MEMBER_NAME_COL)),
+          () -> assertEquals(ownerMember.getEmail(), expectedDocument.get(MONGODB_MEMBER_EMAIL_COL)),
           () -> assertEquals(UPDATE.name(), expectedDocument.get(MONGODB_TYPE_COL)),
           () -> assertEquals("original", ((Map<?, ?>)expectedDocument.get(MONGODB_ORIGINAL_COL)).get("original")),
           () -> assertEquals("new", ((Map<?, ?>)expectedDocument.get(MONGODB_NEW_COL)).get("new"))
@@ -335,7 +339,8 @@ class ApiHistoryServiceImplTest {
 
       assertAll(
           () -> assertEquals(nowTime, expectedDocument.get(MONGODB_AT_COL)),
-          () -> assertEquals(ownerMember.getEmail(), expectedDocument.get(MONGODB_MEMBER_COL)),
+          () -> assertEquals(ownerMember.getNickname(), expectedDocument.get(MONGODB_MEMBER_NAME_COL)),
+          () -> assertEquals(ownerMember.getEmail(), expectedDocument.get(MONGODB_MEMBER_EMAIL_COL)),
           () -> assertEquals(DELETE.name(), expectedDocument.get(MONGODB_TYPE_COL)),
           () -> assertEquals("test", ((Map<?, ?>)expectedDocument.get(MONGODB_ORIGINAL_COL)).get("test"))
       );
