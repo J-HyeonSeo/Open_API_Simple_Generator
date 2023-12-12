@@ -5,6 +5,7 @@ import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import com.jhsfully.api.model.api.UpdateApiInput;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
@@ -52,31 +53,37 @@ public class ApiController {
       사용자가 OpenAPI에 데이터를 추가하기 위해서 호출하는 컨트롤러
       dataId 값을 응답으로 줘야함.
    */
-  @PostMapping("/data/manage")
-  public ResponseEntity<?> insertApiData(@RequestBody InsertApiDataInput input){
+  @PostMapping("/data/manage/{apiId}")
+  public ResponseEntity<?> insertApiData(
+      @PathVariable long apiId,
+      @RequestBody InsertApiDataInput input){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiService.insertApiData(input, memberId, LocalDateTime.now())
+        apiService.insertApiData(input, apiId, memberId, LocalDateTime.now())
     );
   }
 
   /*
       사용자가 OpenAPI에 데이터를 수정하기 위해서 호출하는 컨트롤러
    */
-  @PutMapping("/data/manage")
-  public ResponseEntity<?> updateApiData(@RequestBody UpdateApiDataInput input){
+  @PatchMapping("/data/manage/{apiId}")
+  public ResponseEntity<?> updateApiData(
+      @PathVariable long apiId,
+      @RequestBody UpdateApiDataInput input){
     long memberId = MemberUtil.getMemberId();
-    apiService.updateApiData(input, memberId, LocalDateTime.now());
+    apiService.updateApiData(input, apiId, memberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 
   /*
       사용자가 OpenAPI에 데이터를 삭제하기 위해서 호출하는 컨트롤러
    */
-  @DeleteMapping("/data/manage")
-  public ResponseEntity<?> deleteApiData(@RequestBody DeleteApiDataInput input){
+  @DeleteMapping("/data/manage/{apiId}")
+  public ResponseEntity<?> deleteApiData(
+      @PathVariable long apiId,
+      @RequestBody DeleteApiDataInput input){
     long memberId = MemberUtil.getMemberId();
-    apiService.deleteApiData(input, memberId, LocalDateTime.now());
+    apiService.deleteApiData(input, apiId, memberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 
@@ -97,6 +104,17 @@ public class ApiController {
   public ResponseEntity<?> enableOpenApi(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     apiService.enableOpenApi(apiId, memberId, LocalDate.now());
+    return ResponseEntity.ok().build();
+  }
+
+  /*
+      API의 제목/내용을 수정함.
+   */
+  @PatchMapping("/{apiId}")
+  public ResponseEntity<?> updateOpenApi(
+      @PathVariable long apiId, @RequestBody UpdateApiInput input) {
+    long memberId = MemberUtil.getMemberId();
+    apiService.updateOpenApi(input, apiId, memberId);
     return ResponseEntity.ok().build();
   }
 

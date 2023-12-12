@@ -44,6 +44,7 @@ import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataResponse;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import com.jhsfully.api.model.api.UpdateApiInput;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
@@ -208,11 +209,12 @@ public class ApiServiceImpl implements ApiService {
       데이터 추가시에는, 반드시 모든 데이터를 기입해야함.
    */
   @Override
-  public InsertApiDataResponse insertApiData(InsertApiDataInput input, long memberId, LocalDateTime nowTime){
+  public InsertApiDataResponse insertApiData(
+      InsertApiDataInput input, long apiId, long memberId, LocalDateTime nowTime){
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     validateInsertApiData(input, apiInfo, member);
@@ -252,11 +254,12 @@ public class ApiServiceImpl implements ApiService {
       데이터 수정은 일부만 포함되도 됨.
    */
   @Override
-  public void updateApiData(UpdateApiDataInput input, long memberId, LocalDateTime nowTime){
+  public void updateApiData(
+      UpdateApiDataInput input, long apiId, long memberId, LocalDateTime nowTime){
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     validateUpdateApiData(input, apiInfo, member);
@@ -300,12 +303,13 @@ public class ApiServiceImpl implements ApiService {
       id만 일치하면 삭제 할 수 있음.
    */
   @Override
-  public void deleteApiData(DeleteApiDataInput input, long memberId, LocalDateTime nowTime){
+  public void deleteApiData(
+      DeleteApiDataInput input, long apiId, long memberId, LocalDateTime nowTime){
 
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     validateDeleteApiData(apiInfo, member);
@@ -399,6 +403,22 @@ public class ApiServiceImpl implements ApiService {
       apiInfo.setApiState(ApiState.ENABLED);
       apiInfoRepository.save(apiInfo);
     }
+  }
+
+  //API에 대한 제목/소개 내용을 수정하는 메서드.
+  @Override
+  public void updateOpenApi(UpdateApiInput input, long apiId, long memberId) {
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateUpdateOpenApi(apiInfo, member);
+
+    apiInfo.setApiName(input.getApiName());
+    apiInfo.setApiIntroduce(input.getApiIntroduce());
+    apiInfoRepository.save(apiInfo);
   }
 
 
@@ -605,4 +625,14 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiException(CANNOT_ENABLE_READY_API);
     }
   }
+
+  private void validateUpdateOpenApi(ApiInfo apiInfo, Member member) {
+    if(apiInfo.getApiState() != ApiState.ENABLED) {
+      throw new ApiException(API_IS_DISABLED);
+    }
+    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())) {
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+  }
+
 }

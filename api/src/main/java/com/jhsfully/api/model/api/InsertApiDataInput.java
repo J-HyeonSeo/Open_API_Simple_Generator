@@ -9,6 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class InsertApiDataInput {
-  private long apiId;
   private Map<String, Object> insertData;
 }

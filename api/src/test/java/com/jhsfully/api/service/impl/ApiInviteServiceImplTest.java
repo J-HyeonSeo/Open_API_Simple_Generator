@@ -73,6 +73,7 @@ class ApiInviteServiceImplTest {
   private Member getOwnerMember(){
     return Member.builder()
         .id(1L)
+        .nickname("owner")
         .email("owner@test.com")
         .build();
   }
@@ -80,6 +81,7 @@ class ApiInviteServiceImplTest {
   private Member getTargetMember(){
     return Member.builder()
         .id(2L)
+        .nickname("target")
         .email("target@test.com")
         .build();
   }
@@ -134,7 +136,7 @@ class ApiInviteServiceImplTest {
       assertAll(
           () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
           () -> assertEquals(apiInfo.getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(targetMember.getId(), responseList.get(0).getMemberId()),
+          () -> assertEquals(targetMember.getNickname(), responseList.get(0).getMemberNickname()),
           () -> assertEquals(apiInfo.getApiName(), responseList.get(0).getApiName()),
           () -> assertEquals(targetMember.getEmail(), responseList.get(0).getMemberEmail()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
@@ -207,7 +209,7 @@ class ApiInviteServiceImplTest {
       assertAll(
           () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
           () -> assertEquals(apiInfo.getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(ownerMember.getId(), responseList.get(0).getMemberId()),
+          () -> assertEquals(ownerMember.getNickname(), responseList.get(0).getMemberNickname()),
           () -> assertEquals(apiInfo.getApiName(), responseList.get(0).getApiName()),
           () -> assertEquals(ownerMember.getEmail(), responseList.get(0).getMemberEmail()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
