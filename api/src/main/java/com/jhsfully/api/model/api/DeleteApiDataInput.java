@@ -8,6 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class DeleteApiDataInput {
-  private long apiId;
   private String dataId;
 }

@@ -9,7 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class UpdateApiDataInput {
-  private long apiId;
   private String dataId;
   private Map<String, Object> updateData;
 }

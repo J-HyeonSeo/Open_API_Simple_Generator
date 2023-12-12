@@ -352,13 +352,13 @@ class ApiServiceImplTest {
 
       //when
       InsertApiDataInput input = InsertApiDataInput.builder()
-          .apiId(1L)
           .insertData(new HashMap<>(){{put("test", "test1");}})
           .build();
 
+      long apiId = 1L;
       long memberId = 1L;
       LocalDateTime nowTime = LocalDateTime.now();
-      InsertApiDataResponse response = apiService.insertApiData(input, memberId, nowTime);
+      InsertApiDataResponse response = apiService.insertApiData(input, apiId, memberId, nowTime);
 
       //then
       ArgumentCaptor<Document> insertDocumentCaptor = ArgumentCaptor.forClass(Document.class);
@@ -415,14 +415,14 @@ class ApiServiceImplTest {
 
       //when
       UpdateApiDataInput input = UpdateApiDataInput.builder()
-          .apiId(1L)
           .dataId(objectId.toString())
           .updateData(new HashMap<>(){{put("test", "updated");}})
           .build();
+      long apiId = apiInfo.getId();
       long memberId = member.getId();
       LocalDateTime nowTime = LocalDateTime.now();
 
-      apiService.updateApiData(input, memberId, nowTime);
+      apiService.updateApiData(input, apiId, memberId, nowTime);
 
       //then
       ArgumentCaptor<Update> updateCaptor = ArgumentCaptor.forClass(Update.class);
@@ -489,13 +489,13 @@ class ApiServiceImplTest {
 
       //when
       DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .apiId(1L)
           .dataId(objectId.toString())
           .build();
+      long apiId = apiInfo.getId();
       long memberId = member.getId();
       LocalDateTime nowTime = LocalDateTime.now();
 
-      apiService.deleteApiData(input, memberId, LocalDateTime.now());
+      apiService.deleteApiData(input, apiId, memberId, LocalDateTime.now());
 
       //then
       ArgumentCaptor<Document> originalDataCaptor = ArgumentCaptor.forClass(Document.class);

@@ -209,11 +209,12 @@ public class ApiServiceImpl implements ApiService {
       데이터 추가시에는, 반드시 모든 데이터를 기입해야함.
    */
   @Override
-  public InsertApiDataResponse insertApiData(InsertApiDataInput input, long memberId, LocalDateTime nowTime){
+  public InsertApiDataResponse insertApiData(
+      InsertApiDataInput input, long apiId, long memberId, LocalDateTime nowTime){
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     validateInsertApiData(input, apiInfo, member);
@@ -253,11 +254,12 @@ public class ApiServiceImpl implements ApiService {
       데이터 수정은 일부만 포함되도 됨.
    */
   @Override
-  public void updateApiData(UpdateApiDataInput input, long memberId, LocalDateTime nowTime){
+  public void updateApiData(
+      UpdateApiDataInput input, long apiId, long memberId, LocalDateTime nowTime){
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     validateUpdateApiData(input, apiInfo, member);
@@ -301,12 +303,13 @@ public class ApiServiceImpl implements ApiService {
       id만 일치하면 삭제 할 수 있음.
    */
   @Override
-  public void deleteApiData(DeleteApiDataInput input, long memberId, LocalDateTime nowTime){
+  public void deleteApiData(
+      DeleteApiDataInput input, long apiId, long memberId, LocalDateTime nowTime){
 
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
     validateDeleteApiData(apiInfo, member);

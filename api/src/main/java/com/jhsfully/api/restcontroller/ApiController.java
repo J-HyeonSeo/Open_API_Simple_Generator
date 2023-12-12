@@ -53,31 +53,37 @@ public class ApiController {
       사용자가 OpenAPI에 데이터를 추가하기 위해서 호출하는 컨트롤러
       dataId 값을 응답으로 줘야함.
    */
-  @PostMapping("/data/manage")
-  public ResponseEntity<?> insertApiData(@RequestBody InsertApiDataInput input){
+  @PostMapping("/data/manage/{apiId}")
+  public ResponseEntity<?> insertApiData(
+      @PathVariable long apiId,
+      @RequestBody InsertApiDataInput input){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
-        apiService.insertApiData(input, memberId, LocalDateTime.now())
+        apiService.insertApiData(input, apiId, memberId, LocalDateTime.now())
     );
   }
 
   /*
       사용자가 OpenAPI에 데이터를 수정하기 위해서 호출하는 컨트롤러
    */
-  @PatchMapping("/data/manage")
-  public ResponseEntity<?> updateApiData(@RequestBody UpdateApiDataInput input){
+  @PatchMapping("/data/manage/{apiId}")
+  public ResponseEntity<?> updateApiData(
+      @PathVariable long apiId,
+      @RequestBody UpdateApiDataInput input){
     long memberId = MemberUtil.getMemberId();
-    apiService.updateApiData(input, memberId, LocalDateTime.now());
+    apiService.updateApiData(input, apiId, memberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 
   /*
       사용자가 OpenAPI에 데이터를 삭제하기 위해서 호출하는 컨트롤러
    */
-  @DeleteMapping("/data/manage")
-  public ResponseEntity<?> deleteApiData(@RequestBody DeleteApiDataInput input){
+  @DeleteMapping("/data/manage/{apiId}")
+  public ResponseEntity<?> deleteApiData(
+      @PathVariable long apiId,
+      @RequestBody DeleteApiDataInput input){
     long memberId = MemberUtil.getMemberId();
-    apiService.deleteApiData(input, memberId, LocalDateTime.now());
+    apiService.deleteApiData(input, apiId, memberId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 
