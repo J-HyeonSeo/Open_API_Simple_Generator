@@ -44,6 +44,7 @@ import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataResponse;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import com.jhsfully.api.model.api.UpdateApiInput;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.api.util.ConvertUtil;
@@ -401,6 +402,22 @@ public class ApiServiceImpl implements ApiService {
     }
   }
 
+  //API에 대한 제목/소개 내용을 수정하는 메서드.
+  @Override
+  public void updateOpenApi(UpdateApiInput input, long apiId, long memberId) {
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateUpdateOpenApi(apiInfo, member);
+
+    apiInfo.setApiName(input.getApiName());
+    apiInfo.setApiIntroduce(input.getApiIntroduce());
+    apiInfoRepository.save(apiInfo);
+  }
+
 
   /*
       ###############################################################
@@ -605,4 +622,14 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiException(CANNOT_ENABLE_READY_API);
     }
   }
+
+  private void validateUpdateOpenApi(ApiInfo apiInfo, Member member) {
+    if(apiInfo.getApiState() != ApiState.ENABLED) {
+      throw new ApiException(API_IS_DISABLED);
+    }
+    if(!Objects.equals(apiInfo.getMember().getId(), member.getId())) {
+      throw new ApiPermissionException(USER_HAS_NOT_API);
+    }
+  }
+
 }

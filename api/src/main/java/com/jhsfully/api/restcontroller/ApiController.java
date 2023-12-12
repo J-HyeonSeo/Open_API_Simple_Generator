@@ -5,6 +5,7 @@ import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
+import com.jhsfully.api.model.api.UpdateApiInput;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
@@ -63,7 +64,7 @@ public class ApiController {
   /*
       사용자가 OpenAPI에 데이터를 수정하기 위해서 호출하는 컨트롤러
    */
-  @PutMapping("/data/manage")
+  @PatchMapping("/data/manage")
   public ResponseEntity<?> updateApiData(@RequestBody UpdateApiDataInput input){
     long memberId = MemberUtil.getMemberId();
     apiService.updateApiData(input, memberId, LocalDateTime.now());
@@ -97,6 +98,17 @@ public class ApiController {
   public ResponseEntity<?> enableOpenApi(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     apiService.enableOpenApi(apiId, memberId, LocalDate.now());
+    return ResponseEntity.ok().build();
+  }
+
+  /*
+      API의 제목/내용을 수정함.
+   */
+  @PatchMapping("/{apiId}")
+  public ResponseEntity<?> updateOpenApi(
+      @PathVariable long apiId, @RequestBody UpdateApiInput input) {
+    long memberId = MemberUtil.getMemberId();
+    apiService.updateOpenApi(input, apiId, memberId);
     return ResponseEntity.ok().build();
   }
 
