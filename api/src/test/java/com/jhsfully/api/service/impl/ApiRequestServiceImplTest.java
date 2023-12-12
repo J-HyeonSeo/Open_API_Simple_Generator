@@ -135,7 +135,7 @@ class ApiRequestServiceImplTest {
       assertAll(
           () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
           () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(ownerMember.getId(), responseList.get(0).getMemberId()),
+          () -> assertEquals(ownerMember.getNickname(), responseList.get(0).getMemberNickname()),
           () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.get(0).getApiName()),
           () -> assertEquals(ownerMember.getEmail(), responseList.get(0).getMemberEmail()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
@@ -192,7 +192,7 @@ class ApiRequestServiceImplTest {
       assertAll(
           () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
           () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(requestMember.getId(), responseList.get(0).getMemberId()),
+          () -> assertEquals(requestMember.getNickname(), responseList.get(0).getMemberNickname()),
           () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.get(0).getApiName()),
           () -> assertEquals(requestMember.getEmail(), responseList.get(0).getMemberEmail()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),

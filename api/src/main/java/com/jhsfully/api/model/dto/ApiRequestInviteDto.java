@@ -14,9 +14,9 @@ import lombok.Getter;
 public class ApiRequestInviteDto {
   private Long id;
   private Long apiInfoId;
-  private Long memberId;
-  private String apiName;
+  private String memberNickname;
   private String memberEmail;
+  private String apiName;
   private LocalDateTime registeredAt;
   private ApiRequestStateType requestStateType;
 
@@ -24,9 +24,9 @@ public class ApiRequestInviteDto {
     return ApiRequestInviteDto.builder()
         .id(entity.getId())
         .apiInfoId(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getId())
-        .memberId(isShowOwner ? entity.getApiInfo().getMember().getId() : entity.getMember().getId())
-        .apiName(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getApiName())
+        .memberNickname(isShowOwner ? entity.getApiInfo().getMember().getNickname() : entity.getMember().getNickname())
         .memberEmail(isShowOwner ? entity.getApiInfo().getMember().getEmail() : entity.getMember().getEmail())
+        .apiName(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getApiName())
         .registeredAt(entity.getRegisteredAt())
         .requestStateType(entity.getRequestStateType())
         .build();
