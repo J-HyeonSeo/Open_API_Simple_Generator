@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -30,9 +31,9 @@ public class Payment {
   private Long id;
   @Column(nullable = false, unique = true)
   private String tid; //카카오페이 TransactionID
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Grade grade;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Member member;
   private long paymentAmount;
   private Long refundAmount;

@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -44,7 +45,7 @@ public class ApiInfo {
   private Long id;
   private String apiName;
   private String apiIntroduce;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Member member;
   @Enumerated(EnumType.STRING)
   private ApiState apiState;

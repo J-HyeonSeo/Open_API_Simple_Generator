@@ -3,6 +3,7 @@ package com.jhsfully.domain.entity;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,9 +29,9 @@ public class BlackList {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private ApiInfo apiInfo;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Member member;
   @CreatedDate
   private LocalDateTime registeredAt;

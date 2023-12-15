@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,10 +35,10 @@ public class ApiRequestInvite {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @NotFound(action = NotFoundAction.IGNORE)
   private ApiInfo apiInfo;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Member member;
   @CreatedDate
   private LocalDateTime registeredAt;
