@@ -14,6 +14,7 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.DATA_IS_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DOES_NOT_EXCEL_FILE;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_QUERY_PARAMETER;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.DUPLICATED_SCHEMA;
+import static com.jhsfully.domain.type.errortype.ApiErrorType.ENABLE_IS_POSSIBLE_HIGHER_GRADE;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FIELD_WAS_NOT_DEFINITION_IN_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_NAME_IS_NULL;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.FILE_PARSE_ERROR;
@@ -25,7 +26,6 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.OVERFLOW_QUERY_MAX
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_CANNOT_MATCH;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.QUERY_PARAMETER_NOT_INCLUDE_SCHEMA;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.SCHEMA_COUNT_IS_ZERO;
-import static com.jhsfully.domain.type.errortype.ApiErrorType.TODAY_IS_AFTER_EXPIRED_AT;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_API;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.USER_HAS_NOT_PERMISSION;
 import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER;
@@ -394,15 +394,16 @@ public class ApiServiceImpl implements ApiService {
     int apiCount = apiInfoRepository.countByMemberAndApiState(member, ApiState.ENABLED);
     int accessorCount = apiUserPermissionRepository.countByApiInfo(apiInfo);
 
-    if (dbSize <= grade.getDbMaxSize() &&
-        recordCount <= grade.getRecordMaxCount() &&
-        queryCount <= grade.getQueryMaxCount() &&
-        schemaCount <= grade.getFieldMaxCount() &&
-        apiCount <= grade.getApiMaxCount() &&
-        accessorCount <= grade.getAccessorMaxCount()) {
-      apiInfo.setApiState(ApiState.ENABLED);
-      apiInfoRepository.save(apiInfo);
+    if (dbSize > grade.getDbMaxSize() ||
+        recordCount > grade.getRecordMaxCount() ||
+        queryCount > grade.getQueryMaxCount() ||
+        schemaCount > grade.getFieldMaxCount() ||
+        apiCount > grade.getApiMaxCount() ||
+        accessorCount > grade.getAccessorMaxCount()) {
+        throw new ApiException(ENABLE_IS_POSSIBLE_HIGHER_GRADE);
     }
+    apiInfo.setApiState(ApiState.ENABLED);
+    apiInfoRepository.save(apiInfo);
   }
 
   //API에 대한 제목/소개 내용을 수정하는 메서드.
@@ -613,10 +614,6 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiPermissionException(USER_HAS_NOT_API);
     }
 
-    if(nowDate.isAfter(member.getExpiredEnabledAt())){
-      throw new ApiException(TODAY_IS_AFTER_EXPIRED_AT);
-    }
-
     if(apiInfo.getApiState() == ApiState.ENABLED){
       throw new ApiException(API_IS_ALREADY_ENABLED);
     } else if(apiInfo.getApiState() == ApiState.FAILED){
@@ -631,7 +628,7 @@ public class ApiServiceImpl implements ApiService {
       throw new ApiException(API_IS_DISABLED);
     }
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())) {
-      throw new ApiPermissionException(USER_HAS_NOT_API);
+      throw new ApiPermissionException(YOU_ARE_NOT_API_OWNER);
     }
   }
 

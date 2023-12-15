@@ -21,7 +21,7 @@ public class Member {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Grade grade;
   @Column(nullable = false, unique = true)
   private String email;
@@ -34,5 +34,4 @@ public class Member {
   private int refundCount;
   private boolean gradeChanged;
   private LocalDate expiredEnabledAt;
-//  private int remainEnableDays;
 }
