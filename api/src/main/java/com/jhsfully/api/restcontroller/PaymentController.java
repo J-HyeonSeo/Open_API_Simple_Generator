@@ -73,7 +73,6 @@ public class PaymentController {
   ) throws IOException {
 
     paymentService.approvePayment(paymentUUID, pgToken, LocalDateTime.now());
-
     response.sendRedirect("/");
   }
 }
