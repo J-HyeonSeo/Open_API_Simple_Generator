@@ -1377,9 +1377,7 @@ class ApiServiceImplTest {
           .willReturn(document);
 
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(objectId.toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(objectId.toString());
       long apiId = apiInfo.getId();
       long memberId = member.getId();
       LocalDateTime nowTime = LocalDateTime.now();
@@ -1412,9 +1410,7 @@ class ApiServiceImplTest {
           .willReturn(Optional.empty());
 
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(new ObjectId(new Date()).toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(new ObjectId(new Date()).toString());
       long apiId = 1L;
       long memberId = 2L;
 
@@ -1439,9 +1435,7 @@ class ApiServiceImplTest {
           .willReturn(Optional.empty());
 
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(new ObjectId(new Date()).toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(new ObjectId(new Date()).toString());
       long apiId = apiInfo.getId();
       long memberId = member.getId();
 
@@ -1467,9 +1461,7 @@ class ApiServiceImplTest {
           .willReturn(Optional.of(apiInfo));
 
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(new ObjectId(new Date()).toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(new ObjectId(new Date()).toString());
       long apiId = apiInfo.getId();
       long memberId = member.getId();
 
@@ -1497,9 +1489,7 @@ class ApiServiceImplTest {
           .willReturn(Optional.empty());
 
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(new ObjectId(new Date()).toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(new ObjectId(new Date()).toString());
       long apiId = apiInfo.getId();
       long memberId = member.getId();
 
@@ -1526,9 +1516,7 @@ class ApiServiceImplTest {
       given(apiUserPermissionRepository.findByApiInfoAndMember(any(), any()))
           .willReturn(Optional.of(getApiUserPermission(false)));
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(new ObjectId(new Date()).toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(new ObjectId(new Date()).toString());
       long apiId = apiInfo.getId();
       long memberId = member.getId();
 
@@ -1559,9 +1547,7 @@ class ApiServiceImplTest {
           .willReturn(false);
 
       //when
-      DeleteApiDataInput input = DeleteApiDataInput.builder()
-          .dataId(new ObjectId(new Date()).toString())
-          .build();
+      DeleteApiDataInput input = new DeleteApiDataInput(new ObjectId(new Date()).toString());
       long apiId = apiInfo.getId();
       long memberId = member.getId();
 

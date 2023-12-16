@@ -66,7 +66,7 @@ public class ApiController {
   /*
       사용자가 OpenAPI에 데이터를 수정하기 위해서 호출하는 컨트롤러
    */
-  @PatchMapping("/data/manage/{apiId}")
+  @PutMapping("/data/manage/{apiId}")
   public ResponseEntity<?> updateApiData(
       @PathVariable long apiId,
       @RequestBody UpdateApiDataInput input){
@@ -186,7 +186,7 @@ public class ApiController {
   /*
       API소유주는 startDate ~ endDate 기간의 히스토리 데이터를 조회할 수 있음.
    */
-  @GetMapping("history/{apiId}/{pageIdx}/{pageSize}")
+  @GetMapping("/history/{apiId}/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getApiHistories(
       @PathVariable long apiId,
       @PathVariable int pageIdx,
