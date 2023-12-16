@@ -5,6 +5,8 @@ import com.jhsfully.api.model.payment.PaymentResponse;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.api.util.MemberUtil;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -41,11 +43,11 @@ public class PaymentController {
   }
 
   @PostMapping("/{gradeId}")
-  public ResponseEntity<?> payment(
+  public ResponseEntity<?> paymentRequest(
       @PathVariable long gradeId
   ){
     long memberId = MemberUtil.getMemberId();
-    PaymentReadyResponseForClient urlResponse = paymentService.payment(memberId, gradeId);
+    PaymentReadyResponseForClient urlResponse = paymentService.paymentRequest(memberId, gradeId, LocalDate.now());
     return ResponseEntity.ok(urlResponse);
   }
 
@@ -54,7 +56,7 @@ public class PaymentController {
       @PathVariable long paymentId
   ){
     long memberId = MemberUtil.getMemberId();
-    paymentService.refund(memberId, paymentId);
+    paymentService.refund(memberId, paymentId, LocalDateTime.now());
     return ResponseEntity.ok().build();
   }
 
@@ -70,7 +72,7 @@ public class PaymentController {
       HttpServletResponse response
   ) throws IOException {
 
-    paymentService.approvePayment(paymentUUID, pgToken);
+    paymentService.approvePayment(paymentUUID, pgToken, LocalDateTime.now());
 
     response.sendRedirect("/");
   }
