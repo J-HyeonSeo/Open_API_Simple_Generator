@@ -13,10 +13,10 @@ export const PageNavBtn = styled.button<{$isFocus?: boolean}>`
       border: none;
       margin: 0 10px;
       border-radius: 30px;
-      background-color: ${(props) => props.$isFocus ? palette["--color-gray-200"] : palette["--color-gray-100"]};
+      background-color: ${(props) => props.$isFocus ? palette["--color-gray-500"] : palette["--color-gray-100"]};
       
       &:hover {
-          background-color: ${palette["--color-gray-200"]};
+          background-color: ${palette["--color-gray-500"]};
           cursor: pointer;
       }
     `;

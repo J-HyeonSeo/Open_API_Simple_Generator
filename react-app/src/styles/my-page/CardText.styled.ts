@@ -6,7 +6,7 @@ export const CardText = styled.h2`
       font-size: 20px;
   
       &:hover {
-        color: ${palette["--color-gray-200"]};
+        color: ${palette["--color-gray-500"]};
         cursor: pointer;
       }
     `;
