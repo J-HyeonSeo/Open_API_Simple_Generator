@@ -11,8 +11,8 @@ const PageNavBar: React.FC<{page: PageData}> = ({page}) => {
   const pageLooper = () => {
     const pages = [];
     for(let i = start; i <= end; i++) {
-      i == page.index ? pages.push(<S.PageNavBtn isFocus={true}>{i}</S.PageNavBtn>) :
-          pages.push(<S.PageNavBtn>{i}</S.PageNavBtn>);
+      i === page.index ? pages.push(<S.PageNavBtn key={i} $isFocus={true}>{i}</S.PageNavBtn>) :
+          pages.push(<S.PageNavBtn key={i}>{i}</S.PageNavBtn>);
     }
     return pages;
   }

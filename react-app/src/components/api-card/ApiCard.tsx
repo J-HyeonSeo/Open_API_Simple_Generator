@@ -7,6 +7,7 @@ import {CommonBtn} from "../../styles/control/CommonBtn.styled";
 import {Line} from "../../styles/line/line.styled";
 import styled from "styled-components";
 import {palette} from "../../constants/Styles";
+import {Card} from "../../styles/common-card/Card.styled";
 
 const ProfileArea = styled.div`
       width: 210px;
@@ -29,7 +30,7 @@ const ApiName = styled.h2`
 
 const ApiCard: React.FC<{ item: ApiData }> = ({ item }) => {
   return (
-      <S.ApiCard>
+      <Card $h={85} $m={25}>
         <ProfileArea>
           <Profile src={TestProfileImg} alt={"ProfileImg"}/>
           <Username>{item.username}</Username>
@@ -37,12 +38,12 @@ const ApiCard: React.FC<{ item: ApiData }> = ({ item }) => {
         <Line/>
         <ApiName>{item.apiName}</ApiName>
         {!item.accessible &&
-            <CommonBtn color={palette["--color-primary-100"]}
-                       hover-color={palette["--color-primary-900"]}>신청 하기 ▶</CommonBtn>}
+            <CommonBtn $color={palette["--color-primary-100"]}
+                       $hover-color={palette["--color-primary-900"]}>신청 하기 ▶</CommonBtn>}
         {item.accessible &&
-            <CommonBtn color={palette["--color-red-500"]}
-                       hover-color={palette["--color-red-700"]}>접근 가능</CommonBtn>}
-      </S.ApiCard>
+            <CommonBtn $color={palette["--color-red-500"]}
+                       $hover-color={palette["--color-red-700"]}>접근 가능</CommonBtn>}
+      </Card>
   )
 }
 
