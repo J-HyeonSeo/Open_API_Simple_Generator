@@ -12,3 +12,17 @@ export interface PageData {
   navBarSize: number
   index: number
 }
+
+export interface GradeInfo {
+  gradeId: number
+  gradeName: string;
+  price: number;
+  apiMaxCount: number;
+  fieldMaxCount: number;
+  queryMaxCount: number;
+  recordMaxCount: number;
+  dbMaxSize: number;
+  accessorMaxCount: number;
+  historyStorageDays: number;
+  isPaid: boolean
+}

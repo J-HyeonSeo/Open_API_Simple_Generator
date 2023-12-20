@@ -6,5 +6,5 @@ export const Profile = styled.img<{$size?: number}>`
       height: ${(props) => props.$size || 45}px;
       margin-right: 8px;
       border-radius: ${(props) => props.$size || 45}px;
-      border: solid 2px ${palette["--color-gray-200"]};
+      border: solid 2px ${palette["--color-gray-500"]};
     `;
