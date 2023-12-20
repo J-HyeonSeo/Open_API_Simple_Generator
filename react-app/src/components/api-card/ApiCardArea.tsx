@@ -1,21 +1,7 @@
 import ApiCard from "./ApiCard";
 import {ApiData} from "../../constants/interfaces";
 import * as S from "../../styles/api-card/ApiCard.styled";
-import styled from "styled-components";
-
-const LeftTitleStyle = styled.h2`
-      width: 300px;
-    `;
-
-const MiddleTitleStyle = styled.h3`
-      width: 300px;
-      font-weight: 600;
-      text-align: center;
-    `;
-
-const RightDivStyle = styled.div`
-      width: 300px;
-    `;
+import {CardWrapper} from "../../styles/common-card/Card.styled";
 
 const ApiCardArea = () => {
   const mockApiList: Array<ApiData> = [
@@ -27,28 +13,28 @@ const ApiCardArea = () => {
       accessible: false
     },
     {
-      apiId: 1,
+      apiId: 2,
       profileUrl: "test",
       username: "Adam Smith",
       apiName: "2020 ~ 2023년도 경제 시장 분석 데이터 OPEN API",
       accessible: true
     },
     {
-      apiId: 1,
+      apiId: 3,
       profileUrl: "test",
       username: "Adam Smith",
       apiName: "2020 ~ 2023년도 경제 시장 분석 데이터 OPEN API",
       accessible: false
     },
     {
-      apiId: 1,
+      apiId: 4,
       profileUrl: "test",
       username: "Adam Smith",
       apiName: "2020 ~ 2023년도 경제 시장 분석 데이터 OPEN API",
       accessible: true
     },
     {
-      apiId: 1,
+      apiId: 5,
       profileUrl: "test",
       username: "Adam Smith",
       apiName: "2020 ~ 2023년도 경제 시장 분석 데이터 OPEN API",
@@ -56,16 +42,18 @@ const ApiCardArea = () => {
     }
   ];
   return (
-      <S.ApiCardAreaWrapper>
+      <CardWrapper>
         <S.ApiCardTitleArea>
-          <LeftTitleStyle>총 100개</LeftTitleStyle>
-          <MiddleTitleStyle>공개 API 목록</MiddleTitleStyle>
-          <RightDivStyle/>
+          <S.LeftTitleStyle>총 100개</S.LeftTitleStyle>
+          <S.MiddleTitleStyle>공개 API 목록</S.MiddleTitleStyle>
+          <S.RightDivStyle/>
         </S.ApiCardTitleArea>
-        {mockApiList.map(item =>
-          <ApiCard item={item}/>
-        )}
-      </S.ApiCardAreaWrapper>
+        <ul>
+          {mockApiList.map(item =>
+              <li key={item.apiId}><ApiCard item={item}/></li>
+          )}
+        </ul>
+      </CardWrapper>
   )
 }
 
