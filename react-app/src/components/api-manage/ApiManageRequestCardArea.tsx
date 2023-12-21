@@ -6,7 +6,7 @@ import PageNavBar from "../page-nav-bar/PageNavBar";
 const ApiManageRequestCardArea = () => {
   return (
       <S.CardWrapper $m={80}>
-        <h2>신청 관리</h2>
+        <S.CardTitle>신청 관리</S.CardTitle>
         <Card $d={"column"} $notAround={true} $p={50}>
           <ApiManageRequestCard />
           <ApiManageRequestCard />

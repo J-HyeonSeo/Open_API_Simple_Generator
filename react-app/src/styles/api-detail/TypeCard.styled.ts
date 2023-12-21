@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import {palette} from "../../constants/Styles";
 
-export const TypeCardWrapper = styled.div`
+export const TypeCardWrapper = styled.div<{$vm?: number, $hm?: number}>`
       padding: 5px 10px;
       border-radius: 5px;
-      margin: 5px;
+      margin: ${(props) => props.$vm || 5}px ${(props) => props.$hm || 5}px;
       display: flex;
       align-items: center;
       background-color: ${palette["--color-gray-300"]};

@@ -9,7 +9,7 @@ import {palette} from "../../constants/Styles";
 const ApiManageInviteCardArea = () => {
   return (
       <S.CardWrapper $m={80}>
-        <h2>초대 관리</h2>
+        <S.CardTitle>초대 관리</S.CardTitle>
         <Card $d={"column"} $notAround={true} $p={50}>
           <CommonBtn $color={palette["--color-primary-100"]} $hover-color={palette["--color-primary-900"]}>
             + 추가

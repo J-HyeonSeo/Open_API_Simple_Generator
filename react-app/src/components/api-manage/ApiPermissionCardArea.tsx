@@ -6,7 +6,7 @@ import ApiPermissionCard from "./card/ApiPermissionCard";
 const ApiPermissionCardArea = () => {
   return (
       <S.CardWrapper $m={80}>
-        <h2>권한 관리</h2>
+        <S.CardTitle>권한 관리</S.CardTitle>
         <Card $d={"column"} $notAround={true} $p={50}>
           <ApiPermissionCard />
           <ApiPermissionCard />

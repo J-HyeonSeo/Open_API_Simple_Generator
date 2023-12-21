@@ -5,10 +5,12 @@ export const CheckBox = styled.input.attrs({type: "checkbox"})`
       height: 20px;
     `;
 
-export const CheckBoxLabel = styled.label`
+export const CheckBoxLabel = styled.label<{$c?: string, $m?: number}>`
       font-weight: 600;
       font-size: 15px;
       margin-right: 5px;
+      margin-left: ${(props) => props.$m || 0}px;
+      color: ${(props) => props.$c || ''};
     `;
 
 export const CheckBoxWrapper = styled.div`
