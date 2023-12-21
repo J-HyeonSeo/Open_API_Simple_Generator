@@ -26,3 +26,15 @@ export interface GradeInfo {
   historyStorageDays: number;
   isPaid: boolean
 }
+
+export interface TypeCardInfo {
+  fieldName: string,
+  typeString: string,
+  'top-color': string,
+  'bottom-color': string
+}
+
+export interface ProfileInfo {
+  profileImage: string,
+  name: string
+}

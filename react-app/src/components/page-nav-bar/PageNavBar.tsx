@@ -2,7 +2,7 @@ import * as S from "../../styles/page-nav-bar/PageNavBar.styled";
 import {PageData} from "../../constants/interfaces";
 import React from "react";
 
-const PageNavBar: React.FC<{page: PageData}> = ({page}) => {
+const PageNavBar: React.FC<{page: PageData, margin?: number}> = ({page, margin}) => {
 
   let pageCount = Math.ceil(page.total / page.displaySize);
   let start = Math.trunc((page.index-1) / page.navBarSize) * page.navBarSize + 1;
@@ -18,7 +18,7 @@ const PageNavBar: React.FC<{page: PageData}> = ({page}) => {
   }
 
   return (
-      <S.PageNavBar>
+      <S.PageNavBar $m={margin}>
         <S.PageNavBtn>◀◀</S.PageNavBtn>
         <S.PageNavBtn>◀</S.PageNavBtn>
         {pageLooper()}
