@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage";
 import MyPage from "./pages/MyPage";
 import GradePaymentPage from "./pages/GradePaymentPage";
 import ApiIntroducePage from "./pages/ApiIntroducePage";
+import ApiManagePage from "./pages/ApiManagePage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/my-page" element={<MyPage/>}/>
         <Route path="/grade-payment" element={<GradePaymentPage/>}/>
         <Route path="/api" element={<ApiIntroducePage/>}/>
+        <Route path="/api/manage" element={<ApiManagePage/>}/>
       </Routes>
     </div>
   );

@@ -46,7 +46,7 @@ const ApiIntroducePage = () => {
   return (
       <Fragment>
         <Header />
-        <OwnerProfileArea />
+        <OwnerProfileArea isShowBtn={true}/>
         <S.TitleWrapper>
           <h2>2020 ~ 2023년도 경제 시장 분석 데이터 API</h2>
         </S.TitleWrapper>

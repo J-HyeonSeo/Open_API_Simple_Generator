@@ -33,3 +33,8 @@ export interface TypeCardInfo {
   'top-color': string,
   'bottom-color': string
 }
+
+export interface ProfileInfo {
+  profileImage: string,
+  name: string
+}

@@ -1,25 +1,12 @@
 import {ApiData} from "../../constants/interfaces";
 import React from "react";
-import * as S from "../../styles/api-card/ApiCard.styled";
-import {Profile} from "../../styles/profile/profile.styled";
-import TestProfileImg from "../../assets/test-profile.png";
 import {CommonBtn} from "../../styles/control/CommonBtn.styled";
 import {Line} from "../../styles/line/line.styled";
 import styled from "styled-components";
 import {palette} from "../../constants/Styles";
 import {Card} from "../../styles/common-card/Card.styled";
-
-const ProfileArea = styled.div`
-      width: 210px;
-      display: flex;
-      align-items: center;
-    `;
-
-const Username = styled.h2`
-      margin-right: 20px;
-      font-size: 18px;
-      font-weight: 600;
-    `;
+import ProfileArea from "./ProfileArea";
+import TestProfileImg from "../../assets/test-profile.png";
 
 const ApiName = styled.h2`
       margin-left: 20px;
@@ -31,10 +18,7 @@ const ApiName = styled.h2`
 const ApiCard: React.FC<{ item: ApiData }> = ({ item }) => {
   return (
       <Card $h={85} $m={25}>
-        <ProfileArea>
-          <Profile src={TestProfileImg} alt={"ProfileImg"}/>
-          <Username>{item.username}</Username>
-        </ProfileArea>
+        <ProfileArea item={{profileImage: TestProfileImg, name: "Adam Smith"}}/>
         <Line/>
         <ApiName>{item.apiName}</ApiName>
         {!item.accessible &&

@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import {palette} from "../../constants/Styles";
 
-export const PageNavBar = styled.div`
-      margin: 50px auto;
+export const PageNavBar = styled.div<{$m?: number}>`
+      margin: ${(props) => props.$m || 50}px auto;
       display: flex;
       justify-content: center;
     `;
