@@ -1,4 +1,4 @@
-import {Fragment} from "react";
+import {Fragment, useState} from "react";
 import Header from "../components/header/Header";
 import * as S from "../styles/api-create/ApiCreate.styled";
 import * as S2 from "../styles/common-card/Card.styled";
@@ -9,7 +9,28 @@ import TypeCard from "../components/api-detail/TypeCard";
 import {SCHEMA_TYPE_LIST} from "../constants/Data";
 import {CheckBox, CheckBoxLabel, CheckBoxWrapper} from "../styles/control/CheckBox.styled";
 
+
 const ApiCreatePage = () => {
+
+  const onDragStart = (index: string) => {
+    console.log(index);
+    setGrapIndex(index);
+  }
+
+  const onDragEnter = (index: string) => {
+    if (grapIndex === index) {
+      return;
+    }
+    console.log(index);
+    setPutIndex(index);
+  }
+
+  const onDragEnd = () => {
+    console.log("swap type card!");
+  }
+
+  const [grapIndex, setGrapIndex] = useState("none");
+  const [putIndex, setPutIndex] = useState("none");
 
   const mockFieldData = [
     {
@@ -47,16 +68,16 @@ const ApiCreatePage = () => {
         <S2.CardWrapper $w={700} $m={80}>
           <S2.CardTitle $noMargin={true}>자료형 지정 하기</S2.CardTitle>
           <S2.Card $d={"column"} $isLeft={true} $p={0.1} $isNotShadow={true} $c={"white"}>
-            <TypeCard key={1} vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-            <TypeCard key={2} vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-            <TypeCard key={3} vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
+            <TypeCard onDragStart={onDragStart} onDragEnter={onDragEnter} vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
+            <TypeCard onDragStart={onDragStart} onDragEnter={onDragEnter} vm={10} hm={0.1} item={{fieldName: "신설기업갯수", typeString: "integer", "top-color": SCHEMA_TYPE_LIST[1]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[1]["bottom-color"]}}/>
+            <TypeCard  vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
           </S2.Card>
         </S2.CardWrapper>
         <S2.CardWrapper $w={700} $m={80}>
           <S2.CardTitle $noMargin={true}>검색 질의 인수 추가하기</S2.CardTitle>
           <S2.Card $d={"column"} $isLeft={true} $p={0.1} $isNotShadow={true} $c={"white"}>
             <TypeCard vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-            <TypeCard vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
+            <TypeCard vm={10} hm={0.1} item={{fieldName: "신설기업갯수", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
             <TypeCard vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
           </S2.Card>
         </S2.CardWrapper>
