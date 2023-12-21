@@ -8,7 +8,7 @@ import {palette} from "../../../constants/Styles";
 const ApiKeyCard = () => {
   return (
       <S.CardWrapper $m={80}>
-        <h2>API KEY 관리</h2>
+        <S.CardTitle>API KEY 관리</S.CardTitle>
         <Card $h={70}>
           <S2.ApiKeyTextArea>
             <h3>API KEY</h3>

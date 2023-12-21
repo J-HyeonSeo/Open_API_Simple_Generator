@@ -19,7 +19,7 @@ const ApiCard: React.FC<{ item: ApiData }> = ({ item }) => {
   return (
       <Card $h={85} $m={25}>
         <ProfileArea item={{profileImage: TestProfileImg, name: "Adam Smith"}}/>
-        <Line/>
+        <Line $h={30} $c={palette["--color-gray-500"]}/>
         <ApiName>{item.apiName}</ApiName>
         {!item.accessible &&
             <CommonBtn $color={palette["--color-primary-100"]}

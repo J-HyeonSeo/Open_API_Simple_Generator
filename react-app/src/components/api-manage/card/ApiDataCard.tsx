@@ -6,7 +6,7 @@ import {palette} from "../../../constants/Styles";
 const ApiDataCard = () => {
   return (
       <S.CardWrapper $m={80}>
-        <h2>데이터 관리</h2>
+        <S.CardTitle>데이터 관리</S.CardTitle>
         <Card $h={70}>
           <CommonBtn $color={palette["--color-primary-100"]} $hover-color={palette["--color-primary-900"]}>데이터 관리</CommonBtn>
         </Card>

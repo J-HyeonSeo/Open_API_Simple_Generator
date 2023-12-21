@@ -9,7 +9,7 @@ import {Date} from "../../styles/control/Date.styled";
 const ApiHistoryCardArea = () => {
   return (
       <S.CardWrapper $m={80}>
-        <h2>API 로그 확인</h2>
+        <S.CardTitle>API 로그 확인</S.CardTitle>
         <Card $d={"column"} $notAround={true} $p={50}>
           <S.CardWrapper $w={550}>
             <Card $r={15} $isNotShadow={true}>
