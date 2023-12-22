@@ -3,16 +3,30 @@ import * as S from "../../styles/api-detail/TypeCard.styled";
 import {Line} from "../../styles/line/line.styled";
 import {palette} from "../../constants/Styles";
 import {TypeCardInfo} from "../../constants/interfaces";
+import {CommonBtn} from "../../styles/control/CommonBtn.styled";
 
 
-const TypeCard: React.FC<{item: TypeCardInfo, vm?: number, hm?: number,
-  onDragStart?: (index: string) => void, onDragEnter?: (index: string) => void}> = (
-    {item, vm, hm, onDragStart, onDragEnter}) => {
+const TypeCard: React.FC<{item: TypeCardInfo,vm?: number, hm?: number, index?: string,
+  onDragStart?: (index: string) => void,
+  onDragEnter?: (index: string) => void,
+  onDragEnd?: () => void,
+  enterChange?: (index: string) => void}> = (
+    {item,
+      vm,
+      hm,
+      index,
+      onDragStart,
+      onDragEnter,
+      onDragEnd,
+      enterChange}) => {
   return (
     <S.TypeCardWrapper
         draggable={true}
-        onDragStart={() => {onDragStart && onDragStart(item.fieldName)}}
-        onDragEnter={() => {onDragEnter && onDragEnter(item.fieldName)}}
+        onDragStart={() => onDragStart && index && onDragStart(index)}
+        onDragEnter={() => onDragEnter && index && onDragEnter(index)}
+        onDragEnd={onDragEnd}
+        onDragOver={(e) => e.preventDefault()}
+        onDoubleClick={() => enterChange && index && enterChange(index)}
         $vm={vm}
         $hm={hm}
     >
