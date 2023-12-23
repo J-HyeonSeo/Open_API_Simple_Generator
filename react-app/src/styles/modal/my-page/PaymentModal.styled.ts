@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import {palette} from "../../../constants/Styles";
-import exp from "constants";
 
 export const ContentWrapper = styled.div`
       width: 100%;
