@@ -1,49 +1,21 @@
-import {Fragment, useState} from "react";
+import {Fragment, useRef, useState} from "react";
 import Header from "../components/header/Header";
 import * as S from "../styles/api-create/ApiCreate.styled";
 import * as S2 from "../styles/common-card/Card.styled";
 import {CommonBtn} from "../styles/control/CommonBtn.styled";
 import {palette} from "../constants/Styles";
 import {Line} from "../styles/line/line.styled";
-import TypeCard from "../components/api-detail/TypeCard";
-import {SCHEMA_TYPE_LIST} from "../constants/Data";
 import {CheckBox, CheckBoxLabel, CheckBoxWrapper} from "../styles/control/CheckBox.styled";
+import TypeCardSetter from "../components/api-create/TypeCardSetter";
 
 
 const ApiCreatePage = () => {
+  const selectFile = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
 
-  const onDragStart = (index: string) => {
-    console.log(index);
-    setGrapIndex(index);
+  const fileChangeHandler = () => {
+    setFileName(selectFile.current?.files?.item(0)?.name || '');
   }
-
-  const onDragEnter = (index: string) => {
-    if (grapIndex === index) {
-      return;
-    }
-    console.log(index);
-    setPutIndex(index);
-  }
-
-  const onDragEnd = () => {
-    console.log("swap type card!");
-  }
-
-  const [grapIndex, setGrapIndex] = useState("none");
-  const [putIndex, setPutIndex] = useState("none");
-
-  const mockFieldData = [
-    {
-      id: 1,
-      fieldName: "연도",
-      type: "INTEGER",
-    },
-    {
-      id: 2,
-      fieldName: "기업명",
-      type: "STRING",
-    },
-  ]
 
   return (
       <Fragment>
@@ -59,27 +31,31 @@ const ApiCreatePage = () => {
         </S2.CardWrapper>
         <S2.CardWrapper $w={700} $m={80}>
           <S2.CardTitle>엑셀 파일 업로드</S2.CardTitle>
-          <CommonBtn $color={palette["--color-primary-100"]} $hover-color={palette["--color-primary-900"]}>
-            파일 선택
-          </CommonBtn>
+          <span>
+            <input
+                type="file"
+                style={{ display: "none" }}
+                ref={selectFile} //input에 접근 하기위해 useRef사용
+                onChange={fileChangeHandler}
+            />
+            <CommonBtn
+                $color={palette["--color-primary-100"]}
+                $hover-color={palette["--color-primary-900"]}
+                onClick={() => selectFile.current?.click()}
+            >
+              파일 선택
+            </CommonBtn>
+          </span>
           <Line $h={50} $m={20} $c={palette["--color-gray-900"]}/>
-          <S.ApiCreateInput disabled={true} type={"input"} $w={250} placeholder={"파일을 선택해주세요."}/>
+          <S.ApiCreateInput value={fileName} disabled={true} type={"input"} $w={300} placeholder={"파일을 선택해주세요."}/>
         </S2.CardWrapper>
         <S2.CardWrapper $w={700} $m={80}>
           <S2.CardTitle $noMargin={true}>자료형 지정 하기</S2.CardTitle>
-          <S2.Card $d={"column"} $isLeft={true} $p={0.1} $isNotShadow={true} $c={"white"}>
-            <TypeCard onDragStart={onDragStart} onDragEnter={onDragEnter} vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-            <TypeCard onDragStart={onDragStart} onDragEnter={onDragEnter} vm={10} hm={0.1} item={{fieldName: "신설기업갯수", typeString: "integer", "top-color": SCHEMA_TYPE_LIST[1]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[1]["bottom-color"]}}/>
-            <TypeCard  vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-          </S2.Card>
+          <TypeCardSetter isSchema={true} />
         </S2.CardWrapper>
         <S2.CardWrapper $w={700} $m={80}>
           <S2.CardTitle $noMargin={true}>검색 질의 인수 추가하기</S2.CardTitle>
-          <S2.Card $d={"column"} $isLeft={true} $p={0.1} $isNotShadow={true} $c={"white"}>
-            <TypeCard vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-            <TypeCard vm={10} hm={0.1} item={{fieldName: "신설기업갯수", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-            <TypeCard vm={10} hm={0.1} item={{fieldName: "연도", typeString: "String", "top-color": SCHEMA_TYPE_LIST[0]["top-color"], "bottom-color": SCHEMA_TYPE_LIST[0]["bottom-color"]}}/>
-          </S2.Card>
+          <TypeCardSetter isSchema={false} />
         </S2.CardWrapper>
         <S2.CardWrapper $w={700} $m={80}>
           <S2.CardTitle>공개 여부</S2.CardTitle>

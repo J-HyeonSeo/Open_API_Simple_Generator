@@ -25,7 +25,7 @@ export const SCHEMA_TYPE_LIST = [
   {
     type: "DATE",
     display: "Date",
-    'top-color': '#c98110',
+    'top-color': '#e89a20',
     'bottom-color': '#a96027'
   }
 ];
@@ -46,7 +46,7 @@ export const QUERY_TYPE_LIST = [
   {
     type: "EQUAL",
     display: "Equal",
-    'top-color': '#c98110',
+    'top-color': '#e89a20',
     'bottom-color': '#a96027'
   },
   {

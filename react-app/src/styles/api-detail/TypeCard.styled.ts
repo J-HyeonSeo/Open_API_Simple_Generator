@@ -16,13 +16,24 @@ export const TypeCardTitle = styled.h5`
     `;
 
 export const TypeElement = styled.div<{
-    '$top-color': string, '$bottom-color': string
+    '$top-color': string, '$bottom-color': string, $isHover?: boolean
 }>`
       border-radius: 40px;
-      padding: 1px 8px;
+      padding: 0 8px;
       color: white;
       font-weight: 400;
       font-size: 12px;
       margin-left: 8px;
       background: linear-gradient(to bottom, ${(props) => props['$top-color']}, ${(props) => props['$bottom-color']});
+    
+      &:hover {
+          background: ${(props) => props.$isHover ? 'none' : ''};
+          background-color: ${(props) => props.$isHover ? props['$top-color'] : ''};
+      }
     `;
+
+export const Clickable = styled.span`
+      &:hover {
+          cursor: pointer;
+      }
+    `
