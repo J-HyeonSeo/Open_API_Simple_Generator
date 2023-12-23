@@ -5,7 +5,9 @@ import testProfileImg from "../assets/test-profile.png";
 import testGradeImg from "../assets/grade-image/gold-mark.png";
 import MyPageCard from "../components/my-page/MyPageCard";
 import * as S from "../styles/my-page/ProfileWrapper.styled";
+import * as M from "../styles/modal/my-page/ChangeNicknameModal.styled";
 import Modal from "../components/modal/Modal";
+import {ModalInput} from "../styles/control/ModalInput.styled";
 
 const MyPage = () => {
   const [isShowNicknameModal, setIsShowNicknameModal] = useState(false);
@@ -45,8 +47,23 @@ const MyPage = () => {
           openPaymentModal={() => modalHandler("payment", true)}
           openIvReModal={() => modalHandler("IvRe", true)}
         />
-        {isShowNicknameModal && <Modal isButton={true} mark={"question"} title={"닉네임 변경하기"} closeHandler={() => modalHandler("nickname", false)}>
-
+        {isShowNicknameModal && <Modal
+            isButton={true}
+            mark={"question"}
+            title={"닉네임 변경하기"}
+            closeHandler={() => modalHandler("nickname", false)}
+            yesText={"변경"}
+        >
+          <M.ContentWrapper>
+            <M.Content>
+              <M.ContentText>현재 닉네임</M.ContentText>
+              <ModalInput $w={290} value={"Adam Smith"} disabled={true}/>
+            </M.Content>
+            <M.Content>
+              <M.ContentText>변경 닉네임</M.ContentText>
+              <ModalInput $w={290}/>
+            </M.Content>
+          </M.ContentWrapper>
         </Modal>}
       </Fragment>
   )

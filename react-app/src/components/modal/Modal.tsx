@@ -18,7 +18,11 @@ interface ModalProps {
   closeHandler: () => void;
   w?: number;
   h?: number;
-  isButton?: boolean
+  isButton?: boolean;
+  yesText?: string;
+  yesCallback?: () => void;
+  noText?: string;
+  noCallback?: () => void;
 }
 
 const Modal: React.FC<ModalProps> = (props) => {
@@ -57,12 +61,12 @@ const Modal: React.FC<ModalProps> = (props) => {
               </S.ModalContentArea>
               {props.isButton && 
                   <S.ModalButtonArea>
-                    <S.ModalButtonWrapper>
-                      <S.ModalButton>확인</S.ModalButton>
+                    <S.ModalButtonWrapper onClick={props.yesCallback}>
+                      <S.ModalButton>{props.yesText || "확인"}</S.ModalButton>
                     </S.ModalButtonWrapper>
                     <Line $c={palette["--color-gray-500"]}/>
-                    <S.ModalButtonWrapper>
-                      <S.ModalButton>취소</S.ModalButton>
+                    <S.ModalButtonWrapper onClick={props.noCallback || props.closeHandler}>
+                      <S.ModalButton>{props.noText || "취소"}</S.ModalButton>
                     </S.ModalButtonWrapper>
                   </S.ModalButtonArea>}
             </S.ModalOverlay>
