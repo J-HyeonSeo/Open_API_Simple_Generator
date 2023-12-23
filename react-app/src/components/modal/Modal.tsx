@@ -12,7 +12,7 @@ import {palette} from "../../constants/Styles";
 const portalElement = document.getElementById("overlays");
 
 interface ModalProps {
-  children: ReactNode;
+  children?: ReactNode;
   mark?: string;
   title: string;
   closeHandler: () => void;
@@ -23,6 +23,7 @@ interface ModalProps {
   yesCallback?: () => void;
   noText?: string;
   noCallback?: () => void;
+  text?: string
 }
 
 const Modal: React.FC<ModalProps> = (props) => {
@@ -58,6 +59,10 @@ const Modal: React.FC<ModalProps> = (props) => {
               </S.ModalTitleArea>
               <S.ModalContentArea $isButton={props.isButton}>
                 {props.children}
+                {props.text &&
+                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
+                      <h2 style={{textAlign: "center"}}>{props.text}</h2>
+                    </div>}
               </S.ModalContentArea>
               {props.isButton && 
                   <S.ModalButtonArea>
