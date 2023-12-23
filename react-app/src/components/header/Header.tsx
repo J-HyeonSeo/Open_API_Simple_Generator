@@ -21,6 +21,7 @@ const Header = () => {
           <S.ListStyle>
             <S.ListDetailStyle onClick={() => navigate("/api/owner")}>API 관리</S.ListDetailStyle>
             <S.ListDetailStyle onClick={() => navigate("/api/accessible")}>접근 가능 API 목록</S.ListDetailStyle>
+            <S.ListDetailStyle onClick={() => navigate("/grade-payment")}>등급 결제하기</S.ListDetailStyle>
             <S.ListDetailStyle onClick={() => navigate("/my-page")}>마이페이지</S.ListDetailStyle>
           </S.ListStyle>
           <HeaderProfile/>
