@@ -6,7 +6,7 @@ import {Line} from "../../styles/line/line.styled";
 import {CommonBtn} from "../../styles/control/CommonBtn.styled";
 import {palette} from "../../constants/Styles";
 
-const OwnerProfileArea: React.FC<{isShowBtn?: boolean}> = ({isShowBtn}) => {
+const OwnerProfileArea: React.FC<{isShowBtn?: boolean, btnCallBack?: () => void}> = ({isShowBtn, btnCallBack}) => {
   return (
       <div>
         <S.OwnerProfileAreaWrapper>
@@ -15,7 +15,10 @@ const OwnerProfileArea: React.FC<{isShowBtn?: boolean}> = ({isShowBtn}) => {
             <Line $h={30} $m={10}/>
             <S.ProfileNameText>Adam Smith</S.ProfileNameText>
           </S.OwnerProfileWrapper>
-          {isShowBtn && <CommonBtn $color={palette["--color-primary-100"]} $hover-color={palette["--color-primary-900"]}>
+          {isShowBtn && <CommonBtn
+              $color={palette["--color-primary-100"]}
+              $hover-color={palette["--color-primary-900"]}
+              onClick={btnCallBack}>
             신청 하기 ▶
           </CommonBtn>}
         </S.OwnerProfileAreaWrapper>

@@ -19,7 +19,8 @@ export const ListDetailStyle = styled.li`
     font-size: 1.2rem;
 
     &:hover {
-        color: ${palette["--color-gray-100"]};
+        cursor: pointer;
+        color: ${palette["--color-gray-500"]};
     }
 
     &:last-child {

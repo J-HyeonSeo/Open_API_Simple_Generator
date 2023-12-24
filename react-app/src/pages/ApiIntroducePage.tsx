@@ -1,4 +1,4 @@
-import {Fragment} from "react";
+import {Fragment, useState} from "react";
 import Header from "../components/header/Header";
 import OwnerProfileArea from "../components/api-detail/OwnerProfileArea";
 import * as S from "../styles/api-detail/ApiDetail.styled";
@@ -7,8 +7,27 @@ import {Card} from "../styles/common-card/Card.styled";
 import TypeCard from "../components/api-detail/TypeCard";
 import {TypeCardInfo} from "../constants/interfaces";
 import {SCHEMA_TYPE_LIST} from "../constants/Data";
+import Modal from "../components/modal/Modal";
 
 const ApiIntroducePage = () => {
+
+  const [isShowRequestModal, setIsShowRequestModal] = useState(false);
+  const [isShowErrorModal, setIsShowErrorModal] = useState(false);
+
+  const validRequestHandler = () => {
+
+  }
+
+  const modalHandler = (type: string, value: boolean) => {
+    switch (type) {
+      case "request":
+        setIsShowRequestModal(value);
+        break;
+      case "error":
+        setIsShowErrorModal(value);
+        break;
+    }
+  }
 
   const mockFieldData: Array<TypeCardInfo> = [
     {
@@ -46,7 +65,7 @@ const ApiIntroducePage = () => {
   return (
       <Fragment>
         <Header />
-        <OwnerProfileArea isShowBtn={true}/>
+        <OwnerProfileArea isShowBtn={true} btnCallBack={() => modalHandler("request", true)}/>
         <S.TitleWrapper>
           <h2>2020 ~ 2023년도 경제 시장 분석 데이터 API</h2>
         </S.TitleWrapper>
@@ -79,6 +98,11 @@ const ApiIntroducePage = () => {
             <p>{"/query/1/{AUTHKEY}/0/10?연도={INTEGER}&업종={STRING}&자금순환금액={FLOAT}"}</p>
           </Card>
         </S2.CardWrapper>
+        {isShowRequestModal && <Modal mark={"question"}
+               title={"OpenAPI 신청하기"}
+               isButton={true}
+               text={"해당 OpenAPI를 신청하시겠습니까?"}
+               closeHandler={() => modalHandler("request", false)}/>}
       </Fragment>
   )
 }
