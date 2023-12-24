@@ -35,6 +35,7 @@ export interface TypeCardInfo {
 }
 
 export interface ProfileInfo {
-  profileImage: string,
+  profileImage: string
   name: string
+  email?: string
 }

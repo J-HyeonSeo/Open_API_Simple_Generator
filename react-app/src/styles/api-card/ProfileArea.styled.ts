@@ -9,7 +9,6 @@ export const ProfileAreaWrapper = styled.div<{$w?: number}>`
 
 export const Username = styled.h2<{$size?: number}>`
       margin-left: 4px;
-      margin-right: 20px;
       font-size: ${(props) => props.$size || 18}px;
       font-weight: 600;
     `;
