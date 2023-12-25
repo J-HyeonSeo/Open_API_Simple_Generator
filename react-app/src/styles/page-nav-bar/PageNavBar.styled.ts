@@ -8,15 +8,17 @@ export const PageNavBar = styled.div<{$m?: number}>`
     `;
 
 export const PageNavBtn = styled.button<{$isFocus?: boolean}>`
-      padding: 10px;
+      padding: 5px 10px;
       font: inherit;
+      font-weight: 600;
       border: none;
       margin: 0 10px;
-      border-radius: 30px;
-      background-color: ${(props) => props.$isFocus ? palette["--color-gray-500"] : palette["--color-gray-100"]};
-      
+      border-radius: 5px;
+      background-color: ${(props) => props.$isFocus ? palette["--color-gray-300"] : palette["--color-gray-100"]};
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);  
+    
       &:hover {
-          background-color: ${palette["--color-gray-500"]};
+          background-color: ${palette["--color-gray-300"]};
           cursor: pointer;
       }
     `;
