@@ -50,7 +50,7 @@ const MyPage = () => {
             <S.NicknameText>안녕하세요?</S.NicknameText>
           </S.NicknameTextWrapper>
           <S2.CardWrapper $w={450} $m={20}>
-            <S2.Card $h={50} $p={1} $r={10}>
+            <S2.Card $h={50} $p={10} $r={10}>
               <S.EmailText>Email</S.EmailText>
               <Line $h={30} $c={palette["--color-gray-500"]}/>
               <S.EmailText style={{width: "300px"}}>AdamSmith@test.com</S.EmailText>
