@@ -5,10 +5,13 @@ import testProfileImg from "../assets/test-profile.png";
 import testGradeImg from "../assets/grade-image/gold-mark.png";
 import MyPageCard from "../components/my-page/MyPageCard";
 import * as S from "../styles/my-page/ProfileWrapper.styled";
+import * as S2 from "../styles/common-card/Card.styled";
 import Modal from "../components/modal/Modal";
 import ChangeNicknameModal from "../components/modal/ChangeNicknameModal";
 import PaymentModal from "../components/modal/PaymentModal";
 import IvReModal from "../components/modal/IvReModal";
+import {palette} from "../constants/Styles";
+import {Line} from "../styles/line/line.styled";
 
 const MyPage = () => {
   const [isShowNicknameModal, setIsShowNicknameModal] = useState(false);
@@ -42,10 +45,17 @@ const MyPage = () => {
             <img src={testGradeImg} alt={"gradeImg"} width={"30px"} height={"70px"}/>
           </S.GradeMargin>
           <Profile src={testProfileImg} $size={120}/>
-          <S.TextWrapper>
-            <S.TextStyle><strong>Adam Smith</strong> 님</S.TextStyle>
-            <S.TextStyle>안녕하세요?</S.TextStyle>
-          </S.TextWrapper>
+          <S.NicknameTextWrapper>
+            <S.NicknameText><strong>Adam Smith</strong> 님</S.NicknameText>
+            <S.NicknameText>안녕하세요?</S.NicknameText>
+          </S.NicknameTextWrapper>
+          <S2.CardWrapper $w={450} $m={20}>
+            <S2.Card $h={50} $p={1} $r={10}>
+              <S.EmailText>Email</S.EmailText>
+              <Line $h={30} $c={palette["--color-gray-500"]}/>
+              <S.EmailText style={{width: "300px"}}>AdamSmith@test.com</S.EmailText>
+            </S2.Card>
+          </S2.CardWrapper>
         </S.ProfileWrapper>
         <MyPageCard
           openNicknameModal={() => modalHandler("nickname", true)}
