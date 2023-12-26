@@ -25,7 +25,9 @@ public class Member {
   private Grade grade;
   @Column(nullable = false, unique = true)
   private String email;
+  @Column(nullable = false)
   private String nickname;
+  private String profileUrl;
   @CreatedDate
   private LocalDateTime registeredAt;
   @LastModifiedDate
