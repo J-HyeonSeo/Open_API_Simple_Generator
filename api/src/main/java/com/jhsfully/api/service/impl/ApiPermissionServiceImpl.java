@@ -13,9 +13,9 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
-import com.jhsfully.api.model.permission.AuthKeyResponse;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
-import com.jhsfully.api.model.permission.PermissionResponse;
+import com.jhsfully.api.model.permission.AuthKeyResponse;
 import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.ApiKey;
@@ -32,9 +32,7 @@ import com.jhsfully.domain.type.ApiPermissionType;
 import com.jhsfully.domain.type.ApiState;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +74,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
   @Override
   @Transactional(readOnly = true)
-  public PermissionResponse getPermissionListForOwner(long apiId, long memberId, Pageable pageable){
+  public PageResponse<PermissionDto> getPermissionListForOwner(long apiId, long memberId, Pageable pageable){
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
@@ -85,18 +83,10 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
     validateGetPermissionListForOwner(apiInfo, member);
 
-    Page<ApiUserPermission> permissionPage = apiUserPermissionRepository.findByApiInfo(apiInfo, pageable);
-
-    return PermissionResponse.builder()
-        .totalCount(permissionPage.getTotalElements())
-        .dataCount(permissionPage.getNumberOfElements())
-        .permissionDtoList(
-            permissionPage.getContent()
-                .stream()
-                .map(PermissionDto::of)
-                .collect(Collectors.toList())
-        )
-        .build();
+    return PageResponse.of(
+        apiUserPermissionRepository.findByApiInfo(apiInfo, pageable),
+        PermissionDto::of
+    );
   }
 
   @Override

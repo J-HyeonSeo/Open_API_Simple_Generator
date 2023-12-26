@@ -1,5 +1,7 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.api.service.ApiInviteService;
 import com.jhsfully.api.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class ApiInviteController {
     API 소유주가 해당 API 에 대해 보낸 초대 목록 조회.
  */
   @GetMapping("/owner/{apiId}/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getInviteListForOwner(
+  public ResponseEntity<PageResponse<ApiRequestInviteDto>> getInviteListForOwner(
       @PathVariable long apiId,
       @PathVariable int pageIdx,
       @PathVariable int pageSize
@@ -40,7 +42,7 @@ public class ApiInviteController {
       멤버가 초대받은 API 목록 조회.
    */
   @GetMapping("/member/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getInviteListForMember(
+  public ResponseEntity<PageResponse<ApiRequestInviteDto>> getInviteListForMember(
       @PathVariable int pageIdx,
       @PathVariable int pageSize
   ){

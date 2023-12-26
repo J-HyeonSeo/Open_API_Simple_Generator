@@ -17,9 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
 import com.jhsfully.api.model.permission.AuthKeyResponse;
-import com.jhsfully.api.model.permission.PermissionResponse;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.domain.type.ApiPermissionType;
@@ -30,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -73,16 +74,15 @@ class ApiPermissionControllerTest {
     @Test
     void getPermissionListForOwner() throws Exception {
         //given
-        PermissionResponse response = PermissionResponse.builder()
-            .totalCount(1L)
-            .dataCount(1L)
-            .permissionDtoList(
+        PageResponse<PermissionDto> response = PageResponse.of(
+            new PageImpl<>(
                 List.of(
                     new PermissionDto(1L, "access@test.com", List.of(
                         ApiPermissionType.UPDATE, ApiPermissionType.INSERT))
                 )
             )
-            .build();
+        );
+
         given(apiPermissionService.getPermissionListForOwner(anyLong(), anyLong(), any()))
             .willReturn(response);
 
@@ -93,12 +93,12 @@ class ApiPermissionControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.totalCount").value(1L),
-                jsonPath("$.dataCount").value(1L),
-                jsonPath("$.permissionDtoList.[0].permissionId").value("1"),
-                jsonPath("$.permissionDtoList.[0].memberEmail").value("access@test.com"),
-                jsonPath("$.permissionDtoList.[0].permissionList.[0]").value("UPDATE"),
-                jsonPath("$.permissionDtoList.[0].permissionList.[1]").value("INSERT")
+                jsonPath("$.totalElements").value(1L),
+                jsonPath("$.hasNextPage").value(false),
+                jsonPath("$.content.[0].permissionId").value("1"),
+                jsonPath("$.content.[0].memberEmail").value("access@test.com"),
+                jsonPath("$.content.[0].permissionList.[0]").value("UPDATE"),
+                jsonPath("$.content.[0].permissionList.[1]").value("INSERT")
             );
     }
 

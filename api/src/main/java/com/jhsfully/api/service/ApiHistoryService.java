@@ -1,13 +1,14 @@
 package com.jhsfully.api.service;
 
-import com.jhsfully.api.model.history.HistoryResponse;
+import com.jhsfully.api.model.PageResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.bson.Document;
 import org.springframework.data.domain.Pageable;
 
 public interface ApiHistoryService {
-  HistoryResponse getApiHistories(
+  PageResponse<Document> getApiHistories(
       long apiId, long memberId,
       LocalDate startDate,
       LocalDate endDate,

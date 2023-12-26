@@ -7,8 +7,8 @@ import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.API_KEY_
 
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.query.QueryInput;
-import com.jhsfully.api.model.query.QueryResponse;
 import com.jhsfully.api.service.QueryService;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.repository.ApiInfoRepository;
@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -45,7 +46,7 @@ public class QueryServiceImpl implements QueryService {
 
   @Override
   @Transactional(readOnly = true)
-  public QueryResponse getDataList(QueryInput input){
+  public PageResponse<Document> getDataList(QueryInput input){
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
@@ -63,11 +64,7 @@ public class QueryServiceImpl implements QueryService {
         .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
         .collect(Collectors.toList());
 
-    return QueryResponse.builder()
-        .totalCount(totalCount)
-        .dataCount(results.size())
-        .dataList(results)
-        .build();
+    return PageResponse.of(new PageImpl<>(results, pageable, totalCount));
   }
 
 

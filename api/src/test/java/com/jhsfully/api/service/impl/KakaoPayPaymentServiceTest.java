@@ -28,12 +28,13 @@ import static org.mockito.Mockito.verify;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.exception.PaymentException;
+import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentApprovedResponse;
 import com.jhsfully.api.model.payment.PaymentReadyResponse;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
 import com.jhsfully.api.model.payment.PaymentRefundResponse;
 import com.jhsfully.api.model.payment.PaymentRefundResponse.Amount;
-import com.jhsfully.api.model.payment.PaymentResponse;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.entity.Payment;
@@ -159,17 +160,17 @@ class KakaoPayPaymentServiceTest {
                 ));
 
             //when
-            PaymentResponse response = kakaoPayPaymentService.getPaymentList(1L, PageRequest.of(0, 1));
+            PageResponse<PaymentDto> response = kakaoPayPaymentService.getPaymentList(1L, PageRequest.of(0, 1));
 
             //then
             assertAll(
-                () -> assertEquals(payment.getId(), response.getDataList().get(0).getId()),
-                () -> assertEquals(payment.getGrade().getGradeName(), response.getDataList().get(0).getGrade()),
-                () -> assertEquals(payment.getPaymentAmount(), response.getDataList().get(0).getPaymentAmount()),
-                () -> assertEquals(payment.getRefundAmount(), response.getDataList().get(0).getRefundAmount()),
-                () -> assertEquals(payment.getPaidAt(), response.getDataList().get(0).getPaidAt()),
-                () -> assertEquals(payment.getRefundAt(), response.getDataList().get(0).getRefundAt()),
-                () -> assertEquals(payment.getPaymentStateType(), response.getDataList().get(0).getPaymentState())
+                () -> assertEquals(payment.getId(), response.getContent().get(0).getId()),
+                () -> assertEquals(payment.getGrade().getGradeName(), response.getContent().get(0).getGrade()),
+                () -> assertEquals(payment.getPaymentAmount(), response.getContent().get(0).getPaymentAmount()),
+                () -> assertEquals(payment.getRefundAmount(), response.getContent().get(0).getRefundAmount()),
+                () -> assertEquals(payment.getPaidAt(), response.getContent().get(0).getPaidAt()),
+                () -> assertEquals(payment.getRefundAt(), response.getContent().get(0).getRefundAt()),
+                () -> assertEquals(payment.getPaymentStateType(), response.getContent().get(0).getPaymentState())
             );
 
         }

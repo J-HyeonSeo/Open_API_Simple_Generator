@@ -22,12 +22,13 @@ import org.springframework.data.elasticsearch.core.join.JoinField;
 @Setting(settingPath = "/elasticsearch/analyzer-setting.json")
 public class ApiInfoElastic {
   @Id
-  private String id;
+  private Long id;
   private String apiName; //for search and response
   private String apiIntroduce; //for search and response
-  private String ownerEmail; //for search and response
+  private String ownerNickname; //for search and response
+  private String profileUrl;
   @Enumerated(EnumType.STRING)
-  private ApiState state;
+  private ApiState apiState;
   private boolean isPublic;
   private Long permissionId; //for deletion
   private Long ownerMemberId; //for join

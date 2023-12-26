@@ -4,7 +4,9 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,8 +15,9 @@ import static org.mockito.BDDMockito.given;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
-import com.jhsfully.api.model.api.ApiSearchResponse;
-import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoDetailResponse;
+import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoDetailDto;
+import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoSearchDto;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.Member;
@@ -59,11 +62,11 @@ class ApiSearchServiceImplTest {
 
   private ApiInfoElastic getApiInfoElastic(){
     return ApiInfoElastic.builder()
-        .id("1")
+        .id(1L)
         .apiName("test")
         .apiIntroduce("test")
-        .ownerEmail("owner@test.com")
-        .state(ApiState.ENABLED)
+        .ownerNickname("owner")
+        .apiState(ApiState.ENABLED)
         .isPublic(true)
         .ownerMemberId(1L)
         .build();
@@ -121,18 +124,17 @@ class ApiSearchServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiInfoElastic)));
 
       //when
-      ApiSearchResponse response = apiSearchService
-          .getOpenApiList("test", SearchType.API_NAME, PageRequest.of(0, 10));
+      PageResponse<ApiInfoSearchDto> response = apiSearchService
+          .getOpenApiList("test", SearchType.API_NAME, PageRequest.of(0, 10), 1L);
 
       //then
       assertAll(
-          () -> assertEquals(apiInfoElastic.getId(), response.getDataList().get(0).getId()),
-          () -> assertEquals(apiInfoElastic.getApiName(), response.getDataList().get(0).getApiName()),
-          () -> assertEquals(apiInfoElastic.getApiIntroduce(), response.getDataList().get(0).getApiIntroduce()),
-          () -> assertEquals(apiInfoElastic.getOwnerEmail(), response.getDataList().get(0).getOwnerEmail()),
-          () -> assertEquals(apiInfoElastic.getState(), response.getDataList().get(0).getState()),
-          () -> assertEquals(apiInfoElastic.isPublic(), response.getDataList().get(0).isPublic()),
-          () -> assertEquals(apiInfoElastic.getOwnerMemberId(), response.getDataList().get(0).getOwnerMemberId())
+          () -> assertEquals(apiInfoElastic.getId(), response.getContent().get(0).getId()),
+          () -> assertEquals(apiInfoElastic.getApiName(), response.getContent().get(0).getApiName()),
+          () -> assertEquals(apiInfoElastic.getOwnerNickname(), response.getContent().get(0).getOwnerNickname()),
+          () -> assertEquals(apiInfoElastic.getProfileUrl(), response.getContent().get(0).getProfileUrl()),
+          () -> assertEquals(apiInfoElastic.getApiState(), response.getContent().get(0).getApiState()),
+          () -> assertFalse(response.getContent().get(0).isAccessible())
       );
     }
 
@@ -152,14 +154,14 @@ class ApiSearchServiceImplTest {
           .willReturn(Optional.of(apiInfo));
 
       //when
-      ApiInfoDetailResponse response = apiSearchService.getOpenApiDetail(1L, 1L);
+      ApiInfoDetailDto response = apiSearchService.getOpenApiDetail(1L, 1L);
 
       //then
       assertAll(
           () -> assertEquals(apiInfo.getId(), response.getId()),
           () -> assertEquals(apiInfo.getApiName(), response.getApiName()),
           () -> assertEquals(apiInfo.getApiIntroduce(), response.getApiIntroduce()),
-          () -> assertEquals(apiInfo.getMember().getEmail(), response.getOwnerEmail()),
+          () -> assertEquals(apiInfo.getMember().getNickname(), response.getOwnerNickname()),
           () -> assertEquals(apiInfo.getApiState(), response.getApiState()),
           () -> assertEquals(apiInfo.getSchemaStructure().get(0), response.getSchemaStructure().get(0)),
           () -> assertEquals(apiInfo.getQueryParameter().get(0), response.getQueryParameter().get(0)),
@@ -249,18 +251,17 @@ class ApiSearchServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiInfoElastic)));
 
       //when
-      ApiSearchResponse response = apiSearchService.getOpenApiListForOwner(1L,
+      PageResponse<ApiInfoSearchDto> response = apiSearchService.getOpenApiListForOwner(1L,
           "test", SearchType.API_NAME, PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(apiInfoElastic.getId(), response.getDataList().get(0).getId()),
-          () -> assertEquals(apiInfoElastic.getApiName(), response.getDataList().get(0).getApiName()),
-          () -> assertEquals(apiInfoElastic.getApiIntroduce(), response.getDataList().get(0).getApiIntroduce()),
-          () -> assertEquals(apiInfoElastic.getOwnerEmail(), response.getDataList().get(0).getOwnerEmail()),
-          () -> assertEquals(apiInfoElastic.getState(), response.getDataList().get(0).getState()),
-          () -> assertEquals(apiInfoElastic.isPublic(), response.getDataList().get(0).isPublic()),
-          () -> assertEquals(apiInfoElastic.getOwnerMemberId(), response.getDataList().get(0).getOwnerMemberId())
+          () -> assertEquals(apiInfoElastic.getId(), response.getContent().get(0).getId()),
+          () -> assertEquals(apiInfoElastic.getApiName(), response.getContent().get(0).getApiName()),
+          () -> assertEquals(apiInfoElastic.getOwnerNickname(), response.getContent().get(0).getOwnerNickname()),
+          () -> assertEquals(apiInfoElastic.getProfileUrl(), response.getContent().get(0).getProfileUrl()),
+          () -> assertEquals(apiInfoElastic.getApiState(), response.getContent().get(0).getApiState()),
+          () -> assertTrue(response.getContent().get(0).isAccessible())
       );
     }
 
@@ -280,18 +281,17 @@ class ApiSearchServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiInfoElastic)));
 
       //when
-      ApiSearchResponse response = apiSearchService.getOpenApiListForAccess(1L,
+      PageResponse<ApiInfoSearchDto> response = apiSearchService.getOpenApiListForAccess(1L,
           "test", SearchType.API_NAME, PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(apiInfoElastic.getId(), response.getDataList().get(0).getId()),
-          () -> assertEquals(apiInfoElastic.getApiName(), response.getDataList().get(0).getApiName()),
-          () -> assertEquals(apiInfoElastic.getApiIntroduce(), response.getDataList().get(0).getApiIntroduce()),
-          () -> assertEquals(apiInfoElastic.getOwnerEmail(), response.getDataList().get(0).getOwnerEmail()),
-          () -> assertEquals(apiInfoElastic.getState(), response.getDataList().get(0).getState()),
-          () -> assertEquals(apiInfoElastic.isPublic(), response.getDataList().get(0).isPublic()),
-          () -> assertEquals(apiInfoElastic.getOwnerMemberId(), response.getDataList().get(0).getOwnerMemberId())
+          () -> assertEquals(apiInfoElastic.getId(), response.getContent().get(0).getId()),
+          () -> assertEquals(apiInfoElastic.getApiName(), response.getContent().get(0).getApiName()),
+          () -> assertEquals(apiInfoElastic.getOwnerNickname(), response.getContent().get(0).getOwnerNickname()),
+          () -> assertEquals(apiInfoElastic.getProfileUrl(), response.getContent().get(0).getProfileUrl()),
+          () -> assertEquals(apiInfoElastic.getApiState(), response.getContent().get(0).getApiState()),
+          () -> assertTrue(response.getContent().get(0).isAccessible())
       );
     }
 

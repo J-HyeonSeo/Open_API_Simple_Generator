@@ -1,7 +1,7 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
-import com.jhsfully.api.model.permission.PermissionResponse;
 import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.api.util.MemberUtil;
 import com.jhsfully.domain.type.ApiPermissionType;
@@ -40,13 +40,13 @@ public class ApiPermissionController {
 
   //Owner가 해당 API에 대한 Member의 Permission들을 페이징하여 조회함.
   @GetMapping("/owner/{apiId}/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getPermissionListForOwner(
+  public ResponseEntity<PageResponse<PermissionDto>> getPermissionListForOwner(
       @PathVariable long apiId,
       @PathVariable int pageIdx,
       @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
-    PermissionResponse permissionResponse = apiPermissionService
+    PageResponse<PermissionDto> permissionResponse = apiPermissionService
         .getPermissionListForOwner(apiId, memberId, PageRequest.of(pageIdx, pageSize));
     return ResponseEntity.ok(permissionResponse);
   }

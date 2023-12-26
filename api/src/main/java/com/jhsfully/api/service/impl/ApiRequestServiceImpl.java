@@ -17,6 +17,7 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiRequestException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.api.service.ApiRequestService;
 import com.jhsfully.domain.entity.ApiInfo;
@@ -33,9 +34,7 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.join.JoinField;
@@ -59,23 +58,22 @@ public class ApiRequestServiceImpl implements ApiRequestService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<ApiRequestInviteDto> getRequestListForMember(
+  public PageResponse<ApiRequestInviteDto> getRequestListForMember(
         long memberId,
         Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.REQUEST, pageable)
-        .getContent()
-        .stream()
-        .map(x -> ApiRequestInviteDto.of(x, true))
-        .collect(Collectors.toList());
+    return PageResponse.of(
+        apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.REQUEST, pageable),
+        x -> ApiRequestInviteDto.of(x, true)
+    );
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<ApiRequestInviteDto> getRequestListForOwner(
+  public PageResponse<ApiRequestInviteDto> getRequestListForOwner(
         long memberId,
         long apiId,
         Pageable pageable) {
@@ -86,13 +84,11 @@ public class ApiRequestServiceImpl implements ApiRequestService {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    return apiRequestInviteRepository
-            .findByMemberAndApiInfoAndApiRequestType(member,
-                    apiInfo, ApiRequestType.REQUEST, pageable)
-        .getContent()
-        .stream()
-        .map(x -> ApiRequestInviteDto.of(x, false))
-        .collect(Collectors.toList());
+    return PageResponse.of(
+        apiRequestInviteRepository.findByMemberAndApiInfoAndApiRequestType(member,
+            apiInfo, ApiRequestType.REQUEST, pageable),
+        x -> ApiRequestInviteDto.of(x, false)
+    );
   }
 
   @Override

@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiRequestException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.ApiInfoElastic;
@@ -128,18 +129,18 @@ class ApiRequestServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when
-      List<ApiRequestInviteDto> responseList = apiRequestService.getRequestListForMember(1L,
+      PageResponse<ApiRequestInviteDto> responseList = apiRequestService.getRequestListForMember(1L,
           PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
-          () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(ownerMember.getNickname(), responseList.get(0).getMemberNickname()),
-          () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.get(0).getApiName()),
-          () -> assertEquals(ownerMember.getEmail(), responseList.get(0).getMemberEmail()),
-          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
-          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.get(0).getRequestStateType())
+          () -> assertEquals(apiRequestInvite.getId(), responseList.getContent().get(0).getId()),
+          () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.getContent().get(0).getApiInfoId()),
+          () -> assertEquals(ownerMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.getContent().get(0).getApiName()),
+          () -> assertEquals(ownerMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
+          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );
 
     }
@@ -185,18 +186,18 @@ class ApiRequestServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when
-      List<ApiRequestInviteDto> responseList = apiRequestService.getRequestListForOwner(1L,
+      PageResponse<ApiRequestInviteDto> responseList = apiRequestService.getRequestListForOwner(1L,
           1L, PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
-          () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(requestMember.getNickname(), responseList.get(0).getMemberNickname()),
-          () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.get(0).getApiName()),
-          () -> assertEquals(requestMember.getEmail(), responseList.get(0).getMemberEmail()),
-          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
-          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.get(0).getRequestStateType())
+          () -> assertEquals(apiRequestInvite.getId(), responseList.getContent().get(0).getId()),
+          () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.getContent().get(0).getApiInfoId()),
+          () -> assertEquals(requestMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.getContent().get(0).getApiName()),
+          () -> assertEquals(requestMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
+          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );
     }
 

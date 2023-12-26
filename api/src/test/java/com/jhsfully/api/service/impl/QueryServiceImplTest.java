@@ -13,8 +13,8 @@ import static org.mockito.BDDMockito.given;
 
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.query.QueryInput;
-import com.jhsfully.api.model.query.QueryResponse;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.ApiKey;
 import com.jhsfully.domain.entity.Member;
@@ -108,7 +108,7 @@ class QueryServiceImplTest {
     //when
     Map<String, Object> queryParameter = new HashMap<>();
     queryParameter.put("test", "test");
-    QueryResponse queryResponse = queryService.getDataList(
+    PageResponse<Document> queryResponse = queryService.getDataList(
         QueryInput.builder()
             .apiId(1)
             .authKey(testAuthKey)
@@ -119,7 +119,7 @@ class QueryServiceImplTest {
     );
 
     //then
-    assertEquals(queryParameter.get("test"), queryResponse.getDataList().get(0).get("test"));
+    assertEquals(queryParameter.get("test"), queryResponse.getContent().get(0).get("test"));
   }
 
   @Test

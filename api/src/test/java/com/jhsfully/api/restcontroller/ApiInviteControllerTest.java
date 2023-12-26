@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.ApiInviteService;
@@ -28,6 +29,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -64,7 +66,7 @@ class ApiInviteControllerTest {
                 .build()
         );
         given(apiInviteService.getInviteListForOwner(anyLong(), anyLong(), any()))
-            .willReturn(response);
+            .willReturn(PageResponse.of(new PageImpl<>(response)));
 
         //when
         ResultActions perform = mockMvc.perform(get("/api/invite/owner/1/0/1")
@@ -74,13 +76,13 @@ class ApiInviteControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.[0].id").value(1L),
-                jsonPath("$.[0].apiInfoId").value(1L),
-                jsonPath("$.[0].memberNickname").value("inviter"),
-                jsonPath("$.[0].memberEmail").value("inviter@test.com"),
-                jsonPath("$.[0].apiName").value("apiName"),
-                jsonPath("$.[0].registeredAt").value(nowTime.toString()),
-                jsonPath("$.[0].requestStateType").value("REQUEST")
+                jsonPath("$.content.[0].id").value(1L),
+                jsonPath("$.content.[0].apiInfoId").value(1L),
+                jsonPath("$.content.[0].memberNickname").value("inviter"),
+                jsonPath("$.content.[0].memberEmail").value("inviter@test.com"),
+                jsonPath("$.content.[0].apiName").value("apiName"),
+                jsonPath("$.content.[0].registeredAt").value(nowTime.toString()),
+                jsonPath("$.content.[0].requestStateType").value("REQUEST")
             );
     }
 
@@ -100,7 +102,7 @@ class ApiInviteControllerTest {
                 .build()
         );
         given(apiInviteService.getInviteListForMember(anyLong(), any()))
-            .willReturn(response);
+            .willReturn(PageResponse.of(new PageImpl<>(response)));
 
         //when
         ResultActions perform = mockMvc.perform(get("/api/invite/member/0/1")
@@ -110,13 +112,13 @@ class ApiInviteControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.[0].id").value(1L),
-                jsonPath("$.[0].apiInfoId").value(1L),
-                jsonPath("$.[0].memberNickname").value("owner"),
-                jsonPath("$.[0].memberEmail").value("owner@test.com"),
-                jsonPath("$.[0].apiName").value("apiName"),
-                jsonPath("$.[0].registeredAt").value(nowTime.toString()),
-                jsonPath("$.[0].requestStateType").value("REQUEST")
+                jsonPath("$.content.[0].id").value(1L),
+                jsonPath("$.content.[0].apiInfoId").value(1L),
+                jsonPath("$.content.[0].memberNickname").value("owner"),
+                jsonPath("$.content.[0].memberEmail").value("owner@test.com"),
+                jsonPath("$.content.[0].apiName").value("apiName"),
+                jsonPath("$.content.[0].registeredAt").value(nowTime.toString()),
+                jsonPath("$.content.[0].requestStateType").value("REQUEST")
             );
     }
 

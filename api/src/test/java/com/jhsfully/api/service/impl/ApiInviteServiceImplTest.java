@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiInviteException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.ApiInfoElastic;
@@ -129,18 +130,18 @@ class ApiInviteServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when
-      List<ApiRequestInviteDto> responseList = apiInviteService.getInviteListForOwner(1L, 1L,
+      PageResponse<ApiRequestInviteDto> responseList = apiInviteService.getInviteListForOwner(1L, 1L,
           PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
-          () -> assertEquals(apiInfo.getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(targetMember.getNickname(), responseList.get(0).getMemberNickname()),
-          () -> assertEquals(apiInfo.getApiName(), responseList.get(0).getApiName()),
-          () -> assertEquals(targetMember.getEmail(), responseList.get(0).getMemberEmail()),
-          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
-          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.get(0).getRequestStateType())
+          () -> assertEquals(apiRequestInvite.getId(), responseList.getContent().get(0).getId()),
+          () -> assertEquals(apiInfo.getId(), responseList.getContent().get(0).getApiInfoId()),
+          () -> assertEquals(targetMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(apiInfo.getApiName(), responseList.getContent().get(0).getApiName()),
+          () -> assertEquals(targetMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
+          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );
     }
 
@@ -202,18 +203,18 @@ class ApiInviteServiceImplTest {
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when
-      List<ApiRequestInviteDto> responseList = apiInviteService.getInviteListForMember(2L,
+      PageResponse<ApiRequestInviteDto> responseList = apiInviteService.getInviteListForMember(2L,
           PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(apiRequestInvite.getId(), responseList.get(0).getId()),
-          () -> assertEquals(apiInfo.getId(), responseList.get(0).getApiInfoId()),
-          () -> assertEquals(ownerMember.getNickname(), responseList.get(0).getMemberNickname()),
-          () -> assertEquals(apiInfo.getApiName(), responseList.get(0).getApiName()),
-          () -> assertEquals(ownerMember.getEmail(), responseList.get(0).getMemberEmail()),
-          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.get(0).getRegisteredAt()),
-          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.get(0).getRequestStateType())
+          () -> assertEquals(apiRequestInvite.getId(), responseList.getContent().get(0).getId()),
+          () -> assertEquals(apiInfo.getId(), responseList.getContent().get(0).getApiInfoId()),
+          () -> assertEquals(ownerMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(apiInfo.getApiName(), responseList.getContent().get(0).getApiName()),
+          () -> assertEquals(ownerMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
+          () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );
     }
 

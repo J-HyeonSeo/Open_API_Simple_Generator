@@ -231,11 +231,12 @@ class ApiServiceImplTest {
 
   private ApiInfoElastic getApiInfoElastic(){
     return ApiInfoElastic.builder()
-        .id("1")
+        .id(1L)
         .apiName("test")
         .apiIntroduce("test")
-        .ownerEmail("owner@test.com")
-        .state(ApiState.ENABLED)
+        .ownerNickname("owner")
+        .profileUrl("profileUrl")
+        .apiState(ApiState.ENABLED)
         .isPublic(true)
         .ownerMemberId(1L)
         .build();

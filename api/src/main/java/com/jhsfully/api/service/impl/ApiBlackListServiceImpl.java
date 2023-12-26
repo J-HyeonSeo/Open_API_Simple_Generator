@@ -13,6 +13,7 @@ import com.jhsfully.api.exception.ApiBlackListException;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.BlackListDto;
 import com.jhsfully.api.service.ApiBlackListService;
 import com.jhsfully.domain.entity.ApiInfo;
@@ -22,9 +23,7 @@ import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.BlackListRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,7 @@ public class ApiBlackListServiceImpl implements ApiBlackListService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<BlackListDto> getBlackList(long apiId, long memberId, Pageable pageable) {
+  public PageResponse<BlackListDto> getBlackList(long apiId, long memberId, Pageable pageable) {
 
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
@@ -51,12 +50,8 @@ public class ApiBlackListServiceImpl implements ApiBlackListService {
 
     validateGetBlackList(apiInfo, member);
 
-    return blackListRepository.findByApiInfo(apiInfo, pageable)
-        .getContent()
-        .stream()
-        .map(BlackListDto::of)
-        .collect(Collectors.toList());
-
+    return PageResponse.of(blackListRepository.findByApiInfo(apiInfo, pageable),
+        BlackListDto::of);
   }
 
   @Override

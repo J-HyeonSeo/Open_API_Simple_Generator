@@ -25,14 +25,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jhsfully.api.model.api.ApiSearchResponse;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiInput;
-import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoDetailResponse;
-import com.jhsfully.api.model.history.HistoryResponse;
+import com.jhsfully.api.model.dto.ApiInfoDto;
+import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoDetailDto;
+import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoSearchDto;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiSearchService;
@@ -55,6 +56,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -247,22 +249,20 @@ class ApiControllerTest {
     @Test
     void getOpenApiList() throws Exception {
         //given
-        ApiSearchResponse apiSearchResponse = ApiSearchResponse.builder()
-            .totalCount(1)
-            .dataCount(1)
-            .dataList(
+        PageResponse<ApiInfoSearchDto> apiSearchResponse = PageResponse.of(
+            new PageImpl<>(
                 List.of(ApiInfoElastic.builder()
-                        .id("1")
+                        .id(1L)
                         .apiName("apiName")
                         .apiIntroduce("apiIntroduce")
-                        .ownerEmail("owner@test.com")
-                        .state(ApiState.ENABLED)
+                        .ownerNickname("owner")
+                        .profileUrl("profileUrl")
+                        .apiState(ApiState.ENABLED)
                         .isPublic(true)
                         .ownerMemberId(1L)
-                    .build())
-            )
-            .build();
-        given(apiSearchService.getOpenApiList(anyString(), any(), any()))
+                    .build())), (x) -> ApiInfoDto.of(x, false));
+
+        given(apiSearchService.getOpenApiList(anyString(), any(), any(), anyLong()))
             .willReturn(apiSearchResponse);
 
         //when
@@ -274,34 +274,31 @@ class ApiControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.dataList.[0].id").value(1L),
-                jsonPath("$.dataList.[0].apiName").value("apiName"),
-                jsonPath("$.dataList.[0].apiIntroduce").value("apiIntroduce"),
-                jsonPath("$.dataList.[0].ownerEmail").value("owner@test.com"),
-                jsonPath("$.dataList.[0].state").value("ENABLED"),
-                jsonPath("$.dataList.[0].public").value(true),
-                jsonPath("$.dataList.[0].ownerMemberId").value(1L)
+                jsonPath("$.content.[0].id").value(1L),
+                jsonPath("$.content.[0].apiName").value("apiName"),
+                jsonPath("$.content.[0].ownerNickname").value("owner"),
+                jsonPath("$.content.[0].apiState").value("ENABLED"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
+                jsonPath("$.content.[0].accessible").value(false)
             );
     }
 
     @Test
     void getApiListForOwner() throws Exception {
         //given
-        ApiSearchResponse apiSearchResponse = ApiSearchResponse.builder()
-            .totalCount(1)
-            .dataCount(1)
-            .dataList(
+        PageResponse<ApiInfoSearchDto> apiSearchResponse = PageResponse.of(
+            new PageImpl<>(
                 List.of(ApiInfoElastic.builder()
-                    .id("1")
+                    .id(1L)
                     .apiName("apiName")
                     .apiIntroduce("apiIntroduce")
-                    .ownerEmail("owner@test.com")
-                    .state(ApiState.ENABLED)
+                    .ownerNickname("owner")
+                    .profileUrl("profileUrl")
+                    .apiState(ApiState.ENABLED)
                     .isPublic(true)
                     .ownerMemberId(1L)
-                    .build())
-            )
-            .build();
+                    .build())), (x) -> ApiInfoDto.of(x, false));
+
         given(apiSearchService.getOpenApiListForOwner(eq(TEST_ID), anyString(), any(), any()))
             .willReturn(apiSearchResponse);
 
@@ -314,34 +311,31 @@ class ApiControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.dataList.[0].id").value(1L),
-                jsonPath("$.dataList.[0].apiName").value("apiName"),
-                jsonPath("$.dataList.[0].apiIntroduce").value("apiIntroduce"),
-                jsonPath("$.dataList.[0].ownerEmail").value("owner@test.com"),
-                jsonPath("$.dataList.[0].state").value("ENABLED"),
-                jsonPath("$.dataList.[0].public").value(true),
-                jsonPath("$.dataList.[0].ownerMemberId").value(1L)
+                jsonPath("$.content.[0].id").value(1L),
+                jsonPath("$.content.[0].apiName").value("apiName"),
+                jsonPath("$.content.[0].ownerNickname").value("owner"),
+                jsonPath("$.content.[0].apiState").value("ENABLED"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
+                jsonPath("$.content.[0].accessible").value(false)
             );
     }
 
     @Test
     void getApiListForAccess() throws Exception {
         //given
-        ApiSearchResponse apiSearchResponse = ApiSearchResponse.builder()
-            .totalCount(1)
-            .dataCount(1)
-            .dataList(
+        PageResponse<ApiInfoSearchDto> apiSearchResponse = PageResponse.of(
+            new PageImpl<>(
                 List.of(ApiInfoElastic.builder()
-                    .id("1")
+                    .id(1L)
                     .apiName("apiName")
                     .apiIntroduce("apiIntroduce")
-                    .ownerEmail("owner@test.com")
-                    .state(ApiState.ENABLED)
+                    .ownerNickname("owner")
+                    .profileUrl("profileUrl")
+                    .apiState(ApiState.ENABLED)
                     .isPublic(true)
                     .ownerMemberId(1L)
-                    .build())
-            )
-            .build();
+                    .build())), (x) -> ApiInfoDto.of(x, false));
+
         given(apiSearchService.getOpenApiListForAccess(eq(TEST_ID), anyString(), any(), any()))
             .willReturn(apiSearchResponse);
 
@@ -354,13 +348,12 @@ class ApiControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.dataList.[0].id").value(1L),
-                jsonPath("$.dataList.[0].apiName").value("apiName"),
-                jsonPath("$.dataList.[0].apiIntroduce").value("apiIntroduce"),
-                jsonPath("$.dataList.[0].ownerEmail").value("owner@test.com"),
-                jsonPath("$.dataList.[0].state").value("ENABLED"),
-                jsonPath("$.dataList.[0].public").value(true),
-                jsonPath("$.dataList.[0].ownerMemberId").value(1L)
+                jsonPath("$.content.[0].id").value(1L),
+                jsonPath("$.content.[0].apiName").value("apiName"),
+                jsonPath("$.content.[0].ownerNickname").value("owner"),
+                jsonPath("$.content.[0].apiState").value("ENABLED"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
+                jsonPath("$.content.[0].accessible").value(false)
             );
     }
 
@@ -368,11 +361,11 @@ class ApiControllerTest {
     void getOpenApiDetail() throws Exception {
         //given
         LocalDateTime nowTime = LocalDateTime.of(2023, 12, 1, 9, 3, 3);
-        ApiInfoDetailResponse response = ApiInfoDetailResponse.builder()
+        ApiInfoDetailDto response = ApiInfoDetailDto.builder()
             .id(1L)
             .apiName("apiName")
             .apiIntroduce("apiIntroduce")
-            .ownerEmail("owner@test.com")
+            .ownerNickname("owner")
             .apiState(ApiState.ENABLED)
             .schemaStructure(List.of(new SchemaData("test", STRING)))
             .queryParameter(List.of(new QueryData("test", EQUAL)))
@@ -393,7 +386,7 @@ class ApiControllerTest {
                 jsonPath("$.id").value(1L),
                 jsonPath("$.apiName").value("apiName"),
                 jsonPath("$.apiIntroduce").value("apiIntroduce"),
-                jsonPath("$.ownerEmail").value("owner@test.com"),
+                jsonPath("$.ownerNickname").value("owner"),
                 jsonPath("$.apiState").value("ENABLED"),
                 jsonPath("$.schemaStructure.[0].field").value("test"),
                 jsonPath("$.schemaStructure.[0].type").value("STRING"),
@@ -408,16 +401,16 @@ class ApiControllerTest {
     @Test
     void getApiHistories() throws Exception {
         //given
-        HistoryResponse response = HistoryResponse.builder()
-            .totalCount(1)
-            .dataCount(1)
-            .histories(List.of(
-                new Document(){{
-                    put("original_data", "original");
-                    put("new_data", "new");
-                }}
-            ))
-            .build();
+        PageResponse<Document> response = PageResponse.of(
+            new PageImpl<>(
+                List.of(
+                    new Document(){{
+                        put("original_data", "original");
+                        put("new_data", "new");
+                    }}
+                ))
+        );
+
         given(apiHistoryService.getApiHistories(
             eq(1L), eq(TEST_ID), eq(LocalDate.of(2023, 12, 1)),
             eq(LocalDate.of(2023, 12, 2)), any()
@@ -432,8 +425,8 @@ class ApiControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.histories.[0].original_data").value("original"),
-                jsonPath("$.histories.[0].new_data").value("new")
+                jsonPath("$.content.[0].original_data").value("original"),
+                jsonPath("$.content.[0].new_data").value("new")
             );
     }
 }

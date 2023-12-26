@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.BlackListDto;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.ApiBlackListService;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -51,9 +53,10 @@ class ApiBlackListControllerTest {
             .memberEmail("test@test.com")
             .registeredAt(LocalDateTime.of(2023, 12, 1, 9, 3, 3))
             .build();
+
         given(apiBlackListService.getBlackList(anyLong(), anyLong(), any()))
-            .willReturn(List.of(
-                blackListDto
+            .willReturn(PageResponse.of(
+                new PageImpl<>(List.of(blackListDto))
             ));
 
         //when
@@ -63,10 +66,10 @@ class ApiBlackListControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.[0].apiId").value(1L),
-                jsonPath("$.[0].memberId").value(1L),
-                jsonPath("$.[0].memberEmail").value("test@test.com"),
-                jsonPath("$.[0].registeredAt")
+                jsonPath("$.content.[0].apiId").value(1L),
+                jsonPath("$.content.[0].memberId").value(1L),
+                jsonPath("$.content.[0].memberEmail").value("test@test.com"),
+                jsonPath("$.content.[0].registeredAt")
                     .value(blackListDto.getRegisteredAt().toString())
             );
     }

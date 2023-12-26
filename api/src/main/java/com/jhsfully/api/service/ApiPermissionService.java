@@ -1,8 +1,8 @@
 package com.jhsfully.api.service;
 
-import com.jhsfully.api.model.permission.AuthKeyResponse;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
-import com.jhsfully.api.model.permission.PermissionResponse;
+import com.jhsfully.api.model.permission.AuthKeyResponse;
 import com.jhsfully.domain.type.ApiPermissionType;
 import org.springframework.data.domain.Pageable;
 
@@ -15,7 +15,7 @@ public interface ApiPermissionService {
 
   PermissionDto getPermissionForMember(long apiId, long memberId);
 
-  PermissionResponse getPermissionListForOwner(long apiId, long memberId, Pageable pageable);
+  PageResponse<PermissionDto> getPermissionListForOwner(long apiId, long memberId, Pageable pageable);
 
   void addPermission(long permissionId, long memberId, ApiPermissionType type);
 
