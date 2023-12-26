@@ -1,16 +1,14 @@
 package com.jhsfully.api.model.api;
 
-import com.jhsfully.domain.type.ApiQueryType;
-import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,26 +36,4 @@ public class CreateApiInput {
   private List<QueryData> queryParameter;
   private boolean isPublic;
   private MultipartFile file;
-
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class SchemaData{
-    @NotBlank(message = "필드명은 필수값 입니다.")
-    private String field;
-    @NotNull(message = "타입은 필수값 입니다.")
-    private ApiStructureType type;
-  }
-
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class QueryData{
-    @NotBlank(message = "필드명은 필수값 입니다.")
-    private String field;
-    @NotNull(message = "타입은 필수값 입니다.")
-    private ApiQueryType type;
-  }
 }

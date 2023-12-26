@@ -1,8 +1,9 @@
 package com.jhsfully.api.service;
 
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.query.QueryInput;
-import com.jhsfully.api.model.query.QueryResponse;
+import org.bson.Document;
 
 public interface QueryService {
-  QueryResponse getDataList(QueryInput input);
+  PageResponse<Document> getDataList(QueryInput input);
 }

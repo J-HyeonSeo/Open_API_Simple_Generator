@@ -1,11 +1,16 @@
 package com.jhsfully.domain.entity;
 
-import com.jhsfully.domain.converter.JsonConverter;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.QueryData.QueryDataConverter;
+import com.jhsfully.domain.type.SchemaData;
+import com.jhsfully.domain.type.SchemaData.SchemaDataConverter;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -55,15 +60,33 @@ public class ApiInfo {
   private int dataMaxLength;
   private boolean isPublic;
 
-  @Convert(converter = JsonConverter.class)
+  @Convert(converter = SchemaDataConverter.class)
   @Column(columnDefinition = "json")
-  private Map<String, ApiStructureType> schemaStructure;
-  @Convert(converter = JsonConverter.class)
+  private List<SchemaData> schemaStructure;
+
+  @Convert(converter = QueryDataConverter.class)
   @Column(columnDefinition = "json")
-  private Map<String, ApiQueryType> queryParameter;
+  private List<QueryData> queryParameter;
+
   @CreatedDate
   private LocalDateTime registeredAt;
   @LastModifiedDate
   private LocalDateTime updatedAt;
   private LocalDateTime disabledAt;
+
+  public Map<String, ApiStructureType> getSchemaMap() {
+    return this.schemaStructure
+        .stream()
+        .collect(
+            Collectors.toMap(SchemaData::getField, SchemaData::getType)
+        );
+  }
+
+  public Map<String, ApiQueryType> getQueryMap() {
+    return this.queryParameter
+        .stream()
+        .collect(
+            Collectors.toMap(QueryData::getField, QueryData::getType)
+        );
+  }
 }

@@ -10,16 +10,17 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class BlackListDto {
-  private long apiId;
+  private long id;
   private long memberId;
-  private String memberEmail;
+  private String memberNickname;
+  private String profileUrl;
   private LocalDateTime registeredAt;
 
   public static BlackListDto of(BlackList entity){
     return BlackListDto.builder()
-        .apiId(entity.getId())
+        .id(entity.getId())
         .memberId(entity.getMember().getId())
-        .memberEmail(entity.getMember().getEmail())
+        .memberNickname(entity.getMember().getEmail())
         .registeredAt(entity.getRegisteredAt())
         .build();
   }

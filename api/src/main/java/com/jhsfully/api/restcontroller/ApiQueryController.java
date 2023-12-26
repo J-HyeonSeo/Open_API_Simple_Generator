@@ -1,10 +1,11 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.query.QueryInput;
-import com.jhsfully.api.model.query.QueryResponse;
 import com.jhsfully.api.service.QueryService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ public class ApiQueryController {
   private final QueryService queryService;
 
   @GetMapping("/{apiId}/{authKey}/{pageIdx}/{pageSize}")
-  public ResponseEntity<QueryResponse> getOpenAPIDataList(
+  public ResponseEntity<PageResponse<Document>> getOpenAPIDataList(
       @PathVariable long apiId,
       @PathVariable String authKey,
       @PathVariable int pageIdx,

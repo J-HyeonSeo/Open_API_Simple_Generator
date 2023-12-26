@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jhsfully.api.model.query.QueryResponse;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.QueryService;
 import java.util.List;
@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -35,15 +36,13 @@ class ApiQueryControllerTest {
     @Test
     void getOpenAPIDataListTest() throws Exception {
         //given
-        QueryResponse response = QueryResponse.builder()
-            .totalCount(1L)
-            .dataCount(1L)
-            .dataList(List.of(
+        PageResponse<Document> response = PageResponse.of(
+            new PageImpl<>(List.of(
                 new Document(){{
                     put("test", "value");
                 }}
-            ))
-            .build();
+            )));
+
         given(queryService.getDataList(any()))
             .willReturn(response);
 
@@ -55,9 +54,9 @@ class ApiQueryControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.totalCount").value(1L),
-                jsonPath("$.dataCount").value(1L),
-                jsonPath("$.dataList.[0].test").value("value")
+                jsonPath("$.totalElements").value(1L),
+                jsonPath("$.hasNextPage").value(false),
+                jsonPath("$.content.[0].test").value("value")
             );
 
     }

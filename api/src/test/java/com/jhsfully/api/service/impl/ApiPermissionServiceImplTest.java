@@ -21,9 +21,9 @@ import static org.mockito.Mockito.verify;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.permission.AuthKeyResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
-import com.jhsfully.api.model.permission.PermissionResponse;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.ApiKey;
 import com.jhsfully.domain.entity.ApiPermissionDetail;
@@ -73,6 +73,8 @@ class ApiPermissionServiceImplTest {
     return Member.builder()
         .id(1L)
         .email("owner@test.com")
+        .nickname("owner")
+        .profileUrl("ownerProfileUrl")
         .build();
   }
 
@@ -80,6 +82,8 @@ class ApiPermissionServiceImplTest {
     return Member.builder()
         .id(2L)
         .email("accessor@test.com")
+        .nickname("accessor")
+        .profileUrl("profileUrl")
         .build();
   }
 
@@ -147,9 +151,10 @@ class ApiPermissionServiceImplTest {
       //then
       assertAll(
           () -> assertEquals(permission.getId(), permissionDto.getPermissionId()),
-          () -> assertEquals(accessMember.getEmail(), permissionDto.getMemberEmail()),
+          () -> assertEquals(accessMember.getNickname(), permissionDto.getMemberNickname()),
+          () -> assertEquals(accessMember.getProfileUrl(), permissionDto.getProfileUrl()),
           () -> assertEquals(permission.getApiPermissionDetails().get(0).getType(),
-              permissionDto.getPermissionList().get(0))
+              permissionDto.getPermissionList().get(0).getType())
       );
     }
 
@@ -236,15 +241,16 @@ class ApiPermissionServiceImplTest {
           .willReturn(new PageImpl<>(List.of(permission)));
 
       //when
-      PermissionResponse permissionResponse = apiPermissionService.getPermissionListForOwner(1L,
+      PageResponse<PermissionDto> permissionResponse = apiPermissionService.getPermissionListForOwner(1L,
           1L, PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(permission.getId(), permissionResponse.getPermissionDtoList().get(0).getPermissionId()),
-          () -> assertEquals(accessMember.getEmail(), permissionResponse.getPermissionDtoList().get(0).getMemberEmail()),
+          () -> assertEquals(permission.getId(), permissionResponse.getContent().get(0).getPermissionId()),
+          () -> assertEquals(accessMember.getNickname(), permissionResponse.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(accessMember.getProfileUrl(), permissionResponse.getContent().get(0).getProfileUrl()),
           () -> assertEquals(permission.getApiPermissionDetails().get(0).getType(),
-              permissionResponse.getPermissionDtoList().get(0).getPermissionList().get(0))
+              permissionResponse.getContent().get(0).getPermissionList().get(0).getType())
       );
     }
 

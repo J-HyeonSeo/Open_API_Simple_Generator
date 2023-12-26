@@ -1,5 +1,7 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.BlackListDto;
 import com.jhsfully.api.service.ApiBlackListService;
 import com.jhsfully.api.util.MemberUtil;
 import java.time.LocalDateTime;
@@ -25,7 +27,7 @@ public class ApiBlackListController {
     API 소유주가 해당 API에 대해 차단한 블랙리스트 유저 조회
  */
   @GetMapping("/{apiId}/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getBlackList(
+  public ResponseEntity<PageResponse<BlackListDto>> getBlackList(
       @PathVariable long apiId,
       @PathVariable int pageIdx,
       @PathVariable int pageSize

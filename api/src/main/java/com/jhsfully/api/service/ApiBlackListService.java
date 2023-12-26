@@ -1,14 +1,13 @@
 package com.jhsfully.api.service;
 
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.BlackListDto;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface ApiBlackListService {
 
-  List<BlackListDto> getBlackList(
+  PageResponse<BlackListDto> getBlackList(
     long apiId, long memberId, Pageable pageable
   );
 

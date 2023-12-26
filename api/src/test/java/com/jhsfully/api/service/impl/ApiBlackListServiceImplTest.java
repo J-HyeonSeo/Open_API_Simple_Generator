@@ -22,6 +22,7 @@ import com.jhsfully.api.exception.ApiBlackListException;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.BlackListDto;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.BlackList;
@@ -117,16 +118,16 @@ class ApiBlackListServiceImplTest {
               )
           ));
       //when
-      List<BlackListDto> responseList = apiBlackListService.getBlackList(
+      PageResponse<BlackListDto> responseList = apiBlackListService.getBlackList(
           1L, 1L, PageRequest.of(0, 10)
       );
 
       //then
       assertAll(
-          () -> assertEquals(apiInfo.getId(), responseList.get(0).getApiId()),
-          () -> assertEquals(customer.getId(), responseList.get(0).getMemberId()),
-          () -> assertEquals(customer.getEmail(), responseList.get(0).getMemberEmail()),
-          () -> assertEquals(blackList.getRegisteredAt(), responseList.get(0).getRegisteredAt())
+          () -> assertEquals(blackList.getId(), responseList.getContent().get(0).getId()),
+          () -> assertEquals(customer.getId(), responseList.getContent().get(0).getMemberId()),
+          () -> assertEquals(customer.getEmail(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(blackList.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt())
       );
     }
 

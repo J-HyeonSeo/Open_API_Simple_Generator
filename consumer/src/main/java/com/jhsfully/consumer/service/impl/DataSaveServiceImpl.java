@@ -6,14 +6,14 @@ import com.jhsfully.consumer.service.DataSaveService;
 import com.jhsfully.consumer.util.DataSaverFromExcel;
 import com.jhsfully.domain.kafkamodel.ExcelParserModel;
 import com.jhsfully.domain.repository.ApiInfoRepository;
-import com.jhsfully.domain.type.ApiQueryType;
+import com.jhsfully.domain.type.QueryData;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Indexes;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -100,16 +100,16 @@ public class DataSaveServiceImpl implements DataSaveService {
 
       이 외의 인덱스는 정렬인덱스로 생성하도록 함.
    */
-  private void createIndex(String collectionName, Map<String, ApiQueryType> queryParameter) {
+  private void createIndex(String collectionName, List<QueryData> queryParameter) {
 
     Document indexDocument = new Document();
     MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
 
-    for(Map.Entry<String, ApiQueryType> param : queryParameter.entrySet()){
-      if (param.getValue() == INCLUDE){
-        indexDocument.append(param.getKey(), "text");
+    for(QueryData param : queryParameter){
+      if (param.getType() == INCLUDE){
+        indexDocument.append(param.getField(), "text");
       }else{
-        collection.createIndex(Indexes.ascending(param.getKey()));
+        collection.createIndex(Indexes.ascending(param.getField()));
       }
     }
 

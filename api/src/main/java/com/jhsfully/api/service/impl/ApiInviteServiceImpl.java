@@ -15,6 +15,7 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiInviteException;
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
 import com.jhsfully.api.service.ApiInviteService;
 import com.jhsfully.domain.entity.ApiInfo;
@@ -30,9 +31,7 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.join.JoinField;
@@ -55,7 +54,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, Pageable pageable) {
+  public PageResponse<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -63,27 +62,25 @@ public class ApiInviteServiceImpl implements ApiInviteService {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    return apiRequestInviteRepository.
+    return PageResponse.of(
+        apiRequestInviteRepository.
             findByMemberAndApiInfoAndApiRequestType(member,
-                    apiInfo, ApiRequestType.INVITE, pageable)
-        .getContent()
-        .stream()
-        .map(x -> ApiRequestInviteDto.of(x, false))
-        .collect(Collectors.toList());
+                apiInfo, ApiRequestType.INVITE, pageable),
+        x -> ApiRequestInviteDto.of(x, false)
+    );
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<ApiRequestInviteDto> getInviteListForMember(long memberId, Pageable pageable) {
+  public PageResponse<ApiRequestInviteDto> getInviteListForMember(long memberId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    return apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.INVITE, pageable)
-        .getContent()
-        .stream()
-        .map(x -> ApiRequestInviteDto.of(x, true))
-        .collect(Collectors.toList());
+    return PageResponse.of(
+        apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.INVITE, pageable),
+        x -> ApiRequestInviteDto.of(x, true)
+    );
   }
 
   @Override

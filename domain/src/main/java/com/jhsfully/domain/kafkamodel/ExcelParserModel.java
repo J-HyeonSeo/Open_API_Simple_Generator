@@ -1,8 +1,8 @@
 package com.jhsfully.domain.kafkamodel;
 
-import com.jhsfully.domain.type.ApiQueryType;
-import com.jhsfully.domain.type.ApiStructureType;
-import java.util.Map;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class ExcelParserModel {
   private long apiInfoId;
   private String excelPath;
   private String dataCollectionName;
-  private Map<String, ApiStructureType> schemaStructure;
-  private Map<String, ApiQueryType> queryParameter;
+  private List<SchemaData> schemaStructure;
+  private List<QueryData> queryParameter;
 
 }

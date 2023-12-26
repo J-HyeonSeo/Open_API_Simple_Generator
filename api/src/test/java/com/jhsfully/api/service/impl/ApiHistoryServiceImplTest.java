@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
-import com.jhsfully.api.model.history.HistoryResponse;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.domain.entity.ApiInfo;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoRepository;
@@ -113,14 +113,14 @@ class ApiHistoryServiceImplTest {
           .willReturn(queriedDataList);
 
       //when
-      HistoryResponse historyResponse = apiHistoryService.getApiHistories(1L, 1L,
+      PageResponse<Document> historyResponse = apiHistoryService.getApiHistories(1L, 1L,
           LocalDate.now(), LocalDate.now(),
           PageRequest.of(0, 10));
 
       //then
       assertAll(
-          () -> assertEquals(historyData.get(MONGODB_ID), historyResponse.getHistories().get(0).get(MONGODB_ID)),
-          () -> assertEquals(historyData.get("test"), historyResponse.getHistories().get(0).get("test"))
+          () -> assertEquals(historyData.get(MONGODB_ID), historyResponse.getContent().get(0).get(MONGODB_ID)),
+          () -> assertEquals(historyData.get("test"), historyResponse.getContent().get(0).get("test"))
       );
 
     }

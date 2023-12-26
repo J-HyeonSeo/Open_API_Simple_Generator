@@ -16,9 +16,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
-import com.jhsfully.api.model.payment.PaymentResponse;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.domain.type.PaymentStateType;
@@ -30,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -50,10 +51,8 @@ class PaymentControllerTest {
     @Test
     void getPaymentList() throws Exception {
         //given
-        PaymentResponse response = PaymentResponse.builder()
-            .totalCount(1L)
-            .dataCount(1L)
-            .dataList(List.of(
+        PageResponse<PaymentDto> response = PageResponse.of(
+            new PageImpl<>(List.of(
                 PaymentDto.builder()
                     .id(1L)
                     .grade("GOLD")
@@ -62,9 +61,9 @@ class PaymentControllerTest {
                     .paidAt(LocalDateTime.of(2023, 12, 1, 9 , 3 , 3))
                     .refundAt(null)
                     .paymentState(PaymentStateType.SUCCESS)
-                    .build()
-            ))
-            .build();
+                    .build()))
+            );
+
         given(paymentService.getPaymentList(anyLong(), any()))
             .willReturn(response);
 
@@ -75,17 +74,17 @@ class PaymentControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.totalCount").value(1),
-                jsonPath("$.dataCount").value(1),
-                jsonPath("$.dataList.[0].id").value(1),
-                jsonPath("$.dataList.[0].grade").value("GOLD"),
-                jsonPath("$.dataList.[0].paymentAmount").value(3000),
-                jsonPath("$.dataList.[0].refundAmount").isEmpty(),
-                jsonPath("$.dataList.[0].paidAt").value(
+                jsonPath("$.totalElements").value(1),
+                jsonPath("$.hasNextPage").value(false),
+                jsonPath("$.content.[0].id").value(1),
+                jsonPath("$.content.[0].grade").value("GOLD"),
+                jsonPath("$.content.[0].paymentAmount").value(3000),
+                jsonPath("$.content.[0].refundAmount").isEmpty(),
+                jsonPath("$.content.[0].paidAt").value(
                     LocalDateTime.of(2023, 12, 1, 9 , 3 , 3).toString()
                 ),
-                jsonPath("$.dataList.[0].refundAt").isEmpty(),
-                jsonPath("$.dataList.[0].paymentState").value("SUCCESS")
+                jsonPath("$.content.[0].refundAt").isEmpty(),
+                jsonPath("$.content.[0].paymentState").value("SUCCESS")
             );
     }
 

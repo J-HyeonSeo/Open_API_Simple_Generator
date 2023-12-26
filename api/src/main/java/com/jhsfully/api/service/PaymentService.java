@@ -1,14 +1,15 @@
 package com.jhsfully.api.service;
 
+import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
-import com.jhsfully.api.model.payment.PaymentResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 
 public interface PaymentService {
 
-  PaymentResponse getPaymentList(long memberId, Pageable pageable);
+  PageResponse<PaymentDto> getPaymentList(long memberId, Pageable pageable);
 
   PaymentReadyResponseForClient paymentRequest(long memberId, long gradeId, LocalDate nowDate);
 

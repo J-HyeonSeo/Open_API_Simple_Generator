@@ -19,12 +19,12 @@ import static com.jhsfully.domain.type.errortype.PaymentErrorType.YOU_ARE_NOT_PA
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.exception.PaymentException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentApprovedResponse;
 import com.jhsfully.api.model.payment.PaymentReadyResponse;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
 import com.jhsfully.api.model.payment.PaymentRefundResponse;
-import com.jhsfully.api.model.payment.PaymentResponse;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
@@ -40,11 +40,9 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -121,22 +119,14 @@ public class KakaoPayPaymentService implements PaymentService {
    */
   @Override
   @Transactional(readOnly = true)
-  public PaymentResponse getPaymentList(long memberId, Pageable pageable) {
+  public PageResponse<PaymentDto> getPaymentList(long memberId, Pageable pageable) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    Page<Payment> paymentPage = paymentRepository.findByMember(member, pageable);
-
-    return PaymentResponse.builder()
-        .totalCount(paymentPage.getTotalElements())
-        .dataCount(paymentPage.getNumberOfElements())
-        .dataList(
-            paymentPage.getContent()
-                .stream()
-                .map(PaymentDto::of)
-                .collect(Collectors.toList())
-        )
-        .build();
+    return PageResponse.of(
+        paymentRepository.findByMember(member, pageable),
+        PaymentDto::of
+    );
   }
 
   /*

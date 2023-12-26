@@ -128,9 +128,9 @@ public class ApiController {
       @RequestParam String searchText,
       @RequestParam SearchType type
   ){
-
+    long memberId = MemberUtil.getMemberId(); //memberId *Optional
     return ResponseEntity.ok(
-        apiSearchService.getOpenApiList(searchText, type, PageRequest.of(pageIdx, pageSize))
+        apiSearchService.getOpenApiList(searchText, type, PageRequest.of(pageIdx, pageSize), memberId)
     );
   }
 

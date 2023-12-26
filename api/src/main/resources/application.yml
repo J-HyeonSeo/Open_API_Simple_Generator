@@ -28,10 +28,10 @@ spring:
         registration:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-#            client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: http://localhost:3000/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
-            scope: profile_nickname,account_email
+            scope: profile_nickname, profile_image, account_email,
             client-name: kakao
             client-authentication-method: POST
 
@@ -43,7 +43,6 @@ spring:
             user-name-attribute: id
 
   data:
-
     mongodb:
       host: localhost
       port: 27017
@@ -51,10 +50,6 @@ spring:
       database: apiservice
       username: ${MONGODB_USERNAME}
       password: ${MONGODB_PASSWORD}
-
-#    elasticsearch:
-#      cluster-names: apiinfo
-#      cluster-node: localhost:9200
 
   elasticsearch:
     server: localhost:9200

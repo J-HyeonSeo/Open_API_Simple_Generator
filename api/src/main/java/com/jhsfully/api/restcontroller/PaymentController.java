@@ -1,7 +1,8 @@
 package com.jhsfully.api.restcontroller;
 
+import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
-import com.jhsfully.api.model.payment.PaymentResponse;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.api.util.MemberUtil;
 import java.io.IOException;
@@ -32,14 +33,15 @@ public class PaymentController {
   private final PaymentService paymentService;
 
   @GetMapping("/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getPaymentList(
+  public ResponseEntity<PageResponse<PaymentDto>> getPaymentList(
       @PathVariable int pageIdx,
       @PathVariable int pageSize
   ){
     long memberId = MemberUtil.getMemberId();
-    PaymentResponse response = paymentService.getPaymentList(memberId,
-        PageRequest.of(pageIdx, pageSize, Sort.by("paidAt").descending()));
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(
+        paymentService.getPaymentList(memberId,
+            PageRequest.of(pageIdx, pageSize, Sort.by("paidAt").descending()))
+    );
   }
 
   @PostMapping("/{gradeId}")
