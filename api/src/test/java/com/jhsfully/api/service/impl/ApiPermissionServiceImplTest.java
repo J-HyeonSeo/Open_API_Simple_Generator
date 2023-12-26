@@ -73,6 +73,8 @@ class ApiPermissionServiceImplTest {
     return Member.builder()
         .id(1L)
         .email("owner@test.com")
+        .nickname("owner")
+        .profileUrl("ownerProfileUrl")
         .build();
   }
 
@@ -80,6 +82,8 @@ class ApiPermissionServiceImplTest {
     return Member.builder()
         .id(2L)
         .email("accessor@test.com")
+        .nickname("accessor")
+        .profileUrl("profileUrl")
         .build();
   }
 
@@ -147,9 +151,10 @@ class ApiPermissionServiceImplTest {
       //then
       assertAll(
           () -> assertEquals(permission.getId(), permissionDto.getPermissionId()),
-          () -> assertEquals(accessMember.getEmail(), permissionDto.getMemberEmail()),
+          () -> assertEquals(accessMember.getNickname(), permissionDto.getMemberNickname()),
+          () -> assertEquals(accessMember.getProfileUrl(), permissionDto.getProfileUrl()),
           () -> assertEquals(permission.getApiPermissionDetails().get(0).getType(),
-              permissionDto.getPermissionList().get(0))
+              permissionDto.getPermissionList().get(0).getType())
       );
     }
 
@@ -242,9 +247,10 @@ class ApiPermissionServiceImplTest {
       //then
       assertAll(
           () -> assertEquals(permission.getId(), permissionResponse.getContent().get(0).getPermissionId()),
-          () -> assertEquals(accessMember.getEmail(), permissionResponse.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(accessMember.getNickname(), permissionResponse.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(accessMember.getProfileUrl(), permissionResponse.getContent().get(0).getProfileUrl()),
           () -> assertEquals(permission.getApiPermissionDetails().get(0).getType(),
-              permissionResponse.getContent().get(0).getPermissionList().get(0))
+              permissionResponse.getContent().get(0).getPermissionList().get(0).getType())
       );
     }
 

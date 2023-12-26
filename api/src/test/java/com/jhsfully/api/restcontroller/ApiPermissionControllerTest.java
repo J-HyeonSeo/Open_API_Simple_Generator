@@ -1,5 +1,7 @@
 package com.jhsfully.api.restcontroller;
 
+import static com.jhsfully.domain.type.ApiPermissionType.INSERT;
+import static com.jhsfully.domain.type.ApiPermissionType.UPDATE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,10 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
+import com.jhsfully.api.model.dto.PermissionDto.PermissionDetailDto;
 import com.jhsfully.api.model.permission.AuthKeyResponse;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.ApiPermissionService;
-import com.jhsfully.domain.type.ApiPermissionType;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +53,16 @@ class ApiPermissionControllerTest {
     @Test
     void getPermissionForMember() throws Exception {
         //given
-        PermissionDto permissionDto =
-            new PermissionDto(1L, "access@test.com", List.of(
-                ApiPermissionType.UPDATE, ApiPermissionType.INSERT));
+        PermissionDto permissionDto = PermissionDto.builder()
+            .permissionId(1L)
+            .memberNickname("access")
+            .profileUrl("profileUrl")
+            .permissionList(List.of(
+                new PermissionDetailDto(1L, UPDATE),
+                new PermissionDetailDto(2L, INSERT)
+            ))
+            .build();
+
         given(apiPermissionService.getPermissionForMember(anyLong(), anyLong()))
             .willReturn(permissionDto);
 
@@ -65,9 +74,12 @@ class ApiPermissionControllerTest {
             .andExpectAll(
                 status().isOk(),
                 jsonPath("$.permissionId").value(1L),
-                jsonPath("$.memberEmail").value("access@test.com"),
-                jsonPath("$.permissionList.[0]").value("UPDATE"),
-                jsonPath("$.permissionList.[1]").value("INSERT")
+                jsonPath("$.memberNickname").value("access"),
+                jsonPath("$.profileUrl").value("profileUrl"),
+                jsonPath("$.permissionList.[0].id").value(1L),
+                jsonPath("$.permissionList.[0].type").value("UPDATE"),
+                jsonPath("$.permissionList.[1].id").value(2L),
+                jsonPath("$.permissionList.[1].type").value("INSERT")
             );
     }
 
@@ -77,8 +89,15 @@ class ApiPermissionControllerTest {
         PageResponse<PermissionDto> response = PageResponse.of(
             new PageImpl<>(
                 List.of(
-                    new PermissionDto(1L, "access@test.com", List.of(
-                        ApiPermissionType.UPDATE, ApiPermissionType.INSERT))
+                    PermissionDto.builder()
+                        .permissionId(1L)
+                        .memberNickname("access")
+                        .profileUrl("profileUrl")
+                        .permissionList(List.of(
+                            new PermissionDetailDto(1L, UPDATE),
+                            new PermissionDetailDto(2L, INSERT)
+                        ))
+                        .build()
                 )
             )
         );
@@ -96,9 +115,12 @@ class ApiPermissionControllerTest {
                 jsonPath("$.totalElements").value(1L),
                 jsonPath("$.hasNextPage").value(false),
                 jsonPath("$.content.[0].permissionId").value("1"),
-                jsonPath("$.content.[0].memberEmail").value("access@test.com"),
-                jsonPath("$.content.[0].permissionList.[0]").value("UPDATE"),
-                jsonPath("$.content.[0].permissionList.[1]").value("INSERT")
+                jsonPath("$.content.[0].memberNickname").value("access"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
+                jsonPath("$.content.[0].permissionList.[0].id").value(1L),
+                jsonPath("$.content.[0].permissionList.[0].type").value("UPDATE"),
+                jsonPath("$.content.[0].permissionList.[1].id").value(2L),
+                jsonPath("$.content.[0].permissionList.[1].type").value("INSERT")
             );
     }
 
@@ -111,7 +133,7 @@ class ApiPermissionControllerTest {
         //then
         perform.andDo(print()).andExpect(status().isOk());
         verify(apiPermissionService, times(1))
-            .addPermission(eq(1L), eq(TEST_ID), eq(ApiPermissionType.INSERT));
+            .addPermission(eq(1L), eq(TEST_ID), eq(INSERT));
     }
 
     @Test
