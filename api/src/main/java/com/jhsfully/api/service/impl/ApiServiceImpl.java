@@ -38,8 +38,6 @@ import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.model.api.CreateApiInput;
-import com.jhsfully.api.model.api.CreateApiInput.QueryData;
-import com.jhsfully.api.model.api.CreateApiInput.SchemaData;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataResponse;
@@ -63,6 +61,8 @@ import com.jhsfully.domain.type.ApiPermissionType;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 import java.io.File;
@@ -74,7 +74,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -132,11 +131,6 @@ public class ApiServiceImpl implements ApiService {
 
     validateCreateOpenApi(input, member);
 
-    Map<String, ApiStructureType> schemaStructure = input.getSchemaStructure().stream()
-        .collect(Collectors.toMap(SchemaData::getField, SchemaData::getType));
-    Map<String, ApiQueryType> queryParameter = input.getQueryParameter().stream()
-            .collect(Collectors.toMap(QueryData::getField, QueryData::getType));
-
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
     String historyCollectionName = dataCollectionName + HISTORY_SUFFIX;
 
@@ -146,8 +140,8 @@ public class ApiServiceImpl implements ApiService {
         .apiName(input.getApiName())
         .member(member)
         .apiIntroduce(input.getApiIntroduce())
-        .schemaStructure(schemaStructure)
-        .queryParameter(queryParameter)
+        .schemaStructure(input.getSchemaStructure())
+        .queryParameter(input.getQueryParameter())
         .dataCollectionName(dataCollectionName)
         .historyCollectionName(historyCollectionName)
         .apiState(fileEmpty ? ApiState.ENABLED : ApiState.READY)
@@ -164,8 +158,8 @@ public class ApiServiceImpl implements ApiService {
         .apiInfoId(apiInfo.getId())
         .excelPath(filePath)
         .dataCollectionName(dataCollectionName)
-        .schemaStructure(schemaStructure)
-        .queryParameter(queryParameter)
+        .schemaStructure(input.getSchemaStructure())
+        .queryParameter(input.getQueryParameter())
         .build();
 
     sendKafka(model);
@@ -219,7 +213,7 @@ public class ApiServiceImpl implements ApiService {
 
     validateInsertApiData(input, apiInfo, member);
 
-    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
+    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaMap();
 
     //데이터 형변환
     for(Map.Entry<String, Object> data : input.getInsertData().entrySet()){
@@ -264,7 +258,7 @@ public class ApiServiceImpl implements ApiService {
 
     validateUpdateApiData(input, apiInfo, member);
 
-    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
+    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaMap();
 
     //변경 할 데이터를 검색할 쿼리 생성
     Query query = new Query(Criteria.where(MONGODB_ID).is(new ObjectId(input.getDataId())));
@@ -528,7 +522,7 @@ public class ApiServiceImpl implements ApiService {
   private void validateInsertApiData(InsertApiDataInput input, ApiInfo apiInfo, Member member){
     validateApiDataManageCommon(apiInfo, member, ApiPermissionType.INSERT);
 
-    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
+    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaMap();
 
     // 정의된 필드가 갯수가 같아야 함.
     if(input.getInsertData().size() != schemaMap.size()){
@@ -550,7 +544,7 @@ public class ApiServiceImpl implements ApiService {
   private void validateUpdateApiData(UpdateApiDataInput input, ApiInfo apiInfo, Member member){
     validateApiDataManageCommon(apiInfo, member, ApiPermissionType.UPDATE);
 
-    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaStructure();
+    Map<String, ApiStructureType> schemaMap = apiInfo.getSchemaMap();
 
     // 존재하지 하지 않는 필드명 확인.
     input.getUpdateData().entrySet().stream()

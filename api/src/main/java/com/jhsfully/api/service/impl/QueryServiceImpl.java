@@ -91,7 +91,7 @@ public class QueryServiceImpl implements QueryService {
         .orElseThrow(() -> new ApiPermissionException(API_KEY_NOT_ISSUED));
 
     //쿼리 파라미터에 대한 검증
-    Map<String, ApiQueryType> apiQueryTypeMap = apiInfo.getQueryParameter();
+    Map<String, ApiQueryType> apiQueryTypeMap = apiInfo.getQueryMap();
 
     for(String fieldName : input.getQueryParameter().keySet()){
       if(!apiQueryTypeMap.containsKey(fieldName)){
@@ -115,8 +115,8 @@ public class QueryServiceImpl implements QueryService {
     ApiInfo apiInfo = apiInfoRepository.findById(input.getApiId())
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
-    Map<String, ApiStructureType> structureTypeMap = apiInfo.getSchemaStructure();
-    Map<String, ApiQueryType> queryTypeMap = apiInfo.getQueryParameter();
+    Map<String, ApiStructureType> structureTypeMap = apiInfo.getSchemaMap();
+    Map<String, ApiQueryType> queryTypeMap = apiInfo.getQueryMap();
 
     List<String> fullTextValue = new ArrayList<>();
     List<String> fullTextField = new ArrayList<>();

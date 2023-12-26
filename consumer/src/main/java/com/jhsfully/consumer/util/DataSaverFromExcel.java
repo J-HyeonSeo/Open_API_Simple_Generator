@@ -27,7 +27,7 @@ public class DataSaverFromExcel implements SheetContentsHandler {
   private int currRowNum = 0;
 
   private final Map<String, Object> row = new HashMap<>();
-  private final List<String> header = new ArrayList<String>();
+  private final List<String> header = new ArrayList<>();
   private final MongoCollection<Document> mongoCollection;
   private final ExcelParserModel excelMetaModel;
 
@@ -78,7 +78,7 @@ public class DataSaverFromExcel implements SheetContentsHandler {
 
     if(this.currRowNum > 0) {
       try {
-        switch (this.excelMetaModel.getSchemaStructure().get(this.header.get(currentCol))) {
+        switch (this.excelMetaModel.getSchemaStructure().get(currentCol).getType()) {
           case INTEGER:
             insertValue = Long.parseLong(value);
             break;
@@ -94,12 +94,10 @@ public class DataSaverFromExcel implements SheetContentsHandler {
       }
     }else{
 
-      if(!this.excelMetaModel.getSchemaStructure().containsKey(value)){
+      if(this.excelMetaModel.getSchemaStructure().stream().noneMatch((field) -> field.getField().equals(value))){
         throw new RuntimeException("Schema Info not match!");
       }
-
       this.header.add(value);
-
     }
 
     row.put(this.header.get(currentCol), insertValue);

@@ -25,12 +25,12 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import com.jhsfully.domain.type.SearchType;
 import com.jhsfully.domain.type.errortype.ApiPermissionErrorType;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -83,16 +83,12 @@ class ApiSearchServiceImplTest {
         .build();
   }
 
-  private Map<String, ApiStructureType> getSchemaStructure(){
-    Map<String, ApiStructureType> schemaStructure = new HashMap<>();
-    schemaStructure.put("test", ApiStructureType.STRING);
-    return schemaStructure;
+  private List<SchemaData> getSchemaStructure(){
+    return List.of(new SchemaData("test", ApiStructureType.STRING));
   }
 
-  private Map<String, ApiQueryType> getQueryParameter(){
-    Map<String, ApiQueryType> queryParameter = new HashMap<>();
-    queryParameter.put("test", ApiQueryType.EQUAL);
-    return queryParameter;
+  private List<QueryData> getQueryParameter(){
+    return List.of(new QueryData("test", ApiQueryType.EQUAL));
   }
 
   private ApiInfo getApiInfo(){
@@ -165,8 +161,8 @@ class ApiSearchServiceImplTest {
           () -> assertEquals(apiInfo.getApiIntroduce(), response.getApiIntroduce()),
           () -> assertEquals(apiInfo.getMember().getEmail(), response.getOwnerEmail()),
           () -> assertEquals(apiInfo.getApiState(), response.getApiState()),
-          () -> assertEquals(apiInfo.getSchemaStructure().get("test"), response.getSchemaStructure().get("test")),
-          () -> assertEquals(apiInfo.getQueryParameter().get("test"), response.getQueryParameter().get("test")),
+          () -> assertEquals(apiInfo.getSchemaStructure().get(0), response.getSchemaStructure().get(0)),
+          () -> assertEquals(apiInfo.getQueryParameter().get(0), response.getQueryParameter().get(0)),
           () -> assertEquals(apiInfo.getRegisteredAt(), response.getRegisteredAt()),
           () -> assertEquals(apiInfo.getUpdatedAt(), response.getUpdatedAt()),
           () -> assertEquals(apiInfo.getDisabledAt(), response.getDisabledAt()),

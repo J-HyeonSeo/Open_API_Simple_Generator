@@ -23,6 +23,8 @@ import com.jhsfully.domain.repository.ApiKeyRepository;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -60,16 +62,12 @@ class QueryServiceImplTest {
         .build();
   }
 
-  private Map<String, ApiStructureType> getSchemaStructure(){
-    Map<String, ApiStructureType> schemaStructure = new HashMap<>();
-    schemaStructure.put("test", ApiStructureType.STRING);
-    return schemaStructure;
+  private List<SchemaData> getSchemaStructure(){
+    return List.of(new SchemaData("test", ApiStructureType.STRING));
   }
 
-  private Map<String, ApiQueryType> getQueryParameter(){
-    Map<String, ApiQueryType> queryParameter = new HashMap<>();
-    queryParameter.put("test", ApiQueryType.EQUAL);
-    return queryParameter;
+  private List<QueryData> getQueryParameter(){
+    return List.of(new QueryData("test", ApiQueryType.EQUAL));
   }
 
   private ApiInfo getApiInfo(){

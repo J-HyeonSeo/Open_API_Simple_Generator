@@ -39,6 +39,8 @@ import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
 import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.type.ApiState;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -372,16 +374,8 @@ class ApiControllerTest {
             .apiIntroduce("apiIntroduce")
             .ownerEmail("owner@test.com")
             .apiState(ApiState.ENABLED)
-            .schemaStructure(
-                new HashMap<>(){{
-                    put("test", STRING);
-                }}
-            )
-            .queryParameter(
-                new HashMap<>(){{
-                    put("test", EQUAL);
-                }}
-            )
+            .schemaStructure(List.of(new SchemaData("test", STRING)))
+            .queryParameter(List.of(new QueryData("test", EQUAL)))
             .registeredAt(nowTime)
             .updatedAt(nowTime)
             .disabledAt(nowTime)
@@ -401,8 +395,10 @@ class ApiControllerTest {
                 jsonPath("$.apiIntroduce").value("apiIntroduce"),
                 jsonPath("$.ownerEmail").value("owner@test.com"),
                 jsonPath("$.apiState").value("ENABLED"),
-                jsonPath("$.schemaStructure.test").value("STRING"),
-                jsonPath("$.queryParameter.test").value("EQUAL"),
+                jsonPath("$.schemaStructure.[0].field").value("test"),
+                jsonPath("$.schemaStructure.[0].type").value("STRING"),
+                jsonPath("$.queryParameter.[0].field").value("test"),
+                jsonPath("$.queryParameter.[0].type").value("EQUAL"),
                 jsonPath("$.registeredAt").value(nowTime.toString()),
                 jsonPath("$.updatedAt").value(nowTime.toString()),
                 jsonPath("$.disabledAt").value(nowTime.toString())

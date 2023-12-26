@@ -1,11 +1,11 @@
 package com.jhsfully.api.model.dto;
 
 import com.jhsfully.domain.entity.ApiInfo;
-import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
-import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,8 +22,8 @@ public class ApiInfoDto {
     private String apiIntroduce;
     private String ownerEmail;
     private ApiState apiState;
-    private Map<String, ApiStructureType> schemaStructure;
-    private Map<String, ApiQueryType> queryParameter;
+    private List<SchemaData> schemaStructure;
+    private List<QueryData> queryParameter;
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
     private LocalDateTime disabledAt;

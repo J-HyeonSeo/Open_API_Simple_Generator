@@ -41,8 +41,6 @@ import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.model.api.CreateApiInput;
-import com.jhsfully.api.model.api.CreateApiInput.QueryData;
-import com.jhsfully.api.model.api.CreateApiInput.SchemaData;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataResponse;
@@ -65,6 +63,8 @@ import com.jhsfully.domain.type.ApiPermissionType;
 import com.jhsfully.domain.type.ApiQueryType;
 import com.jhsfully.domain.type.ApiState;
 import com.jhsfully.domain.type.ApiStructureType;
+import com.jhsfully.domain.type.QueryData;
+import com.jhsfully.domain.type.SchemaData;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 import java.io.File;
@@ -202,16 +202,12 @@ class ApiServiceImplTest {
     return apiUserPermission;
   }
 
-  private Map<String, ApiStructureType> getSchemaStructure(){
-    Map<String, ApiStructureType> schemaStructure = new HashMap<>();
-    schemaStructure.put("test", ApiStructureType.STRING);
-    return schemaStructure;
+  private List<SchemaData> getSchemaStructure(){
+    return List.of(new SchemaData("test", ApiStructureType.STRING));
   }
 
-  private Map<String, ApiQueryType> getQueryParameter(){
-    Map<String, ApiQueryType> queryParameter = new HashMap<>();
-    queryParameter.put("test", ApiQueryType.EQUAL);
-    return queryParameter;
+  private List<QueryData> getQueryParameter(){
+    return List.of(new QueryData("test", ApiQueryType.EQUAL));
   }
 
   private ApiInfo getApiInfo(){
@@ -295,9 +291,11 @@ class ApiServiceImplTest {
           () -> assertEquals(apiInfo.getApiName(), expectedApiInfo.getApiName()),
           () -> assertEquals(apiInfo.getMember().getId(), expectedApiInfo.getMember().getId()),
           () -> assertEquals(apiInfo.getApiIntroduce(), expectedApiInfo.getApiIntroduce()),
-          () -> assertEquals(apiInfo.getSchemaStructure().get("test"), expectedApiInfo.getSchemaStructure().get("test")),
+          () -> assertEquals(apiInfo.getSchemaStructure().get(0).getField(), expectedApiInfo.getSchemaStructure().get(0).getField()),
+          () -> assertEquals(apiInfo.getSchemaStructure().get(0).getType(), expectedApiInfo.getSchemaStructure().get(0).getType()),
           () -> assertEquals(apiInfo.getSchemaStructure().size(), expectedApiInfo.getSchemaStructure().size()),
-          () -> assertEquals(apiInfo.getQueryParameter().get("test"), expectedApiInfo.getQueryParameter().get("test")),
+          () -> assertEquals(apiInfo.getQueryParameter().get(0).getField(), expectedApiInfo.getQueryParameter().get(0).getField()),
+          () -> assertEquals(apiInfo.getQueryParameter().get(0).getType(), expectedApiInfo.getQueryParameter().get(0).getType()),
           () -> assertEquals(apiInfo.getQueryParameter().size(), expectedApiInfo.getQueryParameter().size()),
           () -> assertTrue(expectedApiInfo.getDataCollectionName().matches("[a-z0-9]*")),
           () -> assertEquals(expectedApiInfo.getHistoryCollectionName().split("-")[0],
@@ -309,9 +307,11 @@ class ApiServiceImplTest {
           () -> assertEquals(apiInfo.getId(), expectedModel.getApiInfoId()),
           () -> assertEquals("src/test/resources/" + expectedApiInfo.getDataCollectionName() + ".xlsx", expectedModel.getExcelPath()),
           () -> assertEquals(expectedApiInfo.getDataCollectionName(), expectedModel.getDataCollectionName()),
-          () -> assertEquals(expectedApiInfo.getSchemaStructure().get("test"), expectedModel.getSchemaStructure().get("test")),
+          () -> assertEquals(expectedApiInfo.getSchemaStructure().get(0).getField(), expectedModel.getSchemaStructure().get(0).getField()),
+          () -> assertEquals(expectedApiInfo.getSchemaStructure().get(0).getType(), expectedModel.getSchemaStructure().get(0).getType()),
           () -> assertEquals(expectedApiInfo.getSchemaStructure().size(), expectedModel.getSchemaStructure().size()),
-          () -> assertEquals(expectedApiInfo.getQueryParameter().get("test"), expectedModel.getQueryParameter().get("test")),
+          () -> assertEquals(expectedApiInfo.getQueryParameter().get(0).getField(), expectedModel.getQueryParameter().get(0).getField()),
+          () -> assertEquals(expectedApiInfo.getQueryParameter().get(0).getType(), expectedModel.getQueryParameter().get(0).getType()),
           () -> assertEquals(expectedApiInfo.getQueryParameter().size(), expectedModel.getQueryParameter().size())
       );
 
