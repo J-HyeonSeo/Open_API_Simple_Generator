@@ -48,9 +48,10 @@ class ApiBlackListControllerTest {
     void getBlackList() throws Exception {
         //given
         BlackListDto blackListDto = BlackListDto.builder()
-            .apiId(1L)
+            .id(1L)
             .memberId(1L)
-            .memberEmail("test@test.com")
+            .memberNickname("test")
+            .profileUrl("profileUrl")
             .registeredAt(LocalDateTime.of(2023, 12, 1, 9, 3, 3))
             .build();
 
@@ -66,9 +67,10 @@ class ApiBlackListControllerTest {
         perform.andDo(print())
             .andExpectAll(
                 status().isOk(),
-                jsonPath("$.content.[0].apiId").value(1L),
+                jsonPath("$.content.[0].id").value(1L),
                 jsonPath("$.content.[0].memberId").value(1L),
-                jsonPath("$.content.[0].memberEmail").value("test@test.com"),
+                jsonPath("$.content.[0].memberNickname").value("test"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
                 jsonPath("$.content.[0].registeredAt")
                     .value(blackListDto.getRegisteredAt().toString())
             );

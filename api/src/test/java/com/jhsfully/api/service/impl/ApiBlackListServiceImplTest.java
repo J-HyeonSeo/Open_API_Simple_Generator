@@ -124,9 +124,9 @@ class ApiBlackListServiceImplTest {
 
       //then
       assertAll(
-          () -> assertEquals(apiInfo.getId(), responseList.getContent().get(0).getApiId()),
+          () -> assertEquals(blackList.getId(), responseList.getContent().get(0).getId()),
           () -> assertEquals(customer.getId(), responseList.getContent().get(0).getMemberId()),
-          () -> assertEquals(customer.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(customer.getEmail(), responseList.getContent().get(0).getMemberNickname()),
           () -> assertEquals(blackList.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt())
       );
     }
