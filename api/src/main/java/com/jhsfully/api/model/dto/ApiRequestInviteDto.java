@@ -15,7 +15,7 @@ public class ApiRequestInviteDto {
   private Long id;
   private Long apiInfoId;
   private String memberNickname;
-  private String memberEmail;
+  private String profileUrl;
   private String apiName;
   private LocalDateTime registeredAt;
   private ApiRequestStateType requestStateType;
@@ -25,7 +25,7 @@ public class ApiRequestInviteDto {
         .id(entity.getId())
         .apiInfoId(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getId())
         .memberNickname(isShowOwner ? entity.getApiInfo().getMember().getNickname() : entity.getMember().getNickname())
-        .memberEmail(isShowOwner ? entity.getApiInfo().getMember().getEmail() : entity.getMember().getEmail())
+        .profileUrl(isShowOwner ? entity.getApiInfo().getMember().getProfileUrl() : entity.getMember().getProfileUrl())
         .apiName(Objects.isNull(entity.getApiInfo()) ? null : entity.getApiInfo().getApiName())
         .registeredAt(entity.getRegisteredAt())
         .requestStateType(entity.getRequestStateType())

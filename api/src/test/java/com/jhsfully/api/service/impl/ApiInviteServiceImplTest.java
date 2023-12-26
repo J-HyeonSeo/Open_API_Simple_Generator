@@ -75,6 +75,7 @@ class ApiInviteServiceImplTest {
     return Member.builder()
         .id(1L)
         .nickname("owner")
+        .profileUrl("ownerProfileUrl")
         .email("owner@test.com")
         .build();
   }
@@ -83,6 +84,7 @@ class ApiInviteServiceImplTest {
     return Member.builder()
         .id(2L)
         .nickname("target")
+        .profileUrl("targetProfileUrl")
         .email("target@test.com")
         .build();
   }
@@ -139,7 +141,7 @@ class ApiInviteServiceImplTest {
           () -> assertEquals(apiInfo.getId(), responseList.getContent().get(0).getApiInfoId()),
           () -> assertEquals(targetMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
           () -> assertEquals(apiInfo.getApiName(), responseList.getContent().get(0).getApiName()),
-          () -> assertEquals(targetMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(targetMember.getProfileUrl(), responseList.getContent().get(0).getProfileUrl()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
           () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );
@@ -212,7 +214,7 @@ class ApiInviteServiceImplTest {
           () -> assertEquals(apiInfo.getId(), responseList.getContent().get(0).getApiInfoId()),
           () -> assertEquals(ownerMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
           () -> assertEquals(apiInfo.getApiName(), responseList.getContent().get(0).getApiName()),
-          () -> assertEquals(ownerMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(ownerMember.getProfileUrl(), responseList.getContent().get(0).getProfileUrl()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
           () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );

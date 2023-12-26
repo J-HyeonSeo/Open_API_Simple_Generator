@@ -79,6 +79,8 @@ class ApiRequestServiceImplTest {
     return Member.builder()
         .id(1L)
         .email("owner@test.com")
+        .nickname("owner")
+        .profileUrl("ownerProfileUrl")
         .build();
   }
 
@@ -86,6 +88,8 @@ class ApiRequestServiceImplTest {
     return Member.builder()
         .id(2L)
         .email("requester@test.com")
+        .nickname("requester")
+        .profileUrl("requesterProfileUrl")
         .build();
   }
 
@@ -138,7 +142,7 @@ class ApiRequestServiceImplTest {
           () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.getContent().get(0).getApiInfoId()),
           () -> assertEquals(ownerMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
           () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.getContent().get(0).getApiName()),
-          () -> assertEquals(ownerMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(ownerMember.getProfileUrl(), responseList.getContent().get(0).getProfileUrl()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
           () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );
@@ -195,7 +199,7 @@ class ApiRequestServiceImplTest {
           () -> assertEquals(apiRequestInvite.getApiInfo().getId(), responseList.getContent().get(0).getApiInfoId()),
           () -> assertEquals(requestMember.getNickname(), responseList.getContent().get(0).getMemberNickname()),
           () -> assertEquals(apiRequestInvite.getApiInfo().getApiName(), responseList.getContent().get(0).getApiName()),
-          () -> assertEquals(requestMember.getEmail(), responseList.getContent().get(0).getMemberEmail()),
+          () -> assertEquals(requestMember.getProfileUrl(), responseList.getContent().get(0).getProfileUrl()),
           () -> assertEquals(apiRequestInvite.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt()),
           () -> assertEquals(apiRequestInvite.getRequestStateType(), responseList.getContent().get(0).getRequestStateType())
       );

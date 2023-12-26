@@ -59,7 +59,7 @@ class ApiInviteControllerTest {
                 .id(1L)
                 .apiInfoId(1L)
                 .memberNickname("inviter")
-                .memberEmail("inviter@test.com")
+                .profileUrl("profileUrl")
                 .apiName("apiName")
                 .registeredAt(nowTime)
                 .requestStateType(ApiRequestStateType.REQUEST)
@@ -79,7 +79,7 @@ class ApiInviteControllerTest {
                 jsonPath("$.content.[0].id").value(1L),
                 jsonPath("$.content.[0].apiInfoId").value(1L),
                 jsonPath("$.content.[0].memberNickname").value("inviter"),
-                jsonPath("$.content.[0].memberEmail").value("inviter@test.com"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
                 jsonPath("$.content.[0].apiName").value("apiName"),
                 jsonPath("$.content.[0].registeredAt").value(nowTime.toString()),
                 jsonPath("$.content.[0].requestStateType").value("REQUEST")
@@ -95,7 +95,7 @@ class ApiInviteControllerTest {
                 .id(1L)
                 .apiInfoId(1L)
                 .memberNickname("owner")
-                .memberEmail("owner@test.com")
+                .profileUrl("profileUrl")
                 .apiName("apiName")
                 .registeredAt(nowTime)
                 .requestStateType(ApiRequestStateType.REQUEST)
@@ -115,7 +115,7 @@ class ApiInviteControllerTest {
                 jsonPath("$.content.[0].id").value(1L),
                 jsonPath("$.content.[0].apiInfoId").value(1L),
                 jsonPath("$.content.[0].memberNickname").value("owner"),
-                jsonPath("$.content.[0].memberEmail").value("owner@test.com"),
+                jsonPath("$.content.[0].profileUrl").value("profileUrl"),
                 jsonPath("$.content.[0].apiName").value("apiName"),
                 jsonPath("$.content.[0].registeredAt").value(nowTime.toString()),
                 jsonPath("$.content.[0].requestStateType").value("REQUEST")
