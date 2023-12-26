@@ -44,6 +44,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
   private static final String MONGODB_AT_COL = "at";
   private static final String MONGODB_MEMBER_NAME_COL = "member_name";
   private static final String MONGODB_MEMBER_EMAIL_COL = "member_email";
+  private static final String MONGODB_PROFILE_IMAGE_COL = "profile_image";
   private static final String MONGODB_TYPE_COL = "type";
   private static final String MONGODB_ORIGINAL_COL = "original_data";
   private static final String MONGODB_NEW_COL = "new_data";
@@ -104,6 +105,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
     document.append(MONGODB_AT_COL, nowTime);
     document.append(MONGODB_MEMBER_NAME_COL, member.getNickname());
     document.append(MONGODB_MEMBER_EMAIL_COL, member.getEmail());
+    document.append(MONGODB_PROFILE_IMAGE_COL, member.getProfileUrl());
     document.append(MONGODB_TYPE_COL, INSERT.name());
     document.append(MONGODB_NEW_COL, insertData);
 
@@ -128,6 +130,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
     document.append(MONGODB_AT_COL, nowTime);
     document.append(MONGODB_MEMBER_NAME_COL, member.getNickname());
     document.append(MONGODB_MEMBER_EMAIL_COL, member.getEmail());
+    document.append(MONGODB_PROFILE_IMAGE_COL, member.getProfileUrl());
     document.append(MONGODB_TYPE_COL, UPDATE.name());
     document.append(MONGODB_ORIGINAL_COL, originalData);
     document.append(MONGODB_NEW_COL, newData);
@@ -151,6 +154,7 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
     document.append(MONGODB_AT_COL, nowTime);
     document.append(MONGODB_MEMBER_NAME_COL, member.getNickname());
     document.append(MONGODB_MEMBER_EMAIL_COL, member.getEmail());
+    document.append(MONGODB_PROFILE_IMAGE_COL, member.getProfileUrl());
     document.append(MONGODB_TYPE_COL, DELETE.name());
     document.append(MONGODB_ORIGINAL_COL, originalData);
 
