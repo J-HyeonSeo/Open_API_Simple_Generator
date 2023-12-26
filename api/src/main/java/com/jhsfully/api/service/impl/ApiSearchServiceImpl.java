@@ -12,15 +12,20 @@ import com.jhsfully.api.model.dto.ApiInfoDto;
 import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoDetailDto;
 import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoSearchDto;
 import com.jhsfully.api.service.ApiSearchService;
+import com.jhsfully.domain.dto.AccessibleDto;
 import com.jhsfully.domain.entity.ApiInfo;
+import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.ApiUserPermissionRepository;
 import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.SearchType;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,12 +48,23 @@ public class ApiSearchServiceImpl implements ApiSearchService {
   private final MemberRepository memberRepository;
   private final ApiUserPermissionRepository apiUserPermissionRepository;
 
+  private static final Long NOT_MEMBER_ID = -1L;
+
   @Override
   public PageResponse<ApiInfoSearchDto> getOpenApiList(
       String searchText, SearchType type, Pageable pageable, long memberId
   ){
-    return PageResponse.of(apiInfoElasticRepository.search(searchText, type, pageable),
-        (x) -> ApiInfoDto.of(x, false));
+    Page<ApiInfoElastic> apiInfoElasticPage = apiInfoElasticRepository.search(searchText, type, pageable);
+    if (memberId == NOT_MEMBER_ID) { //로그인을 수행하지 않고 조회한 경우.
+      return PageResponse.of(apiInfoElasticPage,
+          (x) -> ApiInfoDto.of(x, false));
+    }
+    List<AccessibleDto> accessibleList = apiUserPermissionRepository.findByApiIdListAndMemberId(
+        apiInfoElasticPage.getContent().stream().map(ApiInfoElastic::getId).collect(Collectors.toList()),
+        memberId
+    );
+    return PageResponse.of(apiInfoElasticPage,
+        (x) -> ApiInfoDto.of(x, accessibleList.stream().anyMatch(y -> y.getApiId() == x.getId())));
   }
 
   //api 상세 조회
