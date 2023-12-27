@@ -1,3 +1,20 @@
+export interface TokenDto {
+  accessToken: string,
+  refreshToken: string
+}
+
+export interface Profile {
+  memberId: number
+  nickname: string
+  email: string
+  profileUrl: string
+}
+
+export interface ErrorFormat {
+  code: number
+  message: string
+}
+
 export interface ApiData {
   apiId: number
   profileUrl: string
