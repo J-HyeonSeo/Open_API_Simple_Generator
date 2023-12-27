@@ -25,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
   private final TokenProvider tokenProvider;
   private final HttpServletResponse response;
 
+
   @Override
   public void logout(String refreshTokenString) {
     refreshTokenRepository.findById(refreshTokenString).ifPresent(

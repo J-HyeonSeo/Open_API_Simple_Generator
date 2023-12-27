@@ -8,6 +8,7 @@ import com.jhsfully.domain.type.errortype.AuthenticationErrorType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.List;
@@ -125,8 +126,12 @@ public class TokenProvider {
       return false;
     }
 
-    Claims claims = parseClaims(token);
-    return !claims.getExpiration().before(new Date());
+    try{
+      Claims claims = parseClaims(token);
+      return !claims.getExpiration().before(new Date());
+    } catch (MalformedJwtException e) {
+      return false;
+    }
   }
 
   //토큰 파싱

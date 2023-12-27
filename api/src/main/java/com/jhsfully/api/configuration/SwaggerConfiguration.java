@@ -24,9 +24,8 @@ public class SwaggerConfiguration {
   public Docket api(){
     return new Docket(DocumentationType.SWAGGER_2)
         .apiInfo(apiInfo())
-        .securityContexts(Arrays.asList(securityContext("AccessToken"),
-            securityContext("RefreshToken")))
-        .securitySchemes(Arrays.asList(apiKey("AccessToken"), apiKey("RefreshToken")))
+        .securityContexts(Arrays.asList(securityContext("Authorization")))
+        .securitySchemes(Arrays.asList(apiKey("Authorization")))
         .select()
         .apis(RequestHandlerSelectors.basePackage("com.jhsfully.api"))
         .paths(PathSelectors.any())
