@@ -69,7 +69,7 @@ const Modal: React.FC<ModalProps> = (props) => {
                     <S.ModalButtonWrapper onClick={props.yesCallback}>
                       <S.ModalButton>{props.yesText || "확인"}</S.ModalButton>
                     </S.ModalButtonWrapper>
-                    <Line $c={palette["--color-gray-500"]}/>
+                    <Line $c={palette["--color-gray-500"]} $h={40}/>
                     <S.ModalButtonWrapper onClick={props.noCallback || props.closeHandler}>
                       <S.ModalButton>{props.noText || "취소"}</S.ModalButton>
                     </S.ModalButtonWrapper>

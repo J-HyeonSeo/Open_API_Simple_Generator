@@ -12,8 +12,11 @@ import PaymentModal from "../components/modal/PaymentModal";
 import IvReModal from "../components/modal/IvReModal";
 import {palette} from "../constants/Styles";
 import {Line} from "../styles/line/line.styled";
+import {useRecoilState} from "recoil";
+import {profileData} from "../store/RecoilState";
 
 const MyPage = () => {
+  const [profile, _] = useRecoilState(profileData);
   const [isShowNicknameModal, setIsShowNicknameModal] = useState(false);
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
   // IvRe == Invite & Request(초대/신쳥)
@@ -44,16 +47,16 @@ const MyPage = () => {
           <S.GradeMargin>
             <img src={testGradeImg} alt={"gradeImg"} width={"30px"} height={"70px"}/>
           </S.GradeMargin>
-          <Profile src={testProfileImg} $size={120}/>
+          <Profile src={profile?.profileUrl} $size={120}/>
           <S.NicknameTextWrapper>
-            <S.NicknameText><strong>Adam Smith</strong> 님</S.NicknameText>
+            <S.NicknameText><strong>{profile?.nickname}</strong> 님</S.NicknameText>
             <S.NicknameText>안녕하세요?</S.NicknameText>
           </S.NicknameTextWrapper>
           <S2.CardWrapper $w={450} $m={20}>
             <S2.Card $h={50} $p={10} $r={10}>
               <S.EmailText>Email</S.EmailText>
               <Line $h={30} $c={palette["--color-gray-500"]}/>
-              <S.EmailText style={{width: "300px"}}>AdamSmith@test.com</S.EmailText>
+              <S.EmailText style={{width: "300px"}}>{profile?.email}</S.EmailText>
             </S2.Card>
           </S2.CardWrapper>
         </S.ProfileWrapper>
