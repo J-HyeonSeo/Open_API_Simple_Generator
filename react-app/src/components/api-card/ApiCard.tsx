@@ -18,7 +18,7 @@ const ApiName = styled.h2`
 const ApiCard: React.FC<{ item: ApiData }> = ({ item }) => {
   return (
       <Card $h={85} $m={25}>
-        <ProfileArea item={{profileImage: TestProfileImg, name: "Adam Smith"}}/>
+        <ProfileArea item={{profileImage: item.profileUrl, name: item.ownerNickname}}/>
         <Line $h={30} $c={palette["--color-gray-500"]}/>
         <ApiName>{item.apiName}</ApiName>
         {!item.accessible &&

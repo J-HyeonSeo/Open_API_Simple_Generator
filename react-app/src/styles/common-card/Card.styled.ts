@@ -10,7 +10,6 @@ export const CardWrapper = styled.div<{$w?: number, $m?: number, $isFlex?: boole
 
 export const InnerCardWrapper = styled.div<{$w: number}>`
       width: ${(props) => props.$w}px;
-      overflow: auto;
     `;
 
 export const Card = styled.div<{
@@ -30,6 +29,17 @@ export const Card = styled.div<{
       flex-wrap: ${(props) => props.$isWrap ? "wrap" : "no-wrap"};
       padding: ${(props) => !props.$h ? 15 : 0}px ${(props) => props.$p || 30}px;
       box-shadow: ${(props) => props.$isNotShadow ? "" : "2px 2px 4px rgba(0, 0, 0, 0.15)"};
+      animation: fadeInUp 0.7s;
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translate3d(0, 100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translateZ(0);
+        }
+    }
     `;
 
 export const ScrollCard = styled.div<{
