@@ -24,6 +24,18 @@ export const ModalOverlay = styled.div<{$w?: number, $h?: number}>`
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
       z-index: 30;
+
+    animation: fadeInUp 0.3s;
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translate3d(0, 100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translateZ(0);
+        }
+    }
     `;
 
 export const ModalTitleArea = styled.div`

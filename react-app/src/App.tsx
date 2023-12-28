@@ -8,6 +8,8 @@ import ApiManagePage from "./pages/ApiManagePage";
 import ApiCreatePage from "./pages/ApiCreatePage";
 import LoginPage from "./pages/LoginPage";
 import LoginProcessPage from "./pages/LoginProcessPage";
+import ApiOwnerPage from "./pages/ApiOwnerPage";
+import ApiAccessPage from "./pages/ApiAccessPage";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <Route path="/api" element={<ApiIntroducePage/>}/>
         <Route path="/api/manage" element={<ApiManagePage/>}/>
         <Route path="/api/create" element={<ApiCreatePage/>}/>
+        <Route path="/api/owner" element={<ApiOwnerPage/>}/>
+        <Route path="/api/accessible" element={<ApiAccessPage/>}/>
         <Route path="/login/:error" element={<LoginPage/>}/>
         <Route path="/login/oauth2/code/kakao" element={<LoginProcessPage/>}/>
       </Routes>

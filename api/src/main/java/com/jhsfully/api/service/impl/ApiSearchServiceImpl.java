@@ -64,7 +64,9 @@ public class ApiSearchServiceImpl implements ApiSearchService {
         memberId
     );
     return PageResponse.of(apiInfoElasticPage,
-        (x) -> ApiInfoDto.of(x, accessibleList.stream().anyMatch(y -> y.getApiId() == x.getId())));
+        (x) -> ApiInfoDto.of(x,
+            accessibleList.stream().anyMatch(y -> y.getApiId() == x.getId())
+            || memberId == x.getOwnerMemberId()));
   }
 
   //api 상세 조회

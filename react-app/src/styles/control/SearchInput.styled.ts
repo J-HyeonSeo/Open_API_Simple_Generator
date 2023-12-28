@@ -16,7 +16,7 @@ export const SearchInputWrapper = styled.div`
 
 export const SearchInput = styled.input`
       font: inherit;
-      width: 750px;
+      width: 600px;
       background: inherit;
       font-size: 1.3rem;
       font-weight: 400;
@@ -24,7 +24,21 @@ export const SearchInput = styled.input`
       outline: none;
     `;
 
+export const Selector = styled.select`
+      font: inherit;
+      font-size: 20px;
+      width: 75px;
+      font-weight: 600;
+      
+      background-color: ${palette["--color-gray-100"]};
+      border: none;
+    `;
+
 export const MagnifierImg = styled.img`
       width: 35px;
       height: 38px;
+    
+      &:hover {
+          cursor: pointer;
+      }
     `;

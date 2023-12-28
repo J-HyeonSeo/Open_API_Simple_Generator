@@ -4,7 +4,6 @@ import static com.jhsfully.domain.type.errortype.ApiErrorType.API_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -134,7 +133,7 @@ class ApiSearchServiceImplTest {
           () -> assertEquals(apiInfoElastic.getOwnerNickname(), response.getContent().get(0).getOwnerNickname()),
           () -> assertEquals(apiInfoElastic.getProfileUrl(), response.getContent().get(0).getProfileUrl()),
           () -> assertEquals(apiInfoElastic.getApiState(), response.getContent().get(0).getApiState()),
-          () -> assertFalse(response.getContent().get(0).isAccessible())
+          () -> assertTrue(response.getContent().get(0).isAccessible())
       );
     }
 

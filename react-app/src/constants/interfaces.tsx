@@ -17,9 +17,10 @@ export interface ErrorFormat {
 
 export interface ApiData {
   apiId: number
-  profileUrl: string
-  username: string
   apiName: string
+  ownerNickname: string
+  profileUrl: string
+  apiState: string
   accessible: boolean
 }
 
