@@ -1,5 +1,7 @@
 package com.jhsfully.domain.repository.custom;
 
+import static com.jhsfully.domain.type.SearchType.*;
+
 import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.type.SearchType;
 import java.util.stream.Collectors;
@@ -27,6 +29,10 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
   public Page<ApiInfoElastic> search(String searchText, SearchType type, Pageable pageable) {
 
     String searchByColumn;
+
+    if (type == null) {
+      type = NONE;
+    }
 
     switch (type){
 
@@ -72,6 +78,10 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
 
     String searchByColumn;
 
+    if (type == null) {
+      type = NONE;
+    }
+
     switch (type){
 
       case API_INTRODUCE:
@@ -112,6 +122,10 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
   public Page<ApiInfoElastic> searchForAccessor(Long accessMemberId, String searchText, SearchType type, Pageable pageable){
 
     String searchByColumn;
+
+    if (type == null) {
+      type = NONE;
+    }
 
     switch (type){
 

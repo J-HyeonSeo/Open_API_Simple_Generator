@@ -125,8 +125,8 @@ public class ApiController {
   public ResponseEntity<?> getOpenApiList(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
-      @RequestParam String searchText,
-      @RequestParam SearchType type
+      @RequestParam(required = false) String searchText,
+      @RequestParam(required = false) SearchType type
   ){
     long memberId = MemberUtil.getMemberId(); //memberId *Optional
     return ResponseEntity.ok(
@@ -141,8 +141,8 @@ public class ApiController {
   public ResponseEntity<?> getApiListForOwner(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
-      @RequestParam String searchText,
-      @RequestParam SearchType type
+      @RequestParam(required = false) String searchText,
+      @RequestParam(required = false) SearchType type
   ){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
@@ -159,8 +159,8 @@ public class ApiController {
   public ResponseEntity<?> getApiListForAccess(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
-      @RequestParam String searchText,
-      @RequestParam SearchType type
+      @RequestParam(required = false) String searchText,
+      @RequestParam(required = false) SearchType type
   ){
     long memberId = MemberUtil.getMemberId();
 
