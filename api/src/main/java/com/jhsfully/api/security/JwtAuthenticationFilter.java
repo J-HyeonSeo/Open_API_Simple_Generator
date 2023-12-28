@@ -17,8 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  public static final String ACCESS_TOKEN_HEADER = "AccessToken";
-  public static final String REFRESH_TOKEN_HEADER = "RefreshToken";
+  public static final String ACCESS_TOKEN_HEADER = "Authorization";
   public static final String TOKEN_PREFIX = "Bearer ";
   private final TokenProvider tokenProvider;
 
