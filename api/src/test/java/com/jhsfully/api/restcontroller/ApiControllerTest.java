@@ -267,7 +267,7 @@ class ApiControllerTest {
 
         //when
         ResultActions perform = mockMvc.perform(
-            get("/api/0/1?searchText=apiName&type=API_NAME")
+            get("/api/public/0/1?searchText=apiName&type=API_NAME")
                 .with(oauth2Login()));
 
         //then
@@ -377,7 +377,7 @@ class ApiControllerTest {
             .willReturn(response);
 
         //when
-        ResultActions perform = mockMvc.perform(get("/api/1").with(oauth2Login()));
+        ResultActions perform = mockMvc.perform(get("/api/public/1").with(oauth2Login()));
 
         //then
         perform.andDo(print())

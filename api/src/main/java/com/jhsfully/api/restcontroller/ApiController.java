@@ -121,7 +121,7 @@ public class ApiController {
   /*
       Elastic Search 로 공개된 OpenAPI 를 검색해서, 리스트 반환
    */
-  @GetMapping("/{pageIdx}/{pageSize}")
+  @GetMapping("/public/{pageIdx}/{pageSize}")
   public ResponseEntity<?> getOpenApiList(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
@@ -174,7 +174,7 @@ public class ApiController {
   /*
       MySQL에 질의하여, Api상세 데이터를 가져옴.
    */
-  @GetMapping("/{apiId}")
+  @GetMapping("/public/{apiId}")
   public ResponseEntity<?> getOpenApiDetail(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
