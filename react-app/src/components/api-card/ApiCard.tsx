@@ -24,9 +24,12 @@ const ApiCard: React.FC<{ item: ApiData }> = ({ item }) => {
         {!item.accessible &&
             <CommonBtn $color={palette["--color-primary-100"]}
                        $hover-color={palette["--color-primary-900"]}>신청 하기 ▶</CommonBtn>}
-        {item.accessible &&
+        {item.accessible && item.apiState === "ENABLED" &&
             <CommonBtn $color={palette["--color-red-500"]}
                        $hover-color={palette["--color-red-700"]}>접근 가능</CommonBtn>}
+        {item.accessible && item.apiState === "FAILED" &&
+            <CommonBtn $color={palette["--color-gray-500"]}
+                       $hover-color={palette["--color-gray-700"]}>업로드 실패</CommonBtn>}
       </Card>
   )
 }
