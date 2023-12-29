@@ -36,9 +36,13 @@ const ApiManagePage = () => {
         <OwnerProfileArea profileUrl={introData?.profileUrl}
                           isShowBtn={true}
                           isUpdate={profile?.memberId === introData?.ownerMemberId}
+                          apiName={introData?.apiName}
+                          apiIntroduce={introData?.apiIntroduce}
+                          isPublic={introData?.public}
+                          id={id}
                           nickname={introData?.ownerNickname}/>
         <S.TitleWrapper>
-          <h2>{introData?.apiIntroduce}</h2>
+          <h2>{introData?.apiName}</h2>
         </S.TitleWrapper>
         <ApiKeyCard/>
         <ApiManageRequestCardArea />

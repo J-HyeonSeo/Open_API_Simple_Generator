@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import LoginProcessPage from "./pages/LoginProcessPage";
 import ApiOwnerPage from "./pages/ApiOwnerPage";
 import ApiAccessPage from "./pages/ApiAccessPage";
+import ApiUpdatePage from "./pages/ApiUpdatePage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/api/intro/:id/:manageable" element={<ApiIntroducePage/>}/>
         <Route path="/api/manage/:id" element={<ApiManagePage/>}/>
         <Route path="/api/create" element={<ApiCreatePage/>}/>
+        <Route path="/api/update/:id" element={<ApiUpdatePage/>}/>
         <Route path="/api/owner" element={<ApiOwnerPage/>}/>
         <Route path="/api/accessible" element={<ApiAccessPage/>}/>
         <Route path="/login/:error" element={<LoginPage/>}/>

@@ -13,6 +13,9 @@ const OwnerProfileArea: React.FC<{
   isShowBtn?: boolean,
   isManage?: boolean,
   isUpdate?: boolean,
+  apiName?: string,
+  apiIntroduce?: string,
+  isPublic?: boolean,
   id?: string,
   btnCallBack?: () => void}> = (
       {profileUrl,
@@ -20,6 +23,9 @@ const OwnerProfileArea: React.FC<{
           isShowBtn,
           isManage,
           isUpdate,
+          apiName,
+          apiIntroduce,
+          isPublic,
           id,
           btnCallBack}) => {
 
@@ -47,7 +53,11 @@ const OwnerProfileArea: React.FC<{
           {isShowBtn && isUpdate && <CommonBtn
               $color={palette["--color-gray-500"]}
               $hover-color={palette["--color-gray-700"]}
-              onClick={() => navigate(`/api/create`)}>
+              onClick={() => navigate(`/api/update/${id}`, {state: {
+                  apiName: apiName,
+                  apiIntroduce: apiIntroduce,
+                  isPublic: isPublic
+                }})}>
             수정 하기 ▶
           </CommonBtn>}
         </S.OwnerProfileAreaWrapper>

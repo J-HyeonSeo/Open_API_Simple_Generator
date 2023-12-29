@@ -39,7 +39,7 @@ export interface ApiIntroData {
   registeredAt: Date
   updatedAt: Date
   disabledAt: Date
-  isPublic: boolean
+  public: boolean
 }
 
 export interface createApiInput {
