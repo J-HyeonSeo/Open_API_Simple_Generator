@@ -26,7 +26,7 @@ const SearchInput: React.FC<{searchText: string,
             placeholder={placeholder}/>
         <S.Selector onChange={(e) => setType(e.target.value)}>
           <option value={"API_NAME"}>이름</option>
-          <option value={"API_OWNER_EMAIL"}>이메일</option>
+          <option value={"API_OWNER_NICKNAME"}>소유자</option>
           <option value={"API_INTRODUCE"}>소개</option>
         </S.Selector>
         <S.MagnifierImg

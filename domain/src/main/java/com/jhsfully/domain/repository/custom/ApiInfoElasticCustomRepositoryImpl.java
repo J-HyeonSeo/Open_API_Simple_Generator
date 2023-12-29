@@ -39,8 +39,8 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
       case API_INTRODUCE:
         searchByColumn = "apiIntroduce.ngram";
         break;
-      case API_OWNER_EMAIL:
-        searchByColumn = "ownerEmail.ngram";
+      case API_OWNER_NICKNAME:
+        searchByColumn = "ownerNickname.ngram";
         break;
       default:
         searchByColumn = "apiName.ngram";
@@ -52,7 +52,7 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
         .withQuery(QueryBuilders.boolQuery()
             .must(QueryBuilders.matchQuery(searchByColumn, searchText))
             .must(QueryBuilders.matchQuery("isPublic", true))
-            .must(QueryBuilders.matchQuery("state", "ENABLED"))
+            .must(QueryBuilders.matchQuery("apiState", "ENABLED"))
         )
         .withPageable(pageable)
         .build() :
@@ -87,8 +87,8 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
       case API_INTRODUCE:
         searchByColumn = "apiIntroduce.ngram";
         break;
-      case API_OWNER_EMAIL:
-        searchByColumn = "ownerEmail.ngram";
+      case API_OWNER_NICKNAME:
+        searchByColumn = "ownerNickname.ngram";
         break;
       default:
         searchByColumn = "apiName.ngram";
@@ -132,8 +132,8 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
       case API_INTRODUCE:
         searchByColumn = "apiIntroduce.ngram";
         break;
-      case API_OWNER_EMAIL:
-        searchByColumn = "ownerEmail.ngram";
+      case API_OWNER_NICKNAME:
+        searchByColumn = "ownerNickname.ngram";
         break;
       default:
         searchByColumn = "apiName.ngram";
