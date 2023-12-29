@@ -112,7 +112,7 @@ public class ApiController {
    */
   @PatchMapping("/{apiId}")
   public ResponseEntity<?> updateOpenApi(
-      @PathVariable long apiId, @RequestBody UpdateApiInput input) {
+      @PathVariable long apiId, @RequestBody @Valid UpdateApiInput input) {
     long memberId = MemberUtil.getMemberId();
     apiService.updateOpenApi(input, apiId, memberId);
     return ResponseEntity.ok().build();
