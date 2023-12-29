@@ -44,6 +44,12 @@ const useAxios = () =>  {
         .then((tokenRes) => {
           const tokenData: TokenDto = tokenRes.data;
           localStorage.setItem("accessToken", tokenData.accessToken);
+          setToken((prev) => (
+              {
+                accessToken: tokenData.accessToken,
+                refreshToken: prev?.refreshToken || ''
+              }
+          ));
 
           //재요청
           innerRequest(url, method, body, tokenData.accessToken, true);
