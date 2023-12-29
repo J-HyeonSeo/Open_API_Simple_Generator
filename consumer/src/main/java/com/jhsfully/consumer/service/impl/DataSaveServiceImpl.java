@@ -113,10 +113,12 @@ public class DataSaveServiceImpl implements DataSaveService {
       }
     }
 
-    IndexDefinition index =
-        new CompoundIndexDefinition(indexDocument);
+    if(!indexDocument.isEmpty()) {
+      IndexDefinition index =
+          new CompoundIndexDefinition(indexDocument);
 
-    mongoTemplate.indexOps(collectionName).ensureIndex(index);
+      mongoTemplate.indexOps(collectionName).ensureIndex(index);
+    }
 
   }
 
