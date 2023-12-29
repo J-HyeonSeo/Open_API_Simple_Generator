@@ -59,7 +59,7 @@ public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomR
         new NativeSearchQueryBuilder()
             .withQuery(QueryBuilders.boolQuery()
                 .must(QueryBuilders.matchQuery("isPublic", true))
-                .must(QueryBuilders.matchQuery("state", "ENABLED"))
+                .must(QueryBuilders.matchQuery("apiState", "ENABLED"))
             )
             .withPageable(pageable)
             .build();
