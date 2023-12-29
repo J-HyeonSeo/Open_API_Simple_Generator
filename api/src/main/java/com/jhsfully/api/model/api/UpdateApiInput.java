@@ -1,6 +1,7 @@
 package com.jhsfully.api.model.api;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,5 +20,8 @@ public class UpdateApiInput {
 
   @NotBlank(message = "API소개를 입력해주세요.")
   private String apiIntroduce;
+
+  @NotNull(message = "공개여부를 입력해주세요.")
+  private Boolean isPublic;
 
 }

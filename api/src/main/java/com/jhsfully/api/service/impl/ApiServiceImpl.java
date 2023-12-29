@@ -49,6 +49,7 @@ import com.jhsfully.api.util.ConvertUtil;
 import com.jhsfully.api.util.FileUtil;
 import com.jhsfully.api.util.MongoUtil;
 import com.jhsfully.domain.entity.ApiInfo;
+import com.jhsfully.domain.entity.ApiInfoElastic;
 import com.jhsfully.domain.entity.ApiUserPermission;
 import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
@@ -358,7 +359,7 @@ public class ApiServiceImpl implements ApiService {
     apiInfoElasticRepository.deleteAccessors(apiInfo.getId());
 
     //delete apiinfo
-    apiInfoElasticRepository.deleteById(apiInfo.getId().toString());
+    apiInfoElasticRepository.deleteById(apiInfo.getId());
 
 
     //RDB Deletions
@@ -400,7 +401,7 @@ public class ApiServiceImpl implements ApiService {
     apiInfoRepository.save(apiInfo);
   }
 
-  //API에 대한 제목/소개 내용을 수정하는 메서드.
+  //API에 대한 제목/소개/공개여부 내용을 수정하는 메서드.
   @Override
   public void updateOpenApi(UpdateApiInput input, long apiId, long memberId) {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
@@ -411,8 +412,17 @@ public class ApiServiceImpl implements ApiService {
 
     validateUpdateOpenApi(apiInfo, member);
 
+    ApiInfoElastic apiInfoElastic = apiInfoElasticRepository.findById(apiId)
+            .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    apiInfoElastic.setApiName(input.getApiName());
+    apiInfoElastic.setApiIntroduce(input.getApiIntroduce());
+    apiInfoElastic.setPublic(input.getIsPublic());
+    apiInfoElasticRepository.save(apiInfoElastic);
+
     apiInfo.setApiName(input.getApiName());
     apiInfo.setApiIntroduce(input.getApiIntroduce());
+    apiInfo.setPublic(input.getIsPublic());
     apiInfoRepository.save(apiInfo);
   }
 
