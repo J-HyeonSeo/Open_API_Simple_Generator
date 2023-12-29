@@ -5,6 +5,7 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import com.jhsfully.api.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
   public ResponseEntity<?> inputArgsExceptionHandler(BindingResult bindingResult) {
     String message = bindingResult.getFieldError().getDefaultMessage();
 

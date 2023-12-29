@@ -9,7 +9,7 @@ const ApiCardManage: React.FC<{url: string, placeholder: string, title: string}>
 
   const [pageIdx, setPageIdx] = useState(0);
   const [searchText, setSearchText] = useState("");
-  const [type, setType] = useState("NONE");
+  const [type, setType] = useState("API_NAME");
   const {res, isError, request} = useAxios();
   const [apiList, setApiList] = useState<Array<ApiData>>([]);
 

@@ -34,7 +34,9 @@ const useAxios = () =>  {
       const axiosError = e as AxiosError<ErrorFormat>;
 
       if (isDouble) { //토큰 재발급 후에도 오류가 나면, 리턴 처리.
-        return axiosError.response?.data;
+        setIsError(true);
+        setErrorMessage(axiosError.response?.data);
+        return;
       }
 
       if (axiosError.response?.status === axios.HttpStatusCode.Unauthorized) {
@@ -42,6 +44,12 @@ const useAxios = () =>  {
         .then((tokenRes) => {
           const tokenData: TokenDto = tokenRes.data;
           localStorage.setItem("accessToken", tokenData.accessToken);
+          setToken((prev) => (
+              {
+                accessToken: tokenData.accessToken,
+                refreshToken: prev?.refreshToken || ''
+              }
+          ));
 
           //재요청
           innerRequest(url, method, body, tokenData.accessToken, true);
@@ -80,7 +88,7 @@ const useAxios = () =>  {
   }
 
   return {
-    res, errorMessage, isError, request
+    res, errorMessage, isError, setIsError, request
   };
 }
 

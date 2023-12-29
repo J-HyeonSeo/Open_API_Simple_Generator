@@ -1,4 +1,4 @@
-import {Fragment} from "react";
+import {Fragment, useEffect, useState} from "react";
 import Header from "../components/header/Header";
 import OwnerProfileArea from "../components/api-detail/OwnerProfileArea";
 import * as S from "../styles/api-detail/ApiDetail.styled";
@@ -9,13 +9,40 @@ import ApiPermissionCardArea from "../components/api-manage/ApiPermissionCardAre
 import ApiBlackListCardArea from "../components/api-manage/ApiBlackListCardArea";
 import ApiDataCard from "../components/api-manage/card/ApiDataCard";
 import ApiHistoryCardArea from "../components/api-manage/ApiHistoryCardArea";
+import ApiDeleteCard from "../components/api-manage/card/ApiDeleteCard";
+import useAxios from "../hooks/useAxios";
+import {ApiIntroData} from "../constants/interfaces";
+import {useParams} from "react-router-dom";
+import {useRecoilState} from "recoil";
+import {profileData} from "../store/RecoilState";
 const ApiManagePage = () => {
+
+  const id = useParams().id;
+  const {res, request} = useAxios();
+  const [introData, setIntroData] = useState<ApiIntroData>();
+  const [profile, _] = useRecoilState(profileData);
+
+  useEffect(() => {
+    request(`/api/public/${id}`, "get");
+  }, []);
+
+  useEffect(() => {
+    setIntroData(res?.data);
+  }, [res]);
+
   return (
       <Fragment>
         <Header />
-        <OwnerProfileArea />
+        <OwnerProfileArea profileUrl={introData?.profileUrl}
+                          isShowBtn={true}
+                          isUpdate={profile?.memberId === introData?.ownerMemberId}
+                          apiName={introData?.apiName}
+                          apiIntroduce={introData?.apiIntroduce}
+                          isPublic={introData?.public}
+                          id={id}
+                          nickname={introData?.ownerNickname}/>
         <S.TitleWrapper>
-          <h2>2020 ~ 2023년도 경제 시장 분석 데이터 API</h2>
+          <h2>{introData?.apiName}</h2>
         </S.TitleWrapper>
         <ApiKeyCard/>
         <ApiManageRequestCardArea />
@@ -24,6 +51,7 @@ const ApiManagePage = () => {
         <ApiBlackListCardArea />
         <ApiDataCard />
         <ApiHistoryCardArea />
+        <ApiDeleteCard id={id}/>
       </Fragment>
   )
 }

@@ -30,20 +30,14 @@ public class ApiInfoUpdateServiceImpl implements ApiInfoUpdateService {
     apiInfoRepository.save(apiInfo);
     log.info("API 상태를 ENABLED로 수정 : " + apiInfo.getDataCollectionName());
 
-    /*
-        퍼블릭 하지 않으면, Elastic에 저장하지 않고, 바로 리턴!
-     */
-    if(!apiInfo.isPublic()){
-      return;
-    }
-
     ApiInfoElastic apiInfoElastic = ApiInfoElastic.builder()
-        .id(apiInfo.getId().toString())
+        .id(apiInfo.getId())
         .apiName(apiInfo.getApiName())
         .apiIntroduce(apiInfo.getApiIntroduce())
-        .ownerEmail(apiInfo.getMember().getEmail())
-        .state(ApiState.ENABLED)
-        .isPublic(true)
+        .ownerNickname(apiInfo.getMember().getNickname())
+        .profileUrl(apiInfo.getMember().getProfileUrl())
+        .apiState(ApiState.ENABLED)
+        .isPublic(apiInfo.isPublic())
         .ownerMemberId(apiInfo.getMember().getId())
         .mapping(new JoinField<>("apiInfo"))
         .build();
@@ -60,6 +54,21 @@ public class ApiInfoUpdateServiceImpl implements ApiInfoUpdateService {
 
     apiInfoRepository.save(apiInfo);
     log.info("API 상태를 FAILED로 수정 : " + apiInfo.getDataCollectionName());
+
+    ApiInfoElastic apiInfoElastic = ApiInfoElastic.builder()
+        .id(apiInfo.getId())
+        .apiName(apiInfo.getApiName())
+        .apiIntroduce(apiInfo.getApiIntroduce())
+        .ownerNickname(apiInfo.getMember().getNickname())
+        .profileUrl(apiInfo.getMember().getProfileUrl())
+        .apiState(ApiState.FAILED)
+        .isPublic(false)
+        .ownerMemberId(apiInfo.getMember().getId())
+        .mapping(new JoinField<>("apiInfo"))
+        .build();
+
+    apiInfoElasticRepository.save(apiInfoElastic);
+    log.info("Elastic Search ApiInfo 데이터 추가! : " + apiInfo.getDataCollectionName());
   }
 
 }

@@ -1,22 +1,34 @@
-import {Fragment, useState} from "react";
+import {Fragment, JSX, useEffect, useState} from "react";
 import Header from "../components/header/Header";
 import OwnerProfileArea from "../components/api-detail/OwnerProfileArea";
 import * as S from "../styles/api-detail/ApiDetail.styled";
 import * as S2 from "../styles/common-card/Card.styled";
 import {Card} from "../styles/common-card/Card.styled";
 import TypeCard from "../components/api-detail/TypeCard";
-import {TypeCardInfo} from "../constants/interfaces";
-import {SCHEMA_TYPE_LIST} from "../constants/Data";
+import {ApiIntroData, FieldAndType, TypeCardInfo, TypeData} from "../constants/interfaces";
+import {QUERY_TYPE_LIST, SCHEMA_TYPE_LIST} from "../constants/Data";
 import Modal from "../components/modal/Modal";
+import useAxios from "../hooks/useAxios";
+import {useParams} from "react-router-dom";
+import {BASE_URL} from "../utils/CustomAxios";
 
 const ApiIntroducePage = () => {
 
+  const params = useParams();
+  const id = params.id;
+  const manageable = params.manageable;
+  const {res, isError, errorMessage, request} = useAxios();
+  const [introData, setIntroData] = useState<ApiIntroData>();
   const [isShowRequestModal, setIsShowRequestModal] = useState(false);
   const [isShowErrorModal, setIsShowErrorModal] = useState(false);
 
-  const validRequestHandler = () => {
+  useEffect(() => {
+    request(`/api/public/${id}`, "get");
+  }, []);
 
-  }
+  useEffect(() => {
+    setIntroData(res?.data);
+  }, [res]);
 
   const modalHandler = (type: string, value: boolean) => {
     switch (type) {
@@ -28,74 +40,85 @@ const ApiIntroducePage = () => {
         break;
     }
   }
+  
+  const createTypeCardInfoArr = (arr: Array<FieldAndType>, typeArr: Array<TypeData>) => {
+    const typeCards: Array<JSX.Element> = [];
+    
+    arr.forEach((item) => {
+      //타입을 찾아와야 함.
+      const index = typeArr.findIndex((x) => {return x.type === item.type});
+      const typeData = typeArr[index];
 
-  const mockFieldData: Array<TypeCardInfo> = [
-    {
-      fieldName: '연도',
-      typeString: SCHEMA_TYPE_LIST[1].display,
-      'top-color': SCHEMA_TYPE_LIST[1]["top-color"],
-      'bottom-color': SCHEMA_TYPE_LIST[1]["bottom-color"],
-    },
-    {
-      fieldName: '업종',
-      typeString: SCHEMA_TYPE_LIST[0].display,
-      'top-color': SCHEMA_TYPE_LIST[0]["top-color"],
-      'bottom-color': SCHEMA_TYPE_LIST[0]["bottom-color"],
-    },
-    {
-      fieldName: '신설기업갯수',
-      typeString: SCHEMA_TYPE_LIST[1].display,
-      'top-color': SCHEMA_TYPE_LIST[1]["top-color"],
-      'bottom-color': SCHEMA_TYPE_LIST[1]["bottom-color"],
-    },
-    {
-      fieldName: '경제성장률',
-      typeString: SCHEMA_TYPE_LIST[2].display,
-      'top-color': SCHEMA_TYPE_LIST[2]["top-color"],
-      'bottom-color': SCHEMA_TYPE_LIST[2]["bottom-color"],
-    },
-    {
-      fieldName: '자금순환금액',
-      typeString: SCHEMA_TYPE_LIST[2].display,
-      'top-color': SCHEMA_TYPE_LIST[2]["top-color"],
-      'bottom-color': SCHEMA_TYPE_LIST[2]["bottom-color"],
-    },
-  ];
+      //타입 카드 정보 생성
+      const typeCardInfo: TypeCardInfo = {
+        fieldName: item.field,
+        typeString: typeData.display,
+        "top-color": typeData["top-color"],
+        "bottom-color": typeData["bottom-color"]
+      }
+
+      //JSX 추가
+      typeCards.push(
+          <TypeCard item={typeCardInfo}/>
+      );
+    });
+
+    return typeCards;
+  }
+
+  const exampleUrlMaker = () => {
+    if (introData === null) {
+      return 'ERROR';
+    }
+
+    let url = `${BASE_URL}/query/${id}/{AUTHKEY}/{idx}/{size}?`;
+
+    introData?.schemaStructure.forEach((item, index) => {
+      if (index === 0) {
+        url += `${item.field}={${item.type}}`;
+      } else {
+        url += `&${item.field}={${item.type}}`;
+      }
+    });
+
+    return url;
+  }
 
   return (
       <Fragment>
         <Header />
-        <OwnerProfileArea isShowBtn={true} btnCallBack={() => modalHandler("request", true)}/>
+        <OwnerProfileArea
+            profileUrl={introData?.profileUrl}
+            nickname={introData?.ownerNickname}
+            isShowBtn={true}
+            isManage={manageable === '1'}
+            id={id}
+            btnCallBack={() => modalHandler("request", true)}/>
         <S.TitleWrapper>
-          <h2>2020 ~ 2023년도 경제 시장 분석 데이터 API</h2>
+          <h2>{introData?.apiName}</h2>
         </S.TitleWrapper>
         <S2.CardWrapper $m={80}>
           <h2>소개</h2>
           <Card>
-            <p>Mr. Adam Smith가 2020 ~ 2023 년도의 경제 시장 데이터를 분석하였습니다. 조선업, 건축업, 반도체업, 자동차업, 농업 등
-              총 5가지의 업종에 대해서 매 년도 마다 경제 시장에 어떤 영향을 주는지 확인해볼 수 있는 데이터를 API로 제공하고 있습니다.</p>
+            <p>{introData?.apiIntroduce}</p>
           </Card>
         </S2.CardWrapper>
         <S2.CardWrapper $m={80}>
           <h2>데이터 필드</h2>
           <Card $isWrap={true} $notAround={true}>
-            {mockFieldData.map((item) => (
-              <TypeCard item={item}/>
-            ))}
+            {createTypeCardInfoArr(introData?.schemaStructure || [], SCHEMA_TYPE_LIST)}
           </Card>
         </S2.CardWrapper>
         <S2.CardWrapper $m={80}>
           <h2>검색시 가능한 질의 인수</h2>
           <Card $isWrap={true} $notAround={true}>
-            {mockFieldData.map((item) => (
-                <TypeCard item={item}/>
-            ))}
+            {createTypeCardInfoArr(introData?.queryParameter || [], QUERY_TYPE_LIST)}
           </Card>
         </S2.CardWrapper>
         <S2.CardWrapper $m={80}>
           <h2>사용 예시</h2>
           <Card>
-            <p>{"/query/1/{AUTHKEY}/0/10?연도={INTEGER}&업종={STRING}&자금순환금액={FLOAT}"}</p>
+            <p>{exampleUrlMaker()}</p>
           </Card>
         </S2.CardWrapper>
         {isShowRequestModal && <Modal mark={"question"}

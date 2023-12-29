@@ -1,3 +1,5 @@
+import {SCHEMA_TYPE_LIST} from "./Data";
+
 export interface TokenDto {
   accessToken: string,
   refreshToken: string
@@ -16,12 +18,42 @@ export interface ErrorFormat {
 }
 
 export interface ApiData {
-  apiId: number
+  id: number
   apiName: string
   ownerNickname: string
   profileUrl: string
   apiState: string
   accessible: boolean
+}
+
+export interface ApiIntroData {
+  id: number
+  apiName: string
+  apiIntroduce: string
+  ownerMemberId: number
+  profileUrl: string
+  ownerNickname: string
+  apiState: string
+  schemaStructure: Array<FieldAndType>
+  queryParameter: Array<FieldAndType>
+  registeredAt: Date
+  updatedAt: Date
+  disabledAt: Date
+  public: boolean
+}
+
+export interface createApiInput {
+  apiName: string
+  apiIntroduce: string
+  schemaStructure: Array<number>
+  queryParameter: Array<number>
+  isPublic: boolean
+  file: File
+}
+
+export interface FieldAndType {
+  field: string,
+  type: string
 }
 
 export interface PageData {
@@ -45,10 +77,27 @@ export interface GradeInfo {
   isPaid: boolean
 }
 
+export interface TypeCardSetterInfo {
+  id: string
+  field: string
+  type: string
+  displayType: string
+  'top-color': string
+  'bottom-color': string
+  isModifying: boolean
+}
+
 export interface TypeCardInfo {
   fieldName: string,
   typeString: string,
   'top-color': string,
+  'bottom-color': string
+}
+
+export interface TypeData {
+  type: string
+  display: string
+  'top-color': string
   'bottom-color': string
 }
 
