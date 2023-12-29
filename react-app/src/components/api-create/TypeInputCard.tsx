@@ -7,7 +7,7 @@ import {TypeInput} from "../../styles/control/TypeInput.styled";
 
 const TypeInputCard: React.FC<{
   index: string,
-  endCallBack: (index: string, fieldName: string, type: string) => void,
+  endCallBack: (index: string, fieldName: string, type: string, displayType: string) => void,
   fieldNameParam: string,
   typeParam: string,
   isSchema: boolean }> = ({index, endCallBack, fieldNameParam, typeParam, isSchema}) => {
@@ -18,12 +18,12 @@ const TypeInputCard: React.FC<{
     setFieldName(e.target.value);
   }
 
-  const setTypeHandler = (inputType: string) => {
+  const setTypeHandler = (type: string, displayType: string) => {
     if (fieldName.trim() === '') {
       alert("필드명을 입력해주세요.");
       return;
     }
-    endCallBack(index, fieldName, inputType);
+    endCallBack(index, fieldName, type, displayType);
   }
 
   return (
@@ -31,7 +31,7 @@ const TypeInputCard: React.FC<{
         <TypeInput onChange={onChangeHandler} type={"input"} placeholder={"필드명을 입력해주세요."} value={fieldName}></TypeInput>
         <Line $h={18} $c={palette["--color-gray-500"]}/>
         {type_list.map((item) => (
-            <S.Clickable onClick={() => setTypeHandler(item.display)} key={item.type}>
+            <S.Clickable onClick={() => setTypeHandler(item.type, item.display)} key={item.type}>
               <S.TypeElement $isHover={true} $top-color={item["top-color"]} $bottom-color={item["bottom-color"]}>
                 {item.display}
               </S.TypeElement>

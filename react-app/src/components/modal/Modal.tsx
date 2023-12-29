@@ -47,7 +47,7 @@ const Modal: React.FC<ModalProps> = (props) => {
 
   return (
       <Fragment>
-        {portalElement && ReactDOM.createPortal(<S.BackDrop onClick={props.closeHandler}/>, portalElement)}
+        {portalElement && ReactDOM.createPortal(<S.BackDrop onClick={props.noCallback || props.closeHandler}/>, portalElement)}
         {portalElement && ReactDOM.createPortal(
             <S.ModalOverlay $w={props.w} $h={props.h}>
               <S.ModalTitleArea>
@@ -55,13 +55,15 @@ const Modal: React.FC<ModalProps> = (props) => {
                   <S.ModalMark src={mark} alt={"mark"}/>
                 </S.ModalMarkArea>
                 <S.ModalTitle>{props.title}</S.ModalTitle>
-                <S.ModalCloseBtn onClick={props.closeHandler}>X</S.ModalCloseBtn>
+                <S.ModalCloseBtn onClick={props.noCallback || props.closeHandler}>X</S.ModalCloseBtn>
               </S.ModalTitleArea>
               <S.ModalContentArea $isButton={props.isButton}>
                 {props.children}
                 {props.text &&
                     <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
-                      <h2 style={{textAlign: "center"}}>{props.text}</h2>
+                      <pre style={{font: "inherit"}}>
+                        <h2 style={{textAlign: "center"}}>{props.text}</h2>
+                      </pre>
                     </div>}
               </S.ModalContentArea>
               {props.isButton && 

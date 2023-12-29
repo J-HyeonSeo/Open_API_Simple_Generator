@@ -1,3 +1,5 @@
+import {SCHEMA_TYPE_LIST} from "./Data";
+
 export interface TokenDto {
   accessToken: string,
   refreshToken: string
@@ -24,6 +26,20 @@ export interface ApiData {
   accessible: boolean
 }
 
+export interface createApiInput {
+  apiName: string
+  apiIntroduce: string
+  schemaStructure: Array<number>
+  queryParameter: Array<number>
+  isPublic: boolean
+  file: File
+}
+
+export interface FieldAndType {
+  field: string,
+  type: string
+}
+
 export interface PageData {
   total: number
   displaySize: number
@@ -43,6 +59,16 @@ export interface GradeInfo {
   accessorMaxCount: number;
   historyStorageDays: number;
   isPaid: boolean
+}
+
+export interface TypeCardSetterInfo {
+  id: string
+  field: string
+  type: string
+  displayType: string
+  'top-color': string
+  'bottom-color': string
+  isModifying: boolean
 }
 
 export interface TypeCardInfo {

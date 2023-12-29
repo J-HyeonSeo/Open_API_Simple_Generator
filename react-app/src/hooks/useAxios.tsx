@@ -34,7 +34,9 @@ const useAxios = () =>  {
       const axiosError = e as AxiosError<ErrorFormat>;
 
       if (isDouble) { //토큰 재발급 후에도 오류가 나면, 리턴 처리.
-        return axiosError.response?.data;
+        setIsError(true);
+        setErrorMessage(axiosError.response?.data);
+        return;
       }
 
       if (axiosError.response?.status === axios.HttpStatusCode.Unauthorized) {
@@ -80,7 +82,7 @@ const useAxios = () =>  {
   }
 
   return {
-    res, errorMessage, isError, request
+    res, errorMessage, isError, setIsError, request
   };
 }
 
