@@ -26,7 +26,7 @@ const ApiCardArea: React.FC<{item: Array<ApiData>, total: number, title: string}
         {item.length == 0 && <h2 style={{textAlign: "center"}}>표시할 데이터가 없습니다.</h2>}
         <ul>
           {item.map(item =>
-              <li key={item.apiId}><ApiCard item={item}/></li>
+              <li key={item.id}><ApiCard item={item}/></li>
           )}
         </ul>
       </CardWrapper>

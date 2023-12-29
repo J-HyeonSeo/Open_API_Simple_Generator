@@ -18,12 +18,27 @@ export interface ErrorFormat {
 }
 
 export interface ApiData {
-  apiId: number
+  id: number
   apiName: string
   ownerNickname: string
   profileUrl: string
   apiState: string
   accessible: boolean
+}
+
+export interface ApiIntroData {
+  id: number
+  apiName: string
+  apiIntroduce: string
+  profileUrl: string
+  ownerNickname: string
+  apiState: string
+  schemaStructure: Array<FieldAndType>
+  queryParameter: Array<FieldAndType>
+  registeredAt: Date
+  updatedAt: Date
+  disabledAt: Date
+  isPublic: boolean
 }
 
 export interface createApiInput {
@@ -75,6 +90,13 @@ export interface TypeCardInfo {
   fieldName: string,
   typeString: string,
   'top-color': string,
+  'bottom-color': string
+}
+
+export interface TypeData {
+  type: string
+  display: string
+  'top-color': string
   'bottom-color': string
 }
 

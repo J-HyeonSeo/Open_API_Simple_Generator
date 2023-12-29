@@ -2,7 +2,9 @@
     ############# TYPE DATA ##################
  */
 
-export const SCHEMA_TYPE_LIST = [
+import {TypeData} from "./interfaces";
+
+export const SCHEMA_TYPE_LIST: Array<TypeData> = [
   {
     type: "STRING",
     display: "String",
@@ -12,7 +14,6 @@ export const SCHEMA_TYPE_LIST = [
   {
     type: "INTEGER",
     display: "Integer",
-    color: "#232323",
     'top-color': '#00B3CB',
     'bottom-color': '#0055A4'
   },
@@ -30,7 +31,7 @@ export const SCHEMA_TYPE_LIST = [
   }
 ];
 
-export const QUERY_TYPE_LIST = [
+export const QUERY_TYPE_LIST: Array<TypeData> = [
   {
     type: "INCLUDE",
     display: "Include",

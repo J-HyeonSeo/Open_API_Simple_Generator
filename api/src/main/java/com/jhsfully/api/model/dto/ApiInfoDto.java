@@ -33,6 +33,7 @@ public class ApiInfoDto {
     private long id;
     private String apiName;
     private String apiIntroduce;
+    private String profileUrl;
     private String ownerNickname;
     private ApiState apiState;
     private List<SchemaData> schemaStructure;
@@ -59,6 +60,7 @@ public class ApiInfoDto {
         .id(entity.getId())
         .apiName(entity.getApiName())
         .apiIntroduce(entity.getApiIntroduce())
+        .profileUrl(entity.getMember().getProfileUrl())
         .ownerNickname(entity.getMember().getNickname())
         .apiState(entity.getApiState())
         .schemaStructure(entity.getSchemaStructure())
