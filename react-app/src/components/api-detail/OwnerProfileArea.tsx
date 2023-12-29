@@ -11,8 +11,18 @@ const OwnerProfileArea: React.FC<{
   profileUrl?: string,
   nickname?: string,
   isShowBtn?: boolean,
-  isManage?: boolean
-  btnCallBack?: () => void}> = ({profileUrl, nickname, isShowBtn, isManage, btnCallBack}) => {
+  isManage?: boolean,
+  isUpdate?: boolean,
+  id?: string,
+  btnCallBack?: () => void}> = (
+      {profileUrl,
+          nickname,
+          isShowBtn,
+          isManage,
+          isUpdate,
+          id,
+          btnCallBack}) => {
+
   const navigate = useNavigate();
   return (
       <div>
@@ -22,7 +32,7 @@ const OwnerProfileArea: React.FC<{
             <Line $h={30} $m={10}/>
             <S.ProfileNameText>{nickname}</S.ProfileNameText>
           </S.OwnerProfileWrapper>
-          {isShowBtn && !isManage && <CommonBtn
+          {isShowBtn && !isManage && !isUpdate && <CommonBtn
               $color={palette["--color-primary-100"]}
               $hover-color={palette["--color-primary-900"]}
               onClick={btnCallBack}>
@@ -31,8 +41,14 @@ const OwnerProfileArea: React.FC<{
           {isShowBtn && isManage && <CommonBtn
               $color={palette["--color-gray-500"]}
               $hover-color={palette["--color-gray-700"]}
-              onClick={() => navigate("/api/manage")}>
+              onClick={() => navigate(`/api/manage/${id}`)}>
             관리 하기 ▶
+          </CommonBtn>}
+          {isShowBtn && isUpdate && <CommonBtn
+              $color={palette["--color-gray-500"]}
+              $hover-color={palette["--color-gray-700"]}
+              onClick={() => navigate(`/api/create`)}>
+            수정 하기 ▶
           </CommonBtn>}
         </S.OwnerProfileAreaWrapper>
       </div>

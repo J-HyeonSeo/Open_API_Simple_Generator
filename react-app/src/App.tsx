@@ -19,7 +19,7 @@ function App() {
         <Route path="/my-page" element={<MyPage/>}/>
         <Route path="/grade-payment" element={<GradePaymentPage/>}/>
         <Route path="/api/intro/:id/:manageable" element={<ApiIntroducePage/>}/>
-        <Route path="/api/manage" element={<ApiManagePage/>}/>
+        <Route path="/api/manage/:id" element={<ApiManagePage/>}/>
         <Route path="/api/create" element={<ApiCreatePage/>}/>
         <Route path="/api/owner" element={<ApiOwnerPage/>}/>
         <Route path="/api/accessible" element={<ApiAccessPage/>}/>

@@ -92,6 +92,7 @@ const ApiIntroducePage = () => {
             nickname={introData?.ownerNickname}
             isShowBtn={true}
             isManage={manageable === '1'}
+            id={id}
             btnCallBack={() => modalHandler("request", true)}/>
         <S.TitleWrapper>
           <h2>{introData?.apiName}</h2>

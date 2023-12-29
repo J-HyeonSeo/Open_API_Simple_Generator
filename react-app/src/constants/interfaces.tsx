@@ -30,6 +30,7 @@ export interface ApiIntroData {
   id: number
   apiName: string
   apiIntroduce: string
+  ownerMemberId: number
   profileUrl: string
   ownerNickname: string
   apiState: string
