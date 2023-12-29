@@ -5,6 +5,7 @@ import com.jhsfully.domain.type.SchemaData;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,11 +29,11 @@ public class CreateApiInput {
   private String apiIntroduce;
 
   @Valid
-  @Size(min = 1, message = "적어도 하나의 스키마 구조를 입력해주세요.")
+  @NotEmpty(message = "적어도 하나의 스키마 구조를 입력해주세요.")
   private List<SchemaData> schemaStructure;
 
   @Valid
-  @Size(min = 1, message = "적어도 하나의 질의인수를 입력해주세요.")
+  @NotEmpty(message = "적어도 하나의 질의인수를 입력해주세요.")
   private List<QueryData> queryParameter;
   private boolean isPublic;
   private MultipartFile file;
