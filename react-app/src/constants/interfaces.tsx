@@ -1,17 +1,18 @@
-import {SCHEMA_TYPE_LIST} from "./Data";
 
+//================ Authentication Type ====================
 export interface TokenDto {
   accessToken: string,
   refreshToken: string
 }
-
 export interface Profile {
   memberId: number
   nickname: string
   email: string
   profileUrl: string
 }
+//==========================================================
 
+//=============== Back-End Response Type ===================
 export interface ErrorFormat {
   code: number
   message: string
@@ -42,20 +43,25 @@ export interface ApiIntroData {
   public: boolean
 }
 
-export interface createApiInput {
-  apiName: string
-  apiIntroduce: string
-  schemaStructure: Array<number>
-  queryParameter: Array<number>
-  isPublic: boolean
-  file: File
-}
-
 export interface FieldAndType {
   field: string,
   type: string
 }
 
+export interface IvReData {
+  id: number
+  apiInfoId: number;
+  memberNickname: string;
+  profileUrl: string;
+  apiName: string;
+  registeredAt: Date;
+  requestStateType: string;
+}
+
+//==========================================================
+
+
+//================ Components Type =========================
 export interface PageData {
   total: number
   displaySize: number
@@ -106,3 +112,4 @@ export interface ProfileInfo {
   name: string
   email?: string
 }
+//==========================================================
