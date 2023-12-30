@@ -17,30 +17,26 @@ const ApiIntroducePage = () => {
   const params = useParams();
   const id = params.id;
   const manageable = params.manageable;
-  const {res, isError, errorMessage, request} = useAxios();
+
+  //communication state
+  const {res: introRes, request: introRequest} = useAxios();
+  const {res: requestRes, isError, setIsError, errorMessage, request: requestRequest, setRes } = useAxios();
+
+  //data state
   const [introData, setIntroData] = useState<ApiIntroData>();
   const [isShowRequestModal, setIsShowRequestModal] = useState(false);
-  const [isShowErrorModal, setIsShowErrorModal] = useState(false);
 
+  //페이지 로딩시, 최초로 한 번 불러오기.
   useEffect(() => {
-    request(`/api/public/${id}`, "get");
+    introRequest(`/api/public/${id}`, "get");
   }, []);
 
+  //페이지 데이터가 셋팅되었다면, 화면에 데이터 표시해주기.
   useEffect(() => {
-    setIntroData(res?.data);
-  }, [res]);
+    setIntroData(introRes?.data);
+  }, [introRes]);
 
-  const modalHandler = (type: string, value: boolean) => {
-    switch (type) {
-      case "request":
-        setIsShowRequestModal(value);
-        break;
-      case "error":
-        setIsShowErrorModal(value);
-        break;
-    }
-  }
-  
+  //받아온 페이지 데이터에서, TypeCard를 표시해주기 위한 JSX를 생성.
   const createTypeCardInfoArr = (arr: Array<FieldAndType>, typeArr: Array<TypeData>) => {
     const typeCards: Array<JSX.Element> = [];
     
@@ -66,6 +62,7 @@ const ApiIntroducePage = () => {
     return typeCards;
   }
 
+  //사용예시 URL을 만들어주는 함수.
   const exampleUrlMaker = () => {
     if (introData === null) {
       return 'ERROR';
@@ -84,6 +81,12 @@ const ApiIntroducePage = () => {
     return url;
   }
 
+  //OpenAPI 신청 요청을 보내는 함수
+  const reuqestOpenApi = async () => {
+    await requestRequest(`/api/request/${id}`, "post");
+    setIsShowRequestModal(false);
+  }
+
   return (
       <Fragment>
         <Header />
@@ -93,7 +96,7 @@ const ApiIntroducePage = () => {
             isShowBtn={true}
             isManage={manageable === '1'}
             id={id}
-            btnCallBack={() => modalHandler("request", true)}/>
+            btnCallBack={() => setIsShowRequestModal(true)}/>
         <S.TitleWrapper>
           <h2>{introData?.apiName}</h2>
         </S.TitleWrapper>
@@ -121,11 +124,27 @@ const ApiIntroducePage = () => {
             <p>{exampleUrlMaker()}</p>
           </Card>
         </S2.CardWrapper>
-        {isShowRequestModal && <Modal mark={"question"}
-               title={"OpenAPI 신청하기"}
-               isButton={true}
-               text={"해당 OpenAPI를 신청하시겠습니까?"}
-               closeHandler={() => modalHandler("request", false)}/>}
+        {isShowRequestModal && <Modal
+            mark={"question"}
+            title={"OpenAPI 신청하기"}
+            isButton={true}
+            text={"해당 OpenAPI를 신청하시겠습니까?"}
+            yesCallback={reuqestOpenApi}
+            closeHandler={() => setIsShowRequestModal(false)}/>}
+        {requestRes && <Modal
+            mark={"success"}
+            title={"OpenAPI 신청 성공"}
+            isButton={true}
+            text={"성공적으로 해당 OpenAPI를 신청하였습니다.\n관리자가 승인하면 이용이 가능합니다."}
+            yesCallback={() => setRes(undefined)}
+            closeHandler={() => setRes(undefined)}/>}
+        {isError && <Modal
+            mark={"error"}
+            title={"OpenAPI 신청 실패"}
+            isButton={true}
+            text={errorMessage?.message || "해당 OpenAPI를 신청할 수 없습니다."}
+            yesCallback={() => setIsError(false)}
+            closeHandler={() => setIsError(false)}/>}
       </Fragment>
   )
 }

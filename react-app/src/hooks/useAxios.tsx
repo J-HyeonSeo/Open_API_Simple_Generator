@@ -88,7 +88,7 @@ const useAxios = () =>  {
   }
 
   return {
-    res, errorMessage, isError, setIsError, request
+    res, errorMessage, isError, setIsError, request, setRes
   };
 }
 
