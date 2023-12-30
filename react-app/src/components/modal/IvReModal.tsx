@@ -17,19 +17,18 @@ const IvReModal: React.FC<{isRequest: boolean}> = ({isRequest}) => {
   const [ivReList, setIvReList] = useState<Array<IvReData>>([]);
 
   //for infinite scroll..
-  const root = useRef<HTMLDivElement>(null);
   const target = useRef<HTMLDivElement>(null);
 
   //============================ functions..======================================
 
-  const getIvReList = () => {
-    ivReRequest(`/api/request/member/${pageIdx.current}/5`, "get");
-    pageIdx.current++;
+  const getIvReList = (pageIdx: number) => {
+    ivReRequest(`/api/request/member/${pageIdx}/5`, "get");
   }
 
   const callback = () => {
     if (hasNextPage.current) {
-      getIvReList();
+      getIvReList(pageIdx.current);
+      pageIdx.current++;
     }
   }
 
@@ -37,7 +36,12 @@ const IvReModal: React.FC<{isRequest: boolean}> = ({isRequest}) => {
 
   // effects..
   useEffect(() => {
-    const observer = new IntersectionObserver(callback, {threshold: 1.0});
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        callback();
+      });
+    });
     target.current && observer.observe(target.current);
   }, []);
 
@@ -54,7 +58,7 @@ const IvReModal: React.FC<{isRequest: boolean}> = ({isRequest}) => {
   }, [ivReRes]);
 
   return (
-      <S.ContentWrapper ref={root}>
+      <S.ContentWrapper>
         {ivReList.map((item) => (
             <S.Content key={item.id}>
               <S.DataOuterArea>
@@ -97,7 +101,7 @@ const IvReModal: React.FC<{isRequest: boolean}> = ({isRequest}) => {
             </S.Content>
         ))}
         {ivReList.length === 0 && <h2 style={{textAlign: "center"}}>조회할 데이터가 없습니다.</h2>}
-        <div style={{height: "1px"}} ref={target}/>
+        <div ref={target}/>
       </S.ContentWrapper>
   )
 }
