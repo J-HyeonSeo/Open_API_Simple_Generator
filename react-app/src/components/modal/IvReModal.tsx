@@ -2,7 +2,7 @@ import * as S from "../../styles/modal/my-page/IvReModal.styled";
 import ProfileArea from "../api-card/ProfileArea";
 import {CommonBtn} from "../../styles/control/CommonBtn.styled";
 import {palette} from "../../constants/Styles";
-import React, {Fragment, useEffect, useRef, useState} from "react";
+import React, {Fragment, useState} from "react";
 import {IvReData} from "../../constants/interfaces";
 import useAxios from "../../hooks/useAxios";
 import useScroll from "../../hooks/useScroll";
