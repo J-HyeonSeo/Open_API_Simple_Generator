@@ -5,57 +5,21 @@ import {palette} from "../../constants/Styles";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import {IvReData} from "../../constants/interfaces";
 import useAxios from "../../hooks/useAxios";
+import useScroll from "../../hooks/useScroll";
 
 const IvReModal: React.FC<{isRequest: boolean}> = ({isRequest}) => {
 
   //communication states..
   const {res: ivReRes, request: ivReRequest} = useAxios();
-  const pageIdx = useRef(0);
-  const hasNextPage = useRef(true);
 
   //data states..
   const [ivReList, setIvReList] = useState<Array<IvReData>>([]);
 
-  //for infinite scroll..
-  const target = useRef<HTMLDivElement>(null);
-
-  //============================ functions..======================================
-
+  //callback 함수
   const getIvReList = (pageIdx: number) => {
     ivReRequest(`/api/request/member/${pageIdx}/5`, "get");
   }
-
-  const callback = () => {
-    if (hasNextPage.current) {
-      getIvReList(pageIdx.current);
-      pageIdx.current++;
-    }
-  }
-
-  //==============================================================================
-
-  // effects..
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        callback();
-      });
-    });
-    target.current && observer.observe(target.current);
-  }, []);
-
-  useEffect(() => {
-    if (ivReRes === undefined){
-      return;
-    }
-    if (ivReRes.data.hasNextPage === false) {
-      hasNextPage.current = false;
-    }
-    setIvReList((prevState) => {
-      return [...prevState, ...ivReRes.data.content]
-    })
-  }, [ivReRes]);
+  const {target} = useScroll<IvReData>(getIvReList, ivReRes, setIvReList);
 
   return (
       <S.ContentWrapper>
