@@ -69,7 +69,7 @@ const useAxios = () =>  {
     }
   }
 
-  const request = async (url: string, method: string, body?: any) => {
+  const request = (url: string, method: string, body?: any) => {
     let accessToken = token?.accessToken || window.localStorage.getItem("accessToken");
     let refreshToken = token?.refreshToken || window.localStorage.getItem("refreshToken");
 
@@ -84,7 +84,7 @@ const useAxios = () =>  {
           }
       );
     }
-    await innerRequest(url, method, body, accessToken);
+    innerRequest(url, method, body, accessToken).then();
   }
 
   return {

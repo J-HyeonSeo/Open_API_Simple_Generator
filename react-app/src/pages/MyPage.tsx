@@ -75,25 +75,28 @@ const MyPage = () => {
           <ChangeNicknameModal nickname={"Adam Smith"}/>
         </Modal>}
 
-        {isShowPaymentModal && <Modal title={"결제 내역 조회하기"}
-               w={800}
-               h={600}
-               closeHandler={() => modalHandler("payment", false)}>
+        {isShowPaymentModal && <Modal
+            title={"결제 내역 조회하기"}
+            w={800}
+            h={600}
+            closeHandler={() => modalHandler("payment", false)}>
           <PaymentModal/>
         </Modal>}
 
-        {isShowInviteModal && <Modal title={"초대 내역 조회하기"}
-                                      w={800}
-                                      h={600}
-                                      closeHandler={() => modalHandler("invite", false)}>
-          <IvReModal />
+        {isShowInviteModal && <Modal
+            title={"초대 내역 조회하기"}
+            w={800}
+            h={600}
+            closeHandler={() => modalHandler("invite", false)}>
+          <IvReModal isRequest={false}/>
         </Modal>}
 
-        {isShowRequestModal && <Modal title={"신청 내역 조회하기"}
-                                     w={800}
-                                     h={600}
-                                     closeHandler={() => modalHandler("request", false)}>
-          <IvReModal />
+        {isShowRequestModal && <Modal
+            title={"신청 내역 조회하기"}
+            w={800}
+            h={600}
+            closeHandler={() => modalHandler("request", false)}>
+          <IvReModal isRequest={true}/>
         </Modal>}
 
       </Fragment>
