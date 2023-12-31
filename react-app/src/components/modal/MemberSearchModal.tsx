@@ -7,7 +7,7 @@ import ProfileArea from "../api-card/ProfileArea";
 import useAxios from "../../hooks/useAxios";
 import {MemberSearchData} from "../../constants/interfaces";
 
-const MemberSearchModal: React.FC<{closeHandler: () => void, callback: (id: number | undefined) => void}> = ({closeHandler, callback}) => {
+const MemberSearchModal: React.FC<{closeHandler: () => void, callback: (id: number) => void}> = ({closeHandler, callback}) => {
 
   const {res, setRes, request, isError, setIsError} = useAxios();
   const inputElement = useRef<HTMLInputElement>(null);
@@ -29,7 +29,7 @@ const MemberSearchModal: React.FC<{closeHandler: () => void, callback: (id: numb
              mark={"question"}
              isButton={true}
              yesText={"추가"}
-             yesCallback={() => callback(memberData?.memberId)}
+             yesCallback={() => memberData && callback(memberData?.memberId)}
              closeHandler={closeHandler}>
         <S.ContentWrapper>
           <S.Content>
