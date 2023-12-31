@@ -90,7 +90,7 @@ const IvReModal: React.FC<{isRequest: boolean}> = ({isRequest}) => {
                   </CommonBtn>}
                   {item.requestStateType === "ASSIGN" &&
                       <CommonBtn $color={palette["--color-primary-100"]} $hover-color={palette["--color-primary-900"]}>
-                    승인됨
+                    수락됨
                   </CommonBtn>}
                   {item.requestStateType === "REJECT" &&
                       <CommonBtn $color={palette["--color-red-500"]} $hover-color={palette["--color-red-700"]}>

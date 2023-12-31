@@ -13,9 +13,9 @@ const ApiCardManage: React.FC<{url: string, placeholder: string, title: string}>
   const {res, isError, request} = useAxios();
   const [apiList, setApiList] = useState<Array<ApiData>>([]);
 
-  const loadApiList = async (pageIdx: number) => {
+  const loadApiList = (pageIdx: number) => {
       setPageIdx(pageIdx);
-      await request("/api/" + url + "/"+ pageIdx +"/5?searchText=" + searchText + "&type=" + type, "get");
+      request("/api/" + url + "/"+ pageIdx +"/5?searchText=" + searchText + "&type=" + type, "get");
   }
 
   useEffect(() => {
