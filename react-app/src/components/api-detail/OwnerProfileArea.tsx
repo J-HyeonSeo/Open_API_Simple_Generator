@@ -11,6 +11,7 @@ const OwnerProfileArea: React.FC<{
   profileUrl?: string,
   nickname?: string,
   isShowBtn?: boolean,
+  isShowRequest?: boolean,
   isManage?: boolean,
   isUpdate?: boolean,
   apiName?: string,
@@ -21,6 +22,7 @@ const OwnerProfileArea: React.FC<{
       {profileUrl,
           nickname,
           isShowBtn,
+          isShowRequest,
           isManage,
           isUpdate,
           apiName,
@@ -38,7 +40,7 @@ const OwnerProfileArea: React.FC<{
             <Line $h={30} $m={10}/>
             <S.ProfileNameText>{nickname}</S.ProfileNameText>
           </S.OwnerProfileWrapper>
-          {isShowBtn && !isManage && !isUpdate && <CommonBtn
+          {isShowBtn && isShowRequest && !isManage && !isUpdate && <CommonBtn
               $color={palette["--color-primary-100"]}
               $hover-color={palette["--color-primary-900"]}
               onClick={btnCallBack}>

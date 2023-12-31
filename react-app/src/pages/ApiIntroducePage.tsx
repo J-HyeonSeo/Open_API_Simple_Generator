@@ -94,6 +94,7 @@ const ApiIntroducePage = () => {
             profileUrl={introData?.profileUrl}
             nickname={introData?.ownerNickname}
             isShowBtn={true}
+            isShowRequest={true}
             isManage={manageable === '1'}
             id={id}
             btnCallBack={() => setIsShowRequestModal(true)}/>
