@@ -186,7 +186,7 @@ class ApiRequestServiceImplTest {
       given(apiInfoRepository.findById(anyLong()))
           .willReturn(Optional.of(apiInfo));
 
-      given(apiRequestInviteRepository.findByMemberAndApiInfoAndApiRequestType(any(), any(), any(), any()))
+      given(apiRequestInviteRepository.findByApiInfoAndApiRequestTypeAndRequestStateType(any(), any(), any(), any()))
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when

@@ -227,6 +227,7 @@ class ApiControllerTest {
         UpdateApiInput input = UpdateApiInput.builder()
             .apiName("updateName")
             .apiIntroduce("updateIntroduce")
+            .isPublic(false)
             .build();
         ResultActions perform = mockMvc.perform(patch("/api/1")
             .contentType(MediaType.APPLICATION_JSON)
@@ -242,7 +243,8 @@ class ApiControllerTest {
         );
         assertAll(
             () -> assertEquals("updateName", inputCaptor.getValue().getApiName()),
-            () -> assertEquals("updateIntroduce", inputCaptor.getValue().getApiIntroduce())
+            () -> assertEquals("updateIntroduce", inputCaptor.getValue().getApiIntroduce()),
+            () -> assertEquals(false, inputCaptor.getValue().getIsPublic())
         );
     }
 

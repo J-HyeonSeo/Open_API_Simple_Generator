@@ -128,7 +128,7 @@ class ApiInviteServiceImplTest {
       given(apiInfoRepository.findById(anyLong()))
           .willReturn(Optional.of(apiInfo));
 
-      given(apiRequestInviteRepository.findByMemberAndApiInfoAndApiRequestType(any(), any(), any(), any()))
+      given(apiRequestInviteRepository.findByApiInfoAndApiRequestType(any(), any(), any()))
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when
@@ -201,7 +201,7 @@ class ApiInviteServiceImplTest {
       given(memberRepository.findById(anyLong()))
           .willReturn(Optional.of(ownerMember));
 
-      given(apiRequestInviteRepository.findByMemberAndApiRequestType(any(), any(), any()))
+      given(apiRequestInviteRepository.findByMemberAndApiRequestTypeAndRequestStateType(any(), any(), any(), any()))
           .willReturn(new PageImpl<>(List.of(apiRequestInvite)));
 
       //when
