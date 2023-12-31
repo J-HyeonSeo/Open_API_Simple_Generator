@@ -58,6 +58,13 @@ export interface IvReData {
   requestStateType: string;
 }
 
+export interface MemberSearchData {
+  memberId: number;
+  memberNickname: string;
+  memberEmail: string;
+  profileUrl: string;
+}
+
 //==========================================================
 
 
