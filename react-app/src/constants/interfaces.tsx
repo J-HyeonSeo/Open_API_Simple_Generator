@@ -65,6 +65,14 @@ export interface MemberSearchData {
   profileUrl: string;
 }
 
+export interface BlackListData {
+  id: number
+  memberId: number
+  memberNickname: string
+  profileUrl: string
+  registeredAt: Date
+}
+
 //==========================================================
 
 
