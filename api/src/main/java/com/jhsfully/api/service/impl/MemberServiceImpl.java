@@ -3,6 +3,7 @@ package com.jhsfully.api.service.impl;
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 
 import com.jhsfully.api.exception.AuthenticationException;
+import com.jhsfully.api.model.dto.MemberSearchDto;
 import com.jhsfully.api.model.dto.ProfileDto;
 import com.jhsfully.api.service.MemberService;
 import com.jhsfully.domain.repository.MemberRepository;
@@ -20,5 +21,12 @@ public class MemberServiceImpl implements MemberService {
         return ProfileDto.of(memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND)));
     }
+
+    @Override
+    public MemberSearchDto memberSearch(String email) {
+        return MemberSearchDto.of(memberRepository.findByEmail(email)
+            .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND)));
+    }
+
 
 }
