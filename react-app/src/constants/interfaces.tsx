@@ -73,6 +73,18 @@ export interface BlackListData {
   registeredAt: Date
 }
 
+export interface PermissionData {
+  permissionId: number;
+  memberNickname: string;
+  profileUrl: string;
+  permissionList: Array<PermissionDetail>;
+}
+
+export interface PermissionDetail {
+  id: number;
+  type: string;
+}
+
 //==========================================================
 
 
