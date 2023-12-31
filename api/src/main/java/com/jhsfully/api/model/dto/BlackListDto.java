@@ -20,7 +20,8 @@ public class BlackListDto {
     return BlackListDto.builder()
         .id(entity.getId())
         .memberId(entity.getMember().getId())
-        .memberNickname(entity.getMember().getEmail())
+        .profileUrl(entity.getMember().getProfileUrl())
+        .memberNickname(entity.getMember().getNickname())
         .registeredAt(entity.getRegisteredAt())
         .build();
   }

@@ -58,6 +58,33 @@ export interface IvReData {
   requestStateType: string;
 }
 
+export interface MemberSearchData {
+  memberId: number;
+  memberNickname: string;
+  memberEmail: string;
+  profileUrl: string;
+}
+
+export interface BlackListData {
+  id: number
+  memberId: number
+  memberNickname: string
+  profileUrl: string
+  registeredAt: Date
+}
+
+export interface PermissionData {
+  permissionId: number;
+  memberNickname: string;
+  profileUrl: string;
+  permissionList: Array<PermissionDetail>;
+}
+
+export interface PermissionDetail {
+  id: number;
+  type: string;
+}
+
 //==========================================================
 
 

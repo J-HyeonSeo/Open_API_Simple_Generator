@@ -95,6 +95,8 @@ class ApiBlackListServiceImplTest {
       Member customer = Member.builder()
           .id(2L)
           .email("customer@test.com")
+          .profileUrl("profileUrl")
+          .nickname("customer")
           .build();
 
       Member member = getMember();
@@ -126,7 +128,8 @@ class ApiBlackListServiceImplTest {
       assertAll(
           () -> assertEquals(blackList.getId(), responseList.getContent().get(0).getId()),
           () -> assertEquals(customer.getId(), responseList.getContent().get(0).getMemberId()),
-          () -> assertEquals(customer.getEmail(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(customer.getNickname(), responseList.getContent().get(0).getMemberNickname()),
+          () -> assertEquals(customer.getProfileUrl(), responseList.getContent().get(0).getProfileUrl()),
           () -> assertEquals(blackList.getRegisteredAt(), responseList.getContent().get(0).getRegisteredAt())
       );
     }

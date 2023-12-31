@@ -1594,7 +1594,7 @@ class ApiServiceImplTest {
       verify(apiInfoElasticRepository, times(1))
           .deleteAccessors(eq(apiInfo.getId()));
       verify(apiInfoElasticRepository, times(1))
-          .deleteById(eq(apiInfo.getId().toString()));
+          .deleteById(eq(apiInfo.getId()));
 
       ArgumentCaptor<ApiInfo> captor = ArgumentCaptor.forClass(ApiInfo.class);
       verify(apiInfoRepository, times(1)).delete(captor.capture());
@@ -1863,6 +1863,7 @@ class ApiServiceImplTest {
     void success_updateOpenApi() {
       //given
       ApiInfo apiInfo = getApiInfo();
+      ApiInfoElastic apiInfoElastic = getApiInfoElastic();
       Member member = getOwnerMember();
 
       given(apiInfoRepository.findById(anyLong()))
@@ -1871,22 +1872,34 @@ class ApiServiceImplTest {
       given(memberRepository.findById(anyLong()))
           .willReturn(Optional.of(member));
 
+      given(apiInfoElasticRepository.findById(anyLong()))
+          .willReturn(Optional.of(apiInfoElastic));
+
       //when
       UpdateApiInput input = UpdateApiInput.builder()
               .apiName("updated api name")
               .apiIntroduce("updated api introcude")
+              .isPublic(false)
               .build();
       apiService.updateOpenApi(input, 1L, 1L);
 
       //then
-      ArgumentCaptor<ApiInfo> captor = ArgumentCaptor.forClass(ApiInfo.class);
-      verify(apiInfoRepository, times(1)).save(captor.capture());
+      ArgumentCaptor<ApiInfo> apiInfoCaptor = ArgumentCaptor.forClass(ApiInfo.class);
+      ArgumentCaptor<ApiInfoElastic> apiInfoElasticCaptor = ArgumentCaptor.forClass(ApiInfoElastic.class);
+      verify(apiInfoRepository, times(1)).save(apiInfoCaptor.capture());
+      verify(apiInfoElasticRepository, times(1)).save(apiInfoElasticCaptor.capture());
 
-      ApiInfo expectedApiInfo = captor.getValue();
+      ApiInfo expectedApiInfo = apiInfoCaptor.getValue();
+      ApiInfoElastic expectedApiInfoElastic = apiInfoElasticCaptor.getValue();
 
       assertAll(
           () -> assertEquals(input.getApiName(), expectedApiInfo.getApiName()),
-          () -> assertEquals(input.getApiIntroduce(), expectedApiInfo.getApiIntroduce())
+          () -> assertEquals(input.getApiIntroduce(), expectedApiInfo.getApiIntroduce()),
+          () -> assertEquals(input.getIsPublic(), expectedApiInfo.isPublic()),
+
+          () -> assertEquals(input.getApiName(), expectedApiInfoElastic.getApiName()),
+          () -> assertEquals(input.getApiIntroduce(), expectedApiInfoElastic.getApiIntroduce()),
+          () -> assertEquals(input.getIsPublic(), expectedApiInfoElastic.isPublic())
       );
 
     }

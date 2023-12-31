@@ -15,6 +15,7 @@ import static com.jhsfully.domain.type.errortype.ApiRequestErrorType.REQUEST_NOT
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 
 import com.jhsfully.api.exception.ApiException;
+import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.ApiRequestException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.PageResponse;
@@ -34,6 +35,7 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
+import com.jhsfully.domain.type.errortype.ApiPermissionErrorType;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -57,7 +59,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   private final BlackListRepository blackListRepository;
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true) //확인
   public PageResponse<ApiRequestInviteDto> getRequestListForMember(
         long memberId,
         Pageable pageable) {
@@ -72,7 +74,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   }
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true) //확인
   public PageResponse<ApiRequestInviteDto> getRequestListForOwner(
         long memberId,
         long apiId,
@@ -84,9 +86,11 @@ public class ApiRequestServiceImpl implements ApiRequestService {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
+    validateGetRequestListForOwner(apiInfo, member);
+
     return PageResponse.of(
-        apiRequestInviteRepository.findByMemberAndApiInfoAndApiRequestType(member,
-            apiInfo, ApiRequestType.REQUEST, pageable),
+        apiRequestInviteRepository.findByApiInfoAndApiRequestTypeAndRequestStateType(
+            apiInfo, ApiRequestType.REQUEST, ApiRequestStateType.REQUEST, pageable),
         x -> ApiRequestInviteDto.of(x, false)
     );
   }
@@ -167,6 +171,12 @@ public class ApiRequestServiceImpl implements ApiRequestService {
       ###############                           #####################
       ###############################################################
    */
+
+  private void validateGetRequestListForOwner(ApiInfo apiInfo, Member member) {
+    if (!Objects.equals(apiInfo.getMember().getId(), member.getId())) {
+      throw new ApiPermissionException(ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER);
+    }
+  }
 
 
   /*

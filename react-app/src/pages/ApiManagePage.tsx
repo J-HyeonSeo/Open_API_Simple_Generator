@@ -45,7 +45,7 @@ const ApiManagePage = () => {
           <h2>{introData?.apiName}</h2>
         </S.TitleWrapper>
         <ApiKeyCard/>
-        <ApiManageRequestCardArea />
+        <ApiManageRequestCardArea/>
         <ApiManageInviteCardArea />
         <ApiPermissionCardArea />
         <ApiBlackListCardArea />
