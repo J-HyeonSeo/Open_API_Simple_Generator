@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ApiInviteErrorType {
   INVITE_NOT_FOUND("해당 초대가 존재하지 않습니다."),
+  CANNOT_INVITE_TO_ME("본인에게는 초대할 수 없습니다."),
   CANNOT_INVITE_NOT_API_OWNER("API 소유주 이외의 사람은 초대할 수 없습니다."),
   CANNOT_INVITE_ALREADY_HAS_PERMISSION("초대할 멤버가 이미 권한을 가지고 있습니다."),
   CANNOT_INVITE_ALREADY_INVITED("이미 초대 요청을 보낸 멤버입니다."),

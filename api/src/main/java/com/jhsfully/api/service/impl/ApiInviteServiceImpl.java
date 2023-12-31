@@ -6,6 +6,7 @@ import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_ASSIG
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_ALREADY_HAS_PERMISSION;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_ALREADY_INVITED;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_NOT_API_OWNER;
+import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_INVITE_TO_ME;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.CANNOT_REJECT_INVITE_NOT_TARGET;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.INVITE_ALREADY_ASSIGN;
 import static com.jhsfully.domain.type.errortype.ApiInviteErrorType.INVITE_ALREADY_REJECT;
@@ -179,6 +180,11 @@ public class ApiInviteServiceImpl implements ApiInviteService {
     //API가 비활성화 상태인 경우 throw
     if(apiInfo.getApiState() == ApiState.DISABLED){
       throw new ApiException(API_IS_DISABLED);
+    }
+
+    //본인을 초대하는 경우 throw
+    if(Objects.equals(apiInfo.getMember().getId(), targetMember.getId())) {
+      throw new ApiInviteException(CANNOT_INVITE_TO_ME);
     }
 
     //소유주가 아닌 경우 throw
