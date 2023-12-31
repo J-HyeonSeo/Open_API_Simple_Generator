@@ -4,7 +4,7 @@ import PageNavBar from "../page-nav-bar/PageNavBar";
 import ApiManageInviteCard from "./card/ApiManageInviteCard";
 import {CommonBtn} from "../../styles/control/CommonBtn.styled";
 import {palette} from "../../constants/Styles";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import MemberSearchModal from "../modal/MemberSearchModal";
 import useAxios from "../../hooks/useAxios";
 import {IvReData} from "../../constants/interfaces";
@@ -50,6 +50,7 @@ const ApiManageInviteCardArea = () => {
           {inviteList.map(item => (
             <ApiManageInviteCard item={item} key={item.id}/>
           ))}
+          {inviteList.length === 0 && <S.CardTitle>초대 목록이 없습니다.</S.CardTitle>}
           <PageNavBar page={
             {total: contentRes?.data.totalElements || 0,
               index: pageIdx + 1, displaySize: 4, navBarSize: 5}}

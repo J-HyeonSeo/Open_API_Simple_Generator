@@ -36,6 +36,7 @@ const ApiManageRequestCardArea = () => {
           {requestList.map((item) => (
             <ApiManageRequestCard key={item.id} item={item} reload={getRequestList}/>
           ))}
+          {requestList.length === 0 && <S.CardTitle>신청 목록이 없습니다.</S.CardTitle>}
           <PageNavBar
               page={{total: res?.data.totalElements || 0,
                 index: pageIdx + 1, displaySize: 4, navBarSize: 5}}
