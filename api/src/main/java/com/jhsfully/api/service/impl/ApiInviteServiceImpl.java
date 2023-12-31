@@ -14,6 +14,7 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiInviteException;
+import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.ApiRequestInviteDto;
@@ -31,6 +32,7 @@ import com.jhsfully.domain.repository.MemberRepository;
 import com.jhsfully.domain.type.ApiRequestStateType;
 import com.jhsfully.domain.type.ApiRequestType;
 import com.jhsfully.domain.type.ApiState;
+import com.jhsfully.domain.type.errortype.ApiPermissionErrorType;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +55,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   private final MemberRepository memberRepository;
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true) //확인.
   public PageResponse<ApiRequestInviteDto> getInviteListForOwner(long memberId, long apiId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
@@ -62,23 +64,26 @@ public class ApiInviteServiceImpl implements ApiInviteService {
     ApiInfo apiInfo = apiInfoRepository.findById(apiId)
         .orElseThrow(() -> new ApiException(API_NOT_FOUND));
 
+    validateGetInviteListForOwner(apiInfo, member);
+
     return PageResponse.of(
         apiRequestInviteRepository.
-            findByMemberAndApiInfoAndApiRequestType(member,
+            findByApiInfoAndApiRequestType(
                 apiInfo, ApiRequestType.INVITE, pageable),
         x -> ApiRequestInviteDto.of(x, false)
     );
   }
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true) //확인
   public PageResponse<ApiRequestInviteDto> getInviteListForMember(long memberId, Pageable pageable) {
 
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
     return PageResponse.of(
-        apiRequestInviteRepository.findByMemberAndApiRequestType(member, ApiRequestType.INVITE, pageable),
+        apiRequestInviteRepository.findByMemberAndApiRequestTypeAndRequestStateType(member,
+            ApiRequestType.INVITE, ApiRequestStateType.REQUEST, pageable),
         x -> ApiRequestInviteDto.of(x, true)
     );
   }
@@ -162,6 +167,12 @@ public class ApiInviteServiceImpl implements ApiInviteService {
       ###############                           #####################
       ###############################################################
    */
+
+  private void validateGetInviteListForOwner(ApiInfo apiInfo, Member member) {
+    if (!Objects.equals(apiInfo.getMember().getId(), member.getId())) {
+      throw new ApiPermissionException(ApiPermissionErrorType.YOU_ARE_NOT_API_OWNER);
+    }
+  }
 
   private void validateApiInvite(ApiInfo apiInfo, Member ownerMember, Member targetMember) {
 
