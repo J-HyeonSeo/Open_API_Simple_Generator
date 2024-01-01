@@ -30,7 +30,6 @@ const ApiDataModal: React.FC<{introData: ApiIntroData | undefined, callback: () 
 
         for (let col = 0; col < (introData?.schemaStructure.length || 1); col++) {
           if (inputRefs.current[index][col]?.value.trim() === '') {
-            console.log("냥? => :" + inputRefs.current[index][col]?.value.trim() + ":");
             return;
           }
         }
