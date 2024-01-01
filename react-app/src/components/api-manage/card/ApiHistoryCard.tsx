@@ -11,34 +11,29 @@ import {Profile} from "../../../styles/profile/profile.styled";
 import {Line} from "../../../styles/line/line.styled";
 import Modal from "../../modal/Modal";
 import ProfileArea from "../../api-card/ProfileArea";
+import {ApiIntroData, HistoryData} from "../../../constants/interfaces";
 
-const ApiHistoryCard = () => {
+const ApiHistoryCard: React.FC<{item: HistoryData, introData: ApiIntroData | undefined}> = ({item, introData}) => {
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
-
-  let type = "UPDATE"; // possible type are 'INSERT', 'DELETE'
-
-  const modalHandler = (value: boolean) => {
-    setIsShowDetailModal(value);
-  }
-
+  const keyword = item.type === "INSERT" ? "추가" : item.type === "UPDATE" ? "수정" : "삭제";
   return (
       <S.CardWrapper $w={550} $m={10}>
         <Card $p={5} $r={10} $h={50} $c={palette["--color-gray-300"]}>
           <S2.ProfileAreaWrapper $w={500}>
-            <Profile src={TestProfileImg} alt={"ProfileImg"}/>
+            <Profile src={item.profile_image} alt={"ProfileImg"}/>
             <Line $m={15} $h={30}/>
             <S2.HistoryWrapper>
-              <S2.HistoryUsername><strong>'Adam Smith'</strong> 님이 API 데이터를 추가하였습니다.</S2.HistoryUsername>
+              <S2.HistoryUsername><strong>'{item.member_name}'</strong> 님이 API 데이터를 {keyword}하였습니다.</S2.HistoryUsername>
               <S2.HistoryTimeWrapper>
                 <S2.HistoryUsername>변경시각</S2.HistoryUsername>
                 <Line $h={10} $m={10}></Line>
-                <S2.HistoryUsername>2023-12-01T18:00:32</S2.HistoryUsername>
+                <S2.HistoryUsername>{item.at}</S2.HistoryUsername>
               </S2.HistoryTimeWrapper>
             </S2.HistoryWrapper>
           </S2.ProfileAreaWrapper>
           <div>
             <CommonBtn
-                onClick={() => modalHandler(true)}
+                onClick={() => setIsShowDetailModal(true)}
                 $color={palette["--color-primary-100"]}
                 $hover-color={palette["--color-primary-900"]}
                 $w={90} $h={30} $m={5}>
@@ -46,14 +41,14 @@ const ApiHistoryCard = () => {
             </CommonBtn>
           </div>
         </Card>
-        {isShowDetailModal && type === "UPDATE" &&
+        {isShowDetailModal && item.type === "UPDATE" &&
             <Modal title={"로그 상세보기"}
                    w={1000} h={600}
-                   closeHandler={() => modalHandler(false)}>
+                   closeHandler={() => setIsShowDetailModal(false)}>
             <S.CardWrapper $m={20} $w={500}>
               <S.Card $r={10} $h={65}>
                 <ProfileArea
-                    item={{profileImage: TestProfileImg, name: "Adam Smith", email: "AdamSmith@test.com"}}
+                    item={{profileImage: item.profile_image, name: item.member_name, email: item.member_email}}
                     isLine={true} w={500} isEmail={true}/>
               </S.Card>
             </S.CardWrapper>
@@ -64,19 +59,15 @@ const ApiHistoryCard = () => {
                   <S.InnerCardWrapper $w={350}>
                     <S.ScrollCard $h={300} $c={palette["--color-gray-300"]} $p={1} $r={10}>
                       <S3.FieldArea>
-                        <S3.FieldText>ID</S3.FieldText>
-                        <S3.FieldText>와이파이명</S3.FieldText>
-                        <S3.FieldText>설치년도</S3.FieldText>
-                        <S3.FieldText>위도</S3.FieldText>
-                        <S3.FieldText>경도</S3.FieldText>
+                        {introData?.schemaStructure.map((key) => (
+                            <S3.FieldText key={key.field}>{key.field}</S3.FieldText>
+                        ))}
                       </S3.FieldArea>
                       <Line $fullHeight={true} $c={palette["--color-gray-500"]}/>
                       <S3.ValueArea>
-                        <S3.ReadInput readOnly={true} value={"6acvedxdf75xxc2fsdf5x"}/>
-                        <S3.ReadInput readOnly={true} value={"신설 와이파이"}/>
-                        <S3.ReadInput readOnly={true} value={"2023-07-07"}/>
-                        <S3.ReadInput readOnly={true} value={"37.2145"}/>
-                        <S3.ReadInput readOnly={true} value={"127.12340"}/>
+                        {introData?.schemaStructure.map((key) => (
+                            <S3.ReadInput readOnly={true} value={item.original_data[key.field]}/>
+                        ))}
                       </S3.ValueArea>
                     </S.ScrollCard>
                   </S.InnerCardWrapper>
@@ -89,19 +80,15 @@ const ApiHistoryCard = () => {
                   <S.InnerCardWrapper $w={350}>
                     <S.ScrollCard $h={300} $c={palette["--color-gray-300"]} $p={1} $r={10}>
                       <S3.FieldArea>
-                        <S3.FieldText>ID</S3.FieldText>
-                        <S3.FieldText>와이파이명</S3.FieldText>
-                        <S3.FieldText>설치년도</S3.FieldText>
-                        <S3.FieldText>위도</S3.FieldText>
-                        <S3.FieldText>경도</S3.FieldText>
+                        {introData?.schemaStructure.map((key) => (
+                            <S3.FieldText key={key.field}>{key.field}</S3.FieldText>
+                        ))}
                       </S3.FieldArea>
                       <Line $fullHeight={true} $c={palette["--color-gray-500"]}/>
                       <S3.ValueArea>
-                        <S3.ReadInput readOnly={true} value={"6acvedxdf75xxc2fsdffff5x"}/>
-                        <S3.ReadInput readOnly={true} value={"신설 와이파이"}/>
-                        <S3.ReadInput readOnly={true} value={"2023-07-07"}/>
-                        <S3.ReadInput readOnly={true} value={"37.2145"}/>
-                        <S3.ReadInput readOnly={true} value={"127.12340"}/>
+                        {introData?.schemaStructure.map((key) => (
+                            <S3.ReadInput readOnly={true} value={item.new_data[key.field]}/>
+                        ))}
                       </S3.ValueArea>
                     </S.ScrollCard>
                   </S.InnerCardWrapper>
@@ -110,36 +97,32 @@ const ApiHistoryCard = () => {
             </S.CardWrapper>
         </Modal>}
 
-        {isShowDetailModal && type !== "UPDATE" &&
+        {isShowDetailModal && item.type !== "UPDATE" &&
             <Modal title={"로그 상세보기"}
                    w={500} h={600}
-                   closeHandler={() => modalHandler(false)}>
+                   closeHandler={() => setIsShowDetailModal(false)}>
               <S.CardWrapper $m={20} $w={400}>
                 <S.Card $r={10} $h={65}>
                   <ProfileArea
-                      item={{profileImage: TestProfileImg, name: "Adam Smith", email: "AdamSmith@test.com"}}
+                      item={{profileImage: item.profile_image, name: item.member_name, email: item.member_email}}
                       isLine={true} w={500} isEmail={true}/>
                 </S.Card>
               </S.CardWrapper>
               <S.CardWrapper $w={400}>
                 <S.Card $h={400} $d={"column"} $notAround={true} $r={10}>
-                  <S.CardTitle>추가 데이터</S.CardTitle>
+                  <S.CardTitle>{keyword} 데이터</S.CardTitle>
                   <S.InnerCardWrapper $w={350}>
                     <S.ScrollCard $h={300} $c={palette["--color-gray-300"]} $p={1} $r={10}>
                       <S3.FieldArea>
-                        <S3.FieldText>ID</S3.FieldText>
-                        <S3.FieldText>와이파이명</S3.FieldText>
-                        <S3.FieldText>설치년도</S3.FieldText>
-                        <S3.FieldText>위도</S3.FieldText>
-                        <S3.FieldText>경도</S3.FieldText>
+                        {introData?.schemaStructure.map((key) => (
+                            <S3.FieldText key={key.field}>{key.field}</S3.FieldText>
+                        ))}
                       </S3.FieldArea>
                       <Line $fullHeight={true} $c={palette["--color-gray-500"]}/>
                       <S3.ValueArea>
-                        <S3.ReadInput readOnly={true} value={"6acvedxdf75xxc2fsdf5x"}/>
-                        <S3.ReadInput readOnly={true} value={"신설 와이파이"}/>
-                        <S3.ReadInput readOnly={true} value={"2023-07-07"}/>
-                        <S3.ReadInput readOnly={true} value={"37.2145"}/>
-                        <S3.ReadInput readOnly={true} value={"127.12340"}/>
+                        {introData?.schemaStructure.map((key) => (
+                            <S3.ReadInput readOnly={true} value={item.type === "INSERT" ? item.new_data[key.field] : item.original_data[key.field]}/>
+                        ))}
                       </S3.ValueArea>
                     </S.ScrollCard>
                   </S.InnerCardWrapper>

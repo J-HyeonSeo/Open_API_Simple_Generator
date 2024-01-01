@@ -45,13 +45,13 @@ const ApiManagePage = () => {
           <h2>{introData?.apiName}</h2>
         </S.TitleWrapper>
         <ApiKeyCard/>
-        <ApiManageRequestCardArea/>
-        <ApiManageInviteCardArea />
-        <ApiPermissionCardArea />
-        <ApiBlackListCardArea />
-        <ApiDataCard />
-        <ApiHistoryCardArea />
-        <ApiDeleteCard id={id}/>
+        {introData?.ownerMemberId === profile?.memberId && <ApiManageRequestCardArea/>}
+        {introData?.ownerMemberId === profile?.memberId && <ApiManageInviteCardArea />}
+        {introData?.ownerMemberId === profile?.memberId && <ApiPermissionCardArea />}
+        {introData?.ownerMemberId === profile?.memberId && <ApiBlackListCardArea />}
+        <ApiDataCard item={introData}/>
+        {introData?.ownerMemberId === profile?.memberId && <ApiHistoryCardArea introData={introData} />}
+        {introData?.ownerMemberId === profile?.memberId && <ApiDeleteCard id={id}/>}
       </Fragment>
   )
 }

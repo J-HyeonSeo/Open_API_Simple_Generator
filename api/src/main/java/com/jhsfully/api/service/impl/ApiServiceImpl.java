@@ -3,6 +3,7 @@ package com.jhsfully.api.service.impl;
 import static com.jhsfully.domain.type.ApiQueryType.EQUAL;
 import static com.jhsfully.domain.type.ApiQueryType.INCLUDE;
 import static com.jhsfully.domain.type.ApiQueryType.START;
+import static com.jhsfully.domain.type.ApiStructureType.DATE;
 import static com.jhsfully.domain.type.ApiStructureType.STRING;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_FIELD_COUNT_IS_DIFFERENT;
 import static com.jhsfully.domain.type.errortype.ApiErrorType.API_IS_ALREADY_ENABLED;
@@ -37,6 +38,7 @@ import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.exception.GradeException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
@@ -72,14 +74,18 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -165,7 +171,6 @@ public class ApiServiceImpl implements ApiService {
 
     sendKafka(model);
   }
-
   private String fileSave(MultipartFile file, String fileName){
 
     try {
@@ -198,6 +203,26 @@ public class ApiServiceImpl implements ApiService {
     );
   }
 
+  //API 데이터 조회 하기.
+  @Override
+  public PageResponse<Document> getApiData(long apiId, long memberId, Pageable pageable) {
+    ApiInfo apiInfo = apiInfoRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+
+    validateGetApiData(apiInfo, member);
+
+    Query query = new Query().with(pageable);
+    long totalCount = mongoTemplate.count(query, apiInfo.getDataCollectionName());
+    List<Document> results = mongoTemplate.find(query, Document.class, apiInfo.getDataCollectionName())
+        .stream()
+        .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
+        .collect(Collectors.toList());
+
+    return PageResponse.of(new PageImpl<>(results, pageable, totalCount));
+  }
 
   /*
       API에 데이터 추가함.
@@ -278,7 +303,14 @@ public class ApiServiceImpl implements ApiService {
     //데이터 형변환
     input.getUpdateData().forEach((key, value) -> {
         ApiStructureType structureType = schemaMap.get(key);
-        update.set(key, ConvertUtil.ObjectToStructureType(value, structureType));
+        input.getUpdateData().put(key, ConvertUtil.ObjectToStructureType(value, structureType));
+
+        if (structureType == DATE) {
+          LocalDateTime date = LocalDate.parse(value.toString()).atStartOfDay().plusHours(9);
+          update.set(key, date);
+        } else {
+          update.set(key, ConvertUtil.ObjectToStructureType(value, structureType));
+        }
     });
 
     //데이터 업데이트
@@ -524,6 +556,25 @@ public class ApiServiceImpl implements ApiService {
     }
   }
 
+  //API 데이터 조회 밸리데이션
+  private void validateGetApiData(ApiInfo apiInfo, Member member) {
+
+    //활성화 된 API가 아닌 경우 THROW
+    if(apiInfo.getApiState() != ApiState.ENABLED){
+      throw new ApiException(API_IS_DISABLED);
+    }
+
+    //소유주는 권한 확인이 필요없음.
+    if(Objects.equals(apiInfo.getMember().getId(), member.getId())){
+      return;
+    }
+
+    //이외의 유저는 확인해야함.
+    apiUserPermissionRepository
+        .findByApiInfoAndMember(apiInfo, member)
+        .orElseThrow(() -> new ApiPermissionException(USER_HAS_NOT_API));
+
+  }
 
   /*
       API의 데이터를 관리하는 밸리데이션 로직

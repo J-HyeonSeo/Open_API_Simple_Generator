@@ -1,6 +1,7 @@
 package com.jhsfully.api.restcontroller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
@@ -14,6 +15,7 @@ import com.jhsfully.domain.type.SearchType;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -47,6 +49,18 @@ public class ApiController {
     apiService.createOpenApi(input, memberId);
 
     return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/data/{apiId}/{pageIdx}/{pageSize}")
+  public ResponseEntity<PageResponse<Document>> getApiData(
+      @PathVariable long apiId,
+      @PathVariable int pageIdx,
+      @PathVariable int pageSize
+  ) {
+    long memberId = MemberUtil.getMemberId();
+    return ResponseEntity.ok(
+        apiService.getApiData(apiId, memberId, PageRequest.of(pageIdx, pageSize))
+    );
   }
 
   /*
