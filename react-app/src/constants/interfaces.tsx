@@ -90,6 +90,17 @@ export interface ApiDataFormat {
   [key: string]: any
 }
 
+export interface HistoryData {
+  _id: string;
+  at: string;
+  member_name: string;
+  member_email: string;
+  profile_image: string;
+  type: string;
+  original_data: any;
+  new_data: any;
+}
+
 //==========================================================
 
 
