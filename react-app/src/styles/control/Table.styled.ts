@@ -35,6 +35,7 @@ export const TableBody = styled.tbody`
     `;
 
 export const TableRow = styled.tr`
+      white-space: nowrap;
       &:hover {
         background-color: ${palette["--color-gray-300"]};
       }
@@ -64,6 +65,7 @@ export const TableData = styled.td`
 
 export const TableInput = styled.input`
       font: inherit;
+      width: 100%;
     `;
 
 export const OuterSubBtn = styled.div<{$m?: number}>`

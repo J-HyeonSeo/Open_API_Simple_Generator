@@ -85,6 +85,11 @@ export interface PermissionDetail {
   type: string;
 }
 
+export interface ApiDataFormat {
+  _id: string;
+  [key: string]: any
+}
+
 //==========================================================
 
 

@@ -49,7 +49,7 @@ const ApiManagePage = () => {
         <ApiManageInviteCardArea />
         <ApiPermissionCardArea />
         <ApiBlackListCardArea />
-        <ApiDataCard />
+        <ApiDataCard item={introData}/>
         <ApiHistoryCardArea />
         <ApiDeleteCard id={id}/>
       </Fragment>
