@@ -70,8 +70,8 @@ public class ApiHistoryServiceImpl implements ApiHistoryService {
 
     validateGetHistories(apiInfo, member);
 
-    LocalDateTime startDateTime = startDate.atStartOfDay();
-    LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+    LocalDateTime startDateTime = startDate.atStartOfDay().plusHours(9);
+    LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX).plusHours(9);
 
     //질의문 생성
     Query query = new Query(Criteria.where(MONGODB_AT_COL).gte(startDateTime).lte(endDateTime));
