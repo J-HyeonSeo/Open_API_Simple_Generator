@@ -1,8 +1,10 @@
 import {Fragment, useState} from "react";
 import Header from "../components/header/Header";
 import {Profile} from "../styles/profile/profile.styled";
-import testProfileImg from "../assets/test-profile.png";
-import testGradeImg from "../assets/grade-image/gold-mark.png";
+import bronzeImg from "../assets/grade-image/bronze-mark.png";
+import silverImg from "../assets/grade-image/silver-mark.png";
+import goldImg from "../assets/grade-image/gold-mark.png";
+import diaImg from "../assets/grade-image/dia-mark.png";
 import MyPageCard from "../components/my-page/MyPageCard";
 import * as S from "../styles/my-page/ProfileWrapper.styled";
 import * as S2 from "../styles/common-card/Card.styled";
@@ -16,9 +18,11 @@ import {useRecoilState} from "recoil";
 import {profileData} from "../store/RecoilState";
 
 const MyPage = () => {
+
   const [profile, _] = useRecoilState(profileData);
   const [isShowNicknameModal, setIsShowNicknameModal] = useState(false);
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
+
   // IvRe == Invite & Request(초대/신쳥)
   const [isShowInviteModal, setIsShowInviteModal] = useState(false);
   const [isShowRequestModal, setIsShowRequestModal] = useState(false);
@@ -40,12 +44,26 @@ const MyPage = () => {
     }
   }
 
+  const gradePictureSelector = (): string => {
+    switch (profile?.gradeId) {
+      case 1:
+        return bronzeImg;
+      case 2:
+        return silverImg;
+      case 3:
+        return goldImg;
+      case 4:
+        return diaImg;
+    }
+    return bronzeImg;
+  }
+
   return (
       <Fragment>
         <Header />
         <S.ProfileWrapper>
           <S.GradeMargin>
-            <img src={testGradeImg} alt={"gradeImg"} width={"30px"} height={"70px"}/>
+            <img src={gradePictureSelector()} alt={"gradeImg"} width={"30px"} height={"70px"}/>
           </S.GradeMargin>
           <Profile src={profile?.profileUrl} $size={120}/>
           <S.NicknameTextWrapper>
@@ -65,16 +83,9 @@ const MyPage = () => {
           openPaymentModal={() => modalHandler("payment", true)}
           openIvReModal={(isInvite: boolean) => isInvite ? modalHandler("invite", true) : modalHandler("request", true)}
         />
-        {isShowNicknameModal && <Modal
-            isButton={true}
-            mark={"question"}
-            title={"닉네임 변경하기"}
-            closeHandler={() => modalHandler("nickname", false)}
-            yesText={"변경"}
-        >
-          <ChangeNicknameModal nickname={"Adam Smith"}/>
-        </Modal>}
-
+        {isShowNicknameModal &&
+          <ChangeNicknameModal nickname={profile?.nickname} callback={() => modalHandler("nickname", false)}/>
+        }
         {isShowPaymentModal && <Modal
             title={"결제 내역 조회하기"}
             w={800}

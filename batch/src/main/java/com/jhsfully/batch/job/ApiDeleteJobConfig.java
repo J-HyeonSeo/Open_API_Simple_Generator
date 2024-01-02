@@ -147,7 +147,7 @@ public class ApiDeleteJobConfig {
             apiInfoElasticRepository.deleteAccessors(item.getId());
 
             //자기 자신 제거해야함.
-            apiInfoElasticRepository.deleteById(item.getId().toString());
+            apiInfoElasticRepository.deleteById(item.getId());
 
           }catch (Exception e){
             log.error(e.getMessage());

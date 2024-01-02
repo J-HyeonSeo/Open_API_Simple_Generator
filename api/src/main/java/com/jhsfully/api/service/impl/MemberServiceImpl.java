@@ -6,6 +6,7 @@ import com.jhsfully.api.exception.AuthenticationException;
 import com.jhsfully.api.model.dto.MemberSearchDto;
 import com.jhsfully.api.model.dto.ProfileDto;
 import com.jhsfully.api.service.MemberService;
+import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,12 @@ public class MemberServiceImpl implements MemberService {
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND)));
     }
 
+    @Override
+    public void changeNickname(long memberId, String nickname) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
+        member.setNickname(nickname);
+        memberRepository.save(member);
+    }
 
 }

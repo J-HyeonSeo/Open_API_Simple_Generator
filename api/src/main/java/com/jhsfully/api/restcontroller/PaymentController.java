@@ -3,6 +3,7 @@ package com.jhsfully.api.restcontroller;
 import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
+import com.jhsfully.api.service.GradeService;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.api.util.MemberUtil;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
   private final PaymentService paymentService;
+  private final GradeService gradeService;
 
   @GetMapping("/{pageIdx}/{pageSize}")
   public ResponseEntity<PageResponse<PaymentDto>> getPaymentList(
@@ -42,6 +44,11 @@ public class PaymentController {
         paymentService.getPaymentList(memberId,
             PageRequest.of(pageIdx, pageSize, Sort.by("paidAt").descending()))
     );
+  }
+
+  @GetMapping("/grades")
+  public ResponseEntity<?> getGradeListForPayment() {
+    return ResponseEntity.ok(gradeService.getGradeList());
   }
 
   @PostMapping("/{gradeId}")

@@ -12,6 +12,7 @@ import lombok.Getter;
 @Builder
 public class PaymentDto {
   private long id;
+  private long gradeId;
   private String grade;
   private long paymentAmount;
   private Long refundAmount;
@@ -22,6 +23,7 @@ public class PaymentDto {
   public static PaymentDto of(Payment entity){
     return PaymentDto.builder()
         .id(entity.getId())
+        .gradeId(entity.getGrade().getId())
         .grade(entity.getGrade().getGradeName())
         .paymentAmount(entity.getPaymentAmount())
         .refundAmount(entity.getRefundAmount())

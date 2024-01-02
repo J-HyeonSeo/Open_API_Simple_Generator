@@ -5,17 +5,18 @@ import {palette} from "../../../constants/Styles";
 import useAxios from "../../../hooks/useAxios";
 import Modal from "../../modal/Modal";
 import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
-const ApiDeleteCard: React.FC<{id: string | undefined}> = ({id}) => {
+const ApiDeleteCard = () => {
 
+  const id = useParams().id;
   const navigate = useNavigate();
 
   const {res, isError, setIsError, errorMessage, request} = useAxios();
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
 
-  const deleteRequest = async () => {
-    await request(`/api/${id}`, "delete");
+  const deleteRequest = () => {
+    request(`/api/${id}`, "delete");
     setIsShowDeleteModal(false);
   }
 
@@ -45,7 +46,7 @@ const ApiDeleteCard: React.FC<{id: string | undefined}> = ({id}) => {
             title={"확인"}
             mark={"error"}
             isButton={true}
-            yesCallback={() => deleteRequest()}
+            yesCallback={() => setIsError(false)}
             text={errorMessage?.message || "해당 OpenAPI를 삭제할 수 없습니다!"}
             closeHandler={() => setIsError(false)}/>}
       </S.CardWrapper>

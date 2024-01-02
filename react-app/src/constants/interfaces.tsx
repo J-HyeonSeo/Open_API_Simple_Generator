@@ -6,6 +6,7 @@ export interface TokenDto {
 }
 export interface Profile {
   memberId: number
+  gradeId: number
   nickname: string
   email: string
   profileUrl: string
@@ -101,19 +102,8 @@ export interface HistoryData {
   new_data: any;
 }
 
-//==========================================================
-
-
-//================ Components Type =========================
-export interface PageData {
-  total: number
-  displaySize: number
-  navBarSize: number
-  index: number
-}
-
 export interface GradeInfo {
-  gradeId: number
+  id: number
   gradeName: string;
   price: number;
   apiMaxCount: number;
@@ -123,7 +113,37 @@ export interface GradeInfo {
   dbMaxSize: number;
   accessorMaxCount: number;
   historyStorageDays: number;
-  isPaid: boolean
+}
+
+export interface PaymentRedirectData {
+  next_redirect_mobile_url: string;
+  next_redirect_pc_url: string;
+}
+
+export interface PaymentData {
+  id: number;
+  gradeId: number;
+  grade: string;
+  paymentAmount: number;
+  refundAmount: number;
+  paidAt: string;
+  refundAt: string;
+  paymentState: string;
+}
+
+export interface AuthKeyData {
+  authKey: string;
+}
+
+//==========================================================
+
+
+//================ Components Type =========================
+export interface PageData {
+  total: number
+  displaySize: number
+  navBarSize: number
+  index: number
 }
 
 export interface TypeCardSetterInfo {

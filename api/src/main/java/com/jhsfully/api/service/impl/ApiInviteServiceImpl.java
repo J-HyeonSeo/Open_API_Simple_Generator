@@ -178,7 +178,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   private void validateApiInvite(ApiInfo apiInfo, Member ownerMember, Member targetMember) {
 
     //API가 비활성화 상태인 경우 throw
-    if(apiInfo.getApiState() == ApiState.DISABLED){
+    if(apiInfo.getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 
@@ -208,7 +208,7 @@ public class ApiInviteServiceImpl implements ApiInviteService {
   private static void validateApiInviteAssign(Member member, ApiRequestInvite invite) {
 
     //API가 비활성화 상태인 경우 throw
-    if(invite.getApiInfo().getApiState() == ApiState.DISABLED){
+    if(invite.getApiInfo().getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 

@@ -25,8 +25,8 @@ const HeaderProfile = () => {
   const [profile, setProfile] = useRecoilState(profileData);
   const {res, request} = useAxios();
 
-  const loadProfileHandler = async () => {
-      await request("/member/profile", "get");
+  const loadProfileHandler = () => {
+      request("/member/profile", "get");
   }
   const logoutHandler = async () => {
     await customAxios().delete("/auth/signout",

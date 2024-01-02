@@ -15,10 +15,10 @@ spring:
       kakao:
         request-url: https://kapi.kakao.com/v1/payment/ready
         approve-url: https://kapi.kakao.com/v1/payment/approve
-        success-url: http://localhost:8080/payment/redirect/success
+        success-url: http://localhost:3000/payment/redirect/success
         refund-url: https://kapi.kakao.com/v1/payment/cancel
-        fail-url: http://localhost:8080
-        cancel-url: http://localhost:8080
+        fail-url: http://localhost:3000/grade-payment
+        cancel-url: http://localhost:3000/grade-payment
         cid: TC0ONETIME
         admin-key: ${KAKAO_ADMIN_KEY}
 

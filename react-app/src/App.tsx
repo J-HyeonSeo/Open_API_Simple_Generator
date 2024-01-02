@@ -11,6 +11,7 @@ import LoginProcessPage from "./pages/LoginProcessPage";
 import ApiOwnerPage from "./pages/ApiOwnerPage";
 import ApiAccessPage from "./pages/ApiAccessPage";
 import ApiUpdatePage from "./pages/ApiUpdatePage";
+import PaymentProcessPage from "./pages/PaymentProcessPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<MainPage/>}/>
         <Route path="/my-page" element={<MyPage/>}/>
         <Route path="/grade-payment" element={<GradePaymentPage/>}/>
+        <Route path="/payment/redirect/success" element={<PaymentProcessPage/>}/>
         <Route path="/api/intro/:id/:manageable" element={<ApiIntroducePage/>}/>
         <Route path="/api/manage/:id" element={<ApiManagePage/>}/>
         <Route path="/api/create" element={<ApiCreatePage/>}/>

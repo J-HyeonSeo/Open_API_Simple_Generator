@@ -224,6 +224,10 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
 
   private void validateAddPermission(Member member, ApiPermissionType type,
       ApiUserPermission userPermission) {
+    if(userPermission.getApiInfo().getApiState() != ApiState.ENABLED) {
+      throw new ApiException(API_IS_DISABLED);
+    }
+
     if(!Objects.equals(userPermission.getApiInfo().getMember().getId(), member.getId())){
       throw new ApiPermissionException(USER_HAS_NOT_API);
     }
@@ -235,6 +239,10 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
   }
 
   private void validateSubPermission(ApiPermissionDetail permissionDetail, Member member) {
+    if(permissionDetail.getApiUserPermission().getApiInfo().getApiState() != ApiState.ENABLED) {
+      throw new ApiException(API_IS_DISABLED);
+    }
+
     if(!Objects.equals(permissionDetail.getApiUserPermission().getApiInfo().getMember().getId(),
         member.getId())){
       throw new ApiPermissionException(USER_HAS_NOT_API);
@@ -242,6 +250,9 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
   }
 
   private static void validateDeletePermission(ApiUserPermission userPermission, Member member) {
+    if(userPermission.getApiInfo().getApiState() != ApiState.ENABLED) {
+      throw new ApiException(API_IS_DISABLED);
+    }
     if(!Objects.equals(userPermission.getApiInfo().getMember().getId(), member.getId())){
       throw new ApiPermissionException(USER_HAS_NOT_API);
     }
@@ -250,7 +261,7 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
   private void validateForManageAuthkey(ApiInfo apiInfo, Member member){
 
     //API가 비활성 상태라면, 발급 불가
-    if(apiInfo.getApiState() == ApiState.DISABLED){
+    if(apiInfo.getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 

@@ -9,5 +9,6 @@ public interface ApiInfoElasticCustomRepository {
   Page<ApiInfoElastic> search(String searchText, SearchType type, Pageable pageable);
   Page<ApiInfoElastic> searchForOwner(Long ownerMemberId, String searchText, SearchType type, Pageable pageable);
   Page<ApiInfoElastic> searchForAccessor(Long accessMemberId, String searchText, SearchType type, Pageable pageable);
+  void changeToDisabledByMemberId(Long memberId);
   void deleteAccessors(Long apiInfoId);
 }
