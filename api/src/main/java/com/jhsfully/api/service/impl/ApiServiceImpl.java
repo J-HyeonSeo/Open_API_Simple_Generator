@@ -431,6 +431,12 @@ public class ApiServiceImpl implements ApiService {
     }
     apiInfo.setApiState(ApiState.ENABLED);
     apiInfoRepository.save(apiInfo);
+
+    //Elasticsearch 데이터도 활성화 시켜줌!!
+    ApiInfoElastic apiInfoElastic = apiInfoElasticRepository.findById(apiId)
+        .orElseThrow(() -> new ApiException(API_NOT_FOUND));
+    apiInfoElastic.setApiState(ApiState.ENABLED);
+    apiInfoElasticRepository.save(apiInfoElastic);
   }
 
   //API에 대한 제목/소개/공개여부 내용을 수정하는 메서드.
