@@ -192,7 +192,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   private void validateApiRequest(Member member, ApiInfo apiInfo){
 
     //0
-    if(apiInfo.getApiState() == ApiState.DISABLED){
+    if(apiInfo.getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 
@@ -226,7 +226,7 @@ public class ApiRequestServiceImpl implements ApiRequestService {
   }
 
   private void validateRequestAssign(Member member, ApiRequestInvite request){
-    if(request.getApiInfo().getApiState() == ApiState.DISABLED){
+    if(request.getApiInfo().getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 

@@ -79,7 +79,7 @@ public class QueryServiceImpl implements QueryService {
   private void validate(QueryInput input, ApiInfo apiInfo){
 
     //사용가능한 상태인지 검증.
-    if(apiInfo.getApiState() == ApiState.DISABLED){
+    if(apiInfo.getApiState() != ApiState.ENABLED){
       throw new ApiException(API_IS_DISABLED);
     }
 
