@@ -95,7 +95,8 @@ const ApiUpdatePage = () => {
             title={"확인"}
             mark={"error"}
             isButton={true} text={errorMessage?.message || "OpenAPI를 수정하는 도중에\n오류가 발생하였습니다."}
-            closeHandler={() => setIsShowModal(false)} />}
+            yesCallback={() => setIsError(false)}
+            closeHandler={() => setIsError(false)} />}
       </Fragment>
   )
 }
