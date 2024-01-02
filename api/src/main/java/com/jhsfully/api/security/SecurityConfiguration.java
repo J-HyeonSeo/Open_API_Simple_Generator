@@ -80,6 +80,7 @@ public class SecurityConfiguration{
               "/test/**", //TODO for test will remove!!
               "/",
               "/payment/redirect/**",
+              "/payment/grades",
               "/query/**",  //데이터 질의는 로그인 대신 auth_key로 대체함.
               "/auth/**",
               "/images/**",
