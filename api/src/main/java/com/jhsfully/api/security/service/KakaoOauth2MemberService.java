@@ -1,10 +1,14 @@
 package com.jhsfully.api.security.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jhsfully.api.exception.GradeException;
 import com.jhsfully.api.model.auth.TokenResponse;
 import com.jhsfully.api.security.TokenProvider;
+import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
+import com.jhsfully.domain.repository.GradeRepository;
 import com.jhsfully.domain.repository.MemberRepository;
+import com.jhsfully.domain.type.errortype.GradeErrorType;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Objects;
@@ -29,10 +33,11 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
 
   private final DefaultOAuth2UserService defaultOAuth2UserService;
   private final MemberRepository memberRepository;
+  private final GradeRepository gradeRepository;
   private final TokenProvider tokenProvider;
   private final ObjectMapper objectMapper;
-  private static final int TEMP_COOKIE_MAX_AGE = 1000; //쿠키에서 값을 추출하기 전까지, 값을 살려둠.
   private final HttpServletResponse httpServletResponse;
+  private static final long BRONZE_GRADE_ID = 1L;
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -58,18 +63,6 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
     String accessToken = tokenProvider.generateAccessToken(member.getId());
     String refreshToken = tokenProvider.generateRefreshToken(member.getId(), email);
     TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);
-
-//    Cookie accessCookie = new Cookie("AccessToken", accessToken);
-//    accessCookie.setMaxAge(TEMP_COOKIE_MAX_AGE);
-//    accessCookie.setPath("/");
-//
-//    Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
-//    refreshCookie.setHttpOnly(true);
-//    refreshCookie.setMaxAge(TEMP_COOKIE_MAX_AGE);
-//    refreshCookie.setPath("/");
-
-//    httpServletResponse.addCookie(accessCookie);
-//    httpServletResponse.addCookie(refreshCookie);
 
     httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
     try(PrintWriter writer = httpServletResponse.getWriter()) {
@@ -98,12 +91,17 @@ public class KakaoOauth2MemberService extends DefaultOAuth2UserService {
       return memberRepository.save(updateMember);
     }
 
+    //브론즈 등급 가져오기.
+    Grade bronzeGrade = gradeRepository.findById(BRONZE_GRADE_ID)
+            .orElseThrow(() -> new GradeException(GradeErrorType.GRADE_NOT_FOUND));
+
     log.info(email + "님이 카카오계정으로 회원가입을 하였습니다.");
     return memberRepository.save(
         Member.builder()
             .email(email)
             .nickname(nickname)
             .profileUrl(profileUrl)
+            .grade(bronzeGrade)
             .build()
     );
   }
