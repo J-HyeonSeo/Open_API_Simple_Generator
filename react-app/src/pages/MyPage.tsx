@@ -83,16 +83,9 @@ const MyPage = () => {
           openPaymentModal={() => modalHandler("payment", true)}
           openIvReModal={(isInvite: boolean) => isInvite ? modalHandler("invite", true) : modalHandler("request", true)}
         />
-        {isShowNicknameModal && <Modal
-            isButton={true}
-            mark={"question"}
-            title={"닉네임 변경하기"}
-            closeHandler={() => modalHandler("nickname", false)}
-            yesText={"변경"}
-        >
-          <ChangeNicknameModal nickname={"Adam Smith"}/>
-        </Modal>}
-
+        {isShowNicknameModal &&
+          <ChangeNicknameModal nickname={profile?.nickname} callback={() => modalHandler("nickname", false)}/>
+        }
         {isShowPaymentModal && <Modal
             title={"결제 내역 조회하기"}
             w={800}
