@@ -30,6 +30,7 @@ import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.entity.Payment;
 import com.jhsfully.domain.entity.PaymentReady;
+import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.GradeRepository;
 import com.jhsfully.domain.repository.MemberRepository;
@@ -111,6 +112,7 @@ public class KakaoPayPaymentService implements PaymentService {
   private final MemberRepository memberRepository;
   private final PaymentRepository paymentRepository; //mysql
   private final ApiInfoRepository apiInfoRepository;
+  private final ApiInfoElasticRepository apiInfoElasticRepository;
   private final RestTemplate restTemplate;
 
 
@@ -286,6 +288,8 @@ public class KakaoPayPaymentService implements PaymentService {
 
     //추가적으로 소유한 모든 API를 비활성화 조치함.
     apiInfoRepository.updateApiInfoToDisabledByMember(member, nowTime);
+    //elasticsearch에 존재하는 데이터도 비활성화 조치.
+    apiInfoElasticRepository.changeToDisabledByMemberId(member.getId());
   }
 
 
