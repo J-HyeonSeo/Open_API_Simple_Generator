@@ -120,6 +120,17 @@ export interface PaymentRedirectData {
   next_redirect_pc_url: string;
 }
 
+export interface PaymentData {
+  id: number;
+  gradeId: number;
+  grade: string;
+  paymentAmount: number;
+  refundAmount: number;
+  paidAt: string;
+  refundAt: string;
+  paymentState: string;
+}
+
 //==========================================================
 
 
