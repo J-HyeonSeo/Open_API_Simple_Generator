@@ -15,6 +15,7 @@ import {ApiIntroData} from "../constants/interfaces";
 import {useParams} from "react-router-dom";
 import {useRecoilState} from "recoil";
 import {profileData} from "../store/RecoilState";
+import ApiEnableCard from "../components/api-manage/card/ApiEnableCard";
 const ApiManagePage = () => {
 
   const id = useParams().id;
@@ -51,7 +52,8 @@ const ApiManagePage = () => {
         {introData?.ownerMemberId === profile?.memberId && <ApiBlackListCardArea />}
         <ApiDataCard item={introData}/>
         {introData?.ownerMemberId === profile?.memberId && <ApiHistoryCardArea introData={introData} />}
-        {introData?.ownerMemberId === profile?.memberId && <ApiDeleteCard id={id}/>}
+        {introData?.ownerMemberId === profile?.memberId && <ApiDeleteCard />}
+        {introData?.ownerMemberId === profile?.memberId && introData?.apiState === "DISABLED" && <ApiEnableCard />}
       </Fragment>
   )
 }

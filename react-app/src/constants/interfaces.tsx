@@ -131,6 +131,10 @@ export interface PaymentData {
   paymentState: string;
 }
 
+export interface AuthKeyData {
+  authKey: string;
+}
+
 //==========================================================
 
 
