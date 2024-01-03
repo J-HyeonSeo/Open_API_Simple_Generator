@@ -1669,6 +1669,7 @@ class ApiServiceImplTest {
       //given
       ApiInfo apiInfo = getApiInfo();
       apiInfo.setApiState(ApiState.DISABLED);
+      ApiInfoElastic apiInfoElastic = getApiInfoElastic();
       Member member = getOwnerMember();
 
       given(apiInfoRepository.findById(anyLong()))
@@ -1692,14 +1693,20 @@ class ApiServiceImplTest {
       given(apiUserPermissionRepository.countByApiInfo(any()))
           .willReturn(0);
 
+      given(apiInfoElasticRepository.findById(anyLong()))
+          .willReturn(Optional.of(apiInfoElastic));
+
       //when
       LocalDate date = LocalDate.of(2023, 11, 15);
       apiService.enableOpenApi(1L, 1L, date);
 
       //then
-      ArgumentCaptor<ApiInfo> captor = ArgumentCaptor.forClass(ApiInfo.class);
-      verify(apiInfoRepository, times(1)).save(captor.capture());
-      assertEquals(ApiState.ENABLED, captor.getValue().getApiState());
+      ArgumentCaptor<ApiInfo> apiInfoCaptor = ArgumentCaptor.forClass(ApiInfo.class);
+      ArgumentCaptor<ApiInfoElastic> apiInfoElasticCaptor = ArgumentCaptor.forClass(ApiInfoElastic.class);
+      verify(apiInfoRepository, times(1)).save(apiInfoCaptor.capture());
+      verify(apiInfoElasticRepository, times(1)).save(apiInfoElasticCaptor.capture());
+      assertEquals(ApiState.ENABLED, apiInfoCaptor.getValue().getApiState());
+      assertEquals(ApiState.ENABLED, apiInfoElasticCaptor.getValue().getApiState());
     }
 
     @Test

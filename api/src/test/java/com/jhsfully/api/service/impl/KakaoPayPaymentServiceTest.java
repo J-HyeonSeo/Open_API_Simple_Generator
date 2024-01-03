@@ -39,6 +39,7 @@ import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.entity.Member;
 import com.jhsfully.domain.entity.Payment;
 import com.jhsfully.domain.entity.PaymentReady;
+import com.jhsfully.domain.repository.ApiInfoElasticRepository;
 import com.jhsfully.domain.repository.ApiInfoRepository;
 import com.jhsfully.domain.repository.GradeRepository;
 import com.jhsfully.domain.repository.MemberRepository;
@@ -81,13 +82,13 @@ class KakaoPayPaymentServiceTest {
     @Mock
     private ApiInfoRepository apiInfoRepository;
     @Mock
+    private ApiInfoElasticRepository apiInfoElasticRepository;
+    @Mock
     private RestTemplate restTemplate;
     @InjectMocks
     private KakaoPayPaymentService kakaoPayPaymentService;
 
     //constants
-    private final static int ONE_PAY_ADD_ENABLE_DAYS = 31;
-    private final String PART_CANCEL_PAYMENT = "PART_CANCEL_PAYMENT";
     private final String CANCEL_PAYMENT = "CANCEL_PAYMENT";
 
     //getEntityMethods
@@ -382,6 +383,7 @@ class KakaoPayPaymentServiceTest {
             Member member = getMember();
             Grade bronzeGrade = getBronzeGrade();
             Payment payment = getPayment();
+
             PaymentRefundResponse paymentRefundResponse = new PaymentRefundResponse(
                 new Amount(2806L), //결제 후 2일 뒤 환불.
                 CANCEL_PAYMENT

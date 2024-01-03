@@ -91,6 +91,7 @@ class ApiPermissionServiceImplTest {
     return ApiInfo.builder()
         .id(1L)
         .member(getOwnerMember())
+        .apiState(ApiState.ENABLED)
         .build();
   }
 
