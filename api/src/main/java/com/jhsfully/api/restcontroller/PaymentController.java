@@ -1,6 +1,7 @@
 package com.jhsfully.api.restcontroller;
 
 import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.GradeDto;
 import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
 import com.jhsfully.api.service.GradeService;
@@ -9,6 +10,7 @@ import com.jhsfully.api.util.MemberUtil;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -47,12 +49,12 @@ public class PaymentController {
   }
 
   @GetMapping("/grades")
-  public ResponseEntity<?> getGradeListForPayment() {
+  public ResponseEntity<List<GradeDto>> getGradeListForPayment() {
     return ResponseEntity.ok(gradeService.getGradeList());
   }
 
   @PostMapping("/{gradeId}")
-  public ResponseEntity<?> paymentRequest(
+  public ResponseEntity<PaymentReadyResponseForClient> paymentRequest(
       @PathVariable long gradeId
   ){
     long memberId = MemberUtil.getMemberId();

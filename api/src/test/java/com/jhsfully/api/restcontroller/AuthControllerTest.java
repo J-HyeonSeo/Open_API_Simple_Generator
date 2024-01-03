@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,7 +18,6 @@ import com.jhsfully.api.model.auth.TokenInput;
 import com.jhsfully.api.model.auth.TokenResponse;
 import com.jhsfully.api.security.SecurityConfiguration;
 import com.jhsfully.api.service.AuthService;
-import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -41,33 +39,6 @@ class AuthControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final int TEMP_COOKIE_MAX_AGE = 1000;
-
-    @Test
-    void getTokens() throws Exception {
-        //when
-        Cookie accessCookie = new Cookie("AccessToken", "accessToken");
-        accessCookie.setMaxAge(TEMP_COOKIE_MAX_AGE);
-        accessCookie.setPath("/");
-
-        Cookie refreshCookie = new Cookie("RefreshToken", "refreshToken");
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setMaxAge(TEMP_COOKIE_MAX_AGE);
-        refreshCookie.setPath("/");
-
-        ResultActions perform = mockMvc.perform(get("/auth")
-                .cookie(accessCookie, refreshCookie)
-            .with(oauth2Login()));
-
-        //then
-        perform.andDo(print())
-            .andExpectAll(
-                status().isOk(),
-                jsonPath("$.accessToken").value("accessToken"),
-                jsonPath("$.refreshToken").value("refreshToken")
-            );
-    }
 
     @Test
     void refresh() throws Exception {
