@@ -15,11 +15,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jhsfully.api.model.PageResponse;
+import com.jhsfully.api.model.dto.GradeDto;
 import com.jhsfully.api.model.dto.PaymentDto;
 import com.jhsfully.api.model.payment.PaymentReadyResponseForClient;
 import com.jhsfully.api.security.SecurityConfiguration;
+import com.jhsfully.api.service.GradeService;
 import com.jhsfully.api.service.PaymentService;
 import com.jhsfully.domain.type.PaymentStateType;
 import java.time.LocalDateTime;
@@ -40,11 +41,11 @@ class PaymentControllerTest {
 
     @MockBean
     private PaymentService paymentService;
+    @MockBean
+    private GradeService gradeService;
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private static final long TEST_ID = -1L;
 
@@ -86,6 +87,45 @@ class PaymentControllerTest {
                 jsonPath("$.content.[0].refundAt").isEmpty(),
                 jsonPath("$.content.[0].paymentState").value("SUCCESS")
             );
+    }
+
+    @Test
+    void getGradeListForPayment() throws Exception {
+        //given
+        given(gradeService.getGradeList())
+            .willReturn(List.of(
+                GradeDto.builder()
+                    .id(1L)
+                    .gradeName("GOLD")
+                    .price(3000)
+                    .apiMaxCount(1)
+                    .fieldMaxCount(1)
+                    .queryMaxCount(1)
+                    .recordMaxCount(1)
+                    .dbMaxSize(1)
+                    .accessorMaxCount(1)
+                    .historyStorageDays(1)
+                    .build()
+            ));
+        //when
+        ResultActions perform = mockMvc.perform(get("/payment/grades").with(oauth2Login()));
+
+        //then
+        perform.andDo(print())
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.[0].id").value(1),
+                jsonPath("$.[0].gradeName").value("GOLD"),
+                jsonPath("$.[0].price").value(3000),
+                jsonPath("$.[0].apiMaxCount").value(1),
+                jsonPath("$.[0].fieldMaxCount").value(1),
+                jsonPath("$.[0].queryMaxCount").value(1),
+                jsonPath("$.[0].recordMaxCount").value(1),
+                jsonPath("$.[0].dbMaxSize").value(1),
+                jsonPath("$.[0].accessorMaxCount").value(1),
+                jsonPath("$.[0].historyStorageDays").value(1)
+            );
+
     }
 
     @Test
