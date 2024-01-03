@@ -2,6 +2,7 @@ package com.jhsfully.api.restcontroller;
 
 import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.dto.PermissionDto;
+import com.jhsfully.api.model.permission.AuthKeyResponse;
 import com.jhsfully.api.service.ApiPermissionService;
 import com.jhsfully.api.util.MemberUtil;
 import com.jhsfully.domain.type.ApiPermissionType;
@@ -30,7 +31,7 @@ public class ApiPermissionController {
 
   //Member가 해당 API에 가지고 있는 퍼미션 종류를 조회함.
   @GetMapping("/{apiId}")
-  public ResponseEntity<?> getPermissionForMember(
+  public ResponseEntity<PermissionDto> getPermissionForMember(
       @PathVariable long apiId
   ){
     long memberId = MemberUtil.getMemberId();
@@ -84,7 +85,7 @@ public class ApiPermissionController {
    */
 
   @GetMapping("/authkey/{apiId}")
-  public ResponseEntity<?> getAuthKey(@PathVariable long apiId){
+  public ResponseEntity<AuthKeyResponse> getAuthKey(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
         apiPermissionService.getAuthKey(memberId, apiId)
@@ -92,7 +93,7 @@ public class ApiPermissionController {
   }
 
   @PostMapping("/authkey/{apiId}")
-  public ResponseEntity<?> createAuthKey(@PathVariable long apiId){
+  public ResponseEntity<AuthKeyResponse> createAuthKey(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
         apiPermissionService.createAuthKey(memberId, apiId)
@@ -100,7 +101,7 @@ public class ApiPermissionController {
   }
 
   @PutMapping("/authkey/{apiId}")
-  public ResponseEntity<?> refreshAuthKey(@PathVariable long apiId){
+  public ResponseEntity<AuthKeyResponse> refreshAuthKey(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
         apiPermissionService.refreshAuthKey(memberId, apiId)

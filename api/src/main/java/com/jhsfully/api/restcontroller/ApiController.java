@@ -5,8 +5,11 @@ import com.jhsfully.api.model.PageResponse;
 import com.jhsfully.api.model.api.CreateApiInput;
 import com.jhsfully.api.model.api.DeleteApiDataInput;
 import com.jhsfully.api.model.api.InsertApiDataInput;
+import com.jhsfully.api.model.api.InsertApiDataResponse;
 import com.jhsfully.api.model.api.UpdateApiDataInput;
 import com.jhsfully.api.model.api.UpdateApiInput;
+import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoDetailDto;
+import com.jhsfully.api.model.dto.ApiInfoDto.ApiInfoSearchDto;
 import com.jhsfully.api.service.ApiHistoryService;
 import com.jhsfully.api.service.ApiSearchService;
 import com.jhsfully.api.service.ApiService;
@@ -68,7 +71,7 @@ public class ApiController {
       dataId 값을 응답으로 줘야함.
    */
   @PostMapping("/data/manage/{apiId}")
-  public ResponseEntity<?> insertApiData(
+  public ResponseEntity<InsertApiDataResponse> insertApiData(
       @PathVariable long apiId,
       @RequestBody InsertApiDataInput input){
     long memberId = MemberUtil.getMemberId();
@@ -136,7 +139,7 @@ public class ApiController {
       Elastic Search 로 공개된 OpenAPI 를 검색해서, 리스트 반환
    */
   @GetMapping("/public/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getOpenApiList(
+  public ResponseEntity<PageResponse<ApiInfoSearchDto>> getOpenApiList(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
       @RequestParam(required = false) String searchText,
@@ -152,7 +155,7 @@ public class ApiController {
     Elastic Search 에 질의하여, 자신 소유의 API 데이터 조회.
  */
   @GetMapping("/owner/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getApiListForOwner(
+  public ResponseEntity<PageResponse<ApiInfoSearchDto>> getApiListForOwner(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
       @RequestParam(required = false) String searchText,
@@ -170,7 +173,7 @@ public class ApiController {
   Elastic Search 에 질의하여, 자신이 접근 가능한 API목록 조회(본인 소유 미포함)
 */
   @GetMapping("/access/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getApiListForAccess(
+  public ResponseEntity<PageResponse<ApiInfoSearchDto>> getApiListForAccess(
       @PathVariable int pageIdx,
       @PathVariable int pageSize,
       @RequestParam(required = false) String searchText,
@@ -189,7 +192,7 @@ public class ApiController {
       MySQL에 질의하여, Api상세 데이터를 가져옴.
    */
   @GetMapping("/public/{apiId}")
-  public ResponseEntity<?> getOpenApiDetail(@PathVariable long apiId){
+  public ResponseEntity<ApiInfoDetailDto> getOpenApiDetail(@PathVariable long apiId){
     long memberId = MemberUtil.getMemberId();
     return ResponseEntity.ok(
         apiSearchService.getOpenApiDetail(apiId, memberId)
@@ -201,7 +204,7 @@ public class ApiController {
       API소유주는 startDate ~ endDate 기간의 히스토리 데이터를 조회할 수 있음.
    */
   @GetMapping("/history/{apiId}/{pageIdx}/{pageSize}")
-  public ResponseEntity<?> getApiHistories(
+  public ResponseEntity<PageResponse<Document>> getApiHistories(
       @PathVariable long apiId,
       @PathVariable int pageIdx,
       @PathVariable int pageSize,

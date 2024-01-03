@@ -7,8 +7,6 @@ import com.jhsfully.api.model.auth.TokenResponse;
 import com.jhsfully.api.security.TokenProvider;
 import com.jhsfully.api.service.AuthService;
 import com.jhsfully.domain.repository.RefreshTokenRepository;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,29 +21,12 @@ public class AuthServiceImpl implements AuthService {
 
   private final RefreshTokenRepository refreshTokenRepository;
   private final TokenProvider tokenProvider;
-  private final HttpServletResponse response;
-
 
   @Override
   public void logout(String refreshTokenString) {
     refreshTokenRepository.findById(refreshTokenString).ifPresent(
         refreshTokenRepository::delete
     );
-  }
-
-  @Override
-  public void deleteToken() {
-    //cookie release
-    Cookie accessCookie = new Cookie("AccessToken", null);
-    Cookie refreshCookie = new Cookie("RefreshToken", null);
-    accessCookie.setMaxAge(0);
-    accessCookie.setPath("/");
-    refreshCookie.setMaxAge(0);
-    refreshCookie.setPath("/");
-    refreshCookie.setHttpOnly(true);
-
-    response.addCookie(accessCookie);
-    response.addCookie(refreshCookie);
   }
 
   @Override
