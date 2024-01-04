@@ -70,7 +70,7 @@ const ApiIntroducePage = () => {
 
     let url = `${BASE_URL}/query/${id}/{AUTHKEY}/{idx}/{size}?`;
 
-    introData?.schemaStructure.forEach((item, index) => {
+    introData?.queryParameter.forEach((item, index) => {
       if (index === 0) {
         url += `${item.field}={${item.type}}`;
       } else {
