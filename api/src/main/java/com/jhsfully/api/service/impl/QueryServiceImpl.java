@@ -185,18 +185,23 @@ public class QueryServiceImpl implements QueryService {
       fullTextSearchWord.append(DELIMITER);
     }
 
+    //full-text 인덱스에 빈값이 들어오면, 그냥 현재까지 만들어진 쿼리 반환.
+    if (fullTextSearchWord.toString().trim().isEmpty()) {
+      return query;
+    }
+
     TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matchingAny(
         fullTextSearchWord.toString());
     query.addCriteria(textCriteria);
 
     //full-text-search - field filtering
-    List<Criteria> fieldFilterCriteria = new ArrayList<Criteria>();
+    List<Criteria> fieldFilterCriteria = new ArrayList<>();
 
     for (int i = 0; i < fullTextField.size(); i++) {
       fieldFilterCriteria.add(Criteria.where(fullTextField.get(i)).regex(fullTextValue.get(i)));
     }
 
-    query.addCriteria(new Criteria().orOperator(fieldFilterCriteria));
+    query.addCriteria(new Criteria().andOperator(fieldFilterCriteria));
     return query;
   }
 }

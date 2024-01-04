@@ -111,9 +111,7 @@ const ApiDataModal: React.FC<{introData: ApiIntroData | undefined, callback: () 
       }
     });
 
-    const filledArray = content.length < 16 ?
-        Array.from({ length: 16 }, (_, index) => content[index] || {}) :
-        Array.from({ length: 32 }, (_, index) => content[index] || {})
+    const filledArray = Array.from({ length: 16 }, (_, index) => content[index] || {});
     setDataList(filledArray);
   }, [dataRes]);
 
@@ -167,7 +165,7 @@ const ApiDataModal: React.FC<{introData: ApiIntroData | undefined, callback: () 
           </T.TableWrapper>
         </T.ContentWrapper>
         <PageNavBar page={
-          {total: dataRes?.data.totalElements || 0,
+          {total: (dataRes?.data.totalElements + 1) || 0,
             index: pageIdx + 1, displaySize: 16, navBarSize: 5}}
                     setPageIdx={setPageIdx}
                     margin={30}/>
