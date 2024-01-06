@@ -1,0 +1,175 @@
+version: '3'
+
+services:
+
+  # Back-ends Applications..
+  api-application:
+    image: api:0.0.1
+    container_name: api-application
+    volumes:
+      - excel-volume:/usr/src/excel
+    env_file:
+      - .env
+    environment:
+      KAKAO_ADMIN_KEY: ${KAKAO_ADMIN_KEY}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      EXCEL_STORAGE_PATH: /usr/src/excel
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: 12341234
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 12341234
+      MYSQL_HOST: mysql
+      ES_HOST: elasticsearch
+      REDIS_HOST: redis
+      MONGODB_HOST: mongodb
+      KAFKA_HOST: kafka
+    ports:
+      - "8080:8080"
+    networks:
+      - project-networks
+    restart: always
+    depends_on:
+      - kafka
+      - elasticsearch
+      - redis
+      - mysql
+      - mongodb
+  consumer-application:
+    image: consumer:0.0.1
+    container_name: consumer-application
+    volumes:
+      - excel-volume:/usr/src/excel
+    environment:
+      EXCEL_STORAGE_PATH: /usr/src/excel
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: 12341234
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: 12341234
+      MYSQL_HOST: mysql
+      ES_HOST: elasticsearch
+      REDIS_HOST: redis
+      MONGODB_HOST: mongodb
+      KAFKA_HOST: kafka
+    ports:
+      - "8081:8081"
+    networks:
+      - project-networks
+    restart: always
+    depends_on:
+      - api-application
+      - kafka
+      - mongodb
+      - mysql
+
+  # Front-app..
+  react:
+    image: react-front:0.0.1
+    container_name: react-front
+    ports:
+      - "3000:3000"
+    networks:
+      - project-networks
+    stdin_open: true
+    restart: always
+    depends_on:
+      - api-application
+
+  # Databases..
+  mysql:
+    image: mysql:8.0.34
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - project-networks
+    environment:
+      - MYSQL_ROOT_PASSWORD=12341234
+      - MYSQL_DATABASE=openapi
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    restart: always
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - project-networks
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=12341234
+      - MONGO_INITDB_DATABASE=apiservice
+    restart: always
+  redis:
+    image: redis:6.0.16
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - project-networks
+    restart: always
+
+  # Elasticsearch And Kibana..
+  elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: ../elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - project-networks
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - TZ=Asia/Seoul
+    restart: always
+    privileged: true
+  kibana:
+    container_name: kibana
+    image: kibana:7.17.3
+    ports:
+      - "5601:5601"
+    networks:
+      - project-networks
+    environment:
+      ELASTICSERCH_UTL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      TZ: Asia/Seoul
+    restart: always
+    privileged: true
+    depends_on:
+      - elasticsearch
+
+  # Zookeeper And Kafka..
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    networks:
+      - project-networks
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    networks:
+      - project-networks
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: host.docker.internal
+      KAFKA_CREATE_TOPICS: excelparser
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+networks:
+  project-networks:
+    driver: bridge
+
+volumes:
+  excel-volume:
