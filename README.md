@@ -5,6 +5,34 @@
 
 ---
 
+### 프로젝트 빠른 실행
+1. https://developers.kakao.com/console/app 에서 테스트용 새 애플리케이션을 생성해주세요.
+2. ```앱 설정 -> 요약 정보``` 에서 ```앱 키``` 항목을 확인해주세요.
+3. docker/comppose/.env 파일을 열어서,
+```
+KAKAO_ADMIN_KEY=YOUR_KAKAO_ADMIN_KEY
+KAKAO_CLIENT_ID=YOUR_KAKAO_REST_API_KEY
+KAKAO_CLIENT_SECRET=YOUR_KAKAO_CLIENT_SECRET
+```
+- 해당 위치에 키를 채워 넣어주세요. ```CLIENT_ID```는 ```REST_API_KEY```에 해당됩니다.
+- ```SECRET_KEY```를 발급받기 위해, ```제품설정 -> 카카오 로그인 -> 보안```으로 이동해서, ```코드```를 ```발급```해주세요!
+- Client Secret을 발급 받았다면, .env 파일에 채워 넣어주시면 .env 파일에 대한 설정은 끝납니다!
+4. ```제품설정 -> 카카오 로그인``` 이동하시고 밑으로 스크롤 하시면, ```Redirect URI``` 항목이 존재합니다.
+```
+http://localhost:3000/login/oauth2/code/kakao
+http://localhost:8080/login/oauth2/code/kakao
+```
+- 해당 값을 Redirect URI 항목에 붙여넣어주면 됩니다.
+5. 마지막으로 프로젝트 폴더에서 터미널을 열어, ```sh ProjectStart.sh```를 실행시켜주면 됩니다.
+- 윈도우 유저인 경우, WSL2를 설치 및 활성화한 이후에, 프로젝트 폴더에서 터미널을 열어, ```bash```입력 후 Enter, ```sh ProjectStart.sh```로 실행하면 됩니다.
+- JAVA가 깔려있지 않는 경우에는
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install openjdk-11-jdk
+```
+- 해당 명령어를 하나씩 순차적으로 실행한 이후 다시 시도해주세요.
+
 ### 프로젝트 개요
 
 - 본 프로젝트는 스프링부트 기반의 백엔드 프로젝트입니다.
@@ -202,20 +230,21 @@ MongoDB에 컬렉션과, 인덱스를 생성하고, 데이터를 삽입해줍니
 
 ---
 
-### 시연 화면 (with Postman)
+### 시연 화면
 
 #### 엑셀 파일 정의
 ![excelimage](doc/demonstration/exceldata.png)
 
 #### OpenAPI 생성하기 
 
-![apicreate1](doc/demonstration/api-create-1.png)
-![apicreate2](doc/demonstration/api-create-2.png)
+![create-openapi](doc/demonstration/create-openapi.gif)
 
-#### 쿼리 조회하기
+#### API KEY 발급
 
-![query-ex-1](doc/demonstration/query-ex1.png)
-![query-ex-2](doc/demonstration/query-ex2.png)
+![issue-apikey](doc/demonstration/issue-apikey.gif)
+
+### OpenAPI 사용하기
+![use-openapi](doc/demonstration/use-openapi.gif)
 
 ### 기술 스택
 
