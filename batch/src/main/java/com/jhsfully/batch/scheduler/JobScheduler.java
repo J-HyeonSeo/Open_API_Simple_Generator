@@ -4,10 +4,8 @@ import com.jhsfully.batch.job.ApiDeleteJobConfig;
 import com.jhsfully.batch.job.ApiDisableJobConfig;
 import com.jhsfully.batch.job.ApiHistoryDeleteJobConfig;
 import com.jhsfully.batch.job.MemberChangeStateJobConfig;
-import com.jhsfully.domain.entity.Grade;
 import com.jhsfully.domain.repository.GradeRepository;
 import java.util.Date;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -30,7 +28,7 @@ public class JobScheduler {
   private final ApiHistoryDeleteJobConfig apiHistoryDeleteJobConfig;
   private final GradeRepository gradeRepository;
 
-  @Scheduled(cron = "0/12 * * * * *")
+  @Scheduled(cron = "5 0 0 * * *")
   public void launchJobs()
       throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
@@ -59,15 +57,6 @@ public class JobScheduler {
     //forth job
     jobLauncher.run(apiHistoryDeleteJobConfig.apiHistoryDeleteJob(), jobParameters);
 
-
-    //모든 잡이 수행이 되었다면, Grade의 변경사항을 전부 false로 변경해줌.
-    //Grade는 많아 봤자 10개 미만 이므로, 이렇게 돌려주어도 괜찮아 보임.
-    List<Grade> gradeList = gradeRepository.findAll();
-
-    for(Grade grade : gradeList){
-      grade.setChanged(false);
-    }
-    gradeRepository.saveAll(gradeList);
   }
 
 }

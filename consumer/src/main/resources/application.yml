@@ -6,22 +6,23 @@ spring:
     include:
       - domain
 
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
   data:
     mongodb:
-      host: localhost
+      host: ${MONGODB_HOST}
       port: 27017
       authentication-database: admin
       database: apiservice
       username: ${MONGODB_USERNAME}
       password: ${MONGODB_PASSWORD}
 
-  elasticsearch:
-    server: localhost:9200
-
   kafka:
     topic-name: excelparser
     bootstrap-servers:
-      - localhost:9092
+      - ${KAFKA_HOST}:9092
     consumer:
       group-id: api
       auto-offset-reset: earliest

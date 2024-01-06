@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.ScriptType;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -31,8 +29,6 @@ import org.springframework.util.StringUtils;
 public class ApiInfoElasticCustomRepositoryImpl implements ApiInfoElasticCustomRepository {
 
   private final ElasticsearchOperations elasticsearchOperations;
-  private final ElasticsearchRestTemplate elasticsearchRestTemplate;
-  private final RestHighLevelClient restHighLevelClient;
 
   @Override
   public Page<ApiInfoElastic> search(String searchText, SearchType type, Pageable pageable) {
