@@ -44,20 +44,17 @@ spring:
 
   data:
     mongodb:
-      host: localhost
+      host: ${MONGODB_HOST}
       port: 27017
       authentication-database: admin
       database: apiservice
       username: ${MONGODB_USERNAME}
       password: ${MONGODB_PASSWORD}
 
-  elasticsearch:
-    server: localhost:9200
-
   kafka:
     topic-name: excelparser
     bootstrap-servers:
-      - localhost:9092
+      - ${KAFKA_HOST}:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -66,3 +63,12 @@ spring:
     secret: ENTER YOUR JWT SECRET KEY
 
   excel-storage-path: ${EXCEL_STORAGE_PATH}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
