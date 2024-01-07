@@ -1,6 +1,6 @@
 package com.jhsfully.domain.repository;
 
-import com.jhsfully.domain.entity.RefreshToken;
+import com.jhsfully.domain.entity.redis.RefreshToken;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

@@ -15,10 +15,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ExcelParserModel {
-  private long apiInfoId;
-  private String excelPath;
-  private String dataCollectionName;
+  private String apiName;
+  private long memberId;
+  private String apiIntroduce;
   private List<SchemaData> schemaStructure;
   private List<QueryData> queryParameter;
-
+  private String dataCollectionName;
+  private String historyCollectionName;
+  private boolean isPublic;
+  private boolean isFileEmpty;
+  private String excelPath;
 }

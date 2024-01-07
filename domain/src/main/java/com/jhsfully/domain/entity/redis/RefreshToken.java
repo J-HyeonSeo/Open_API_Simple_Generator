@@ -1,4 +1,4 @@
-package com.jhsfully.domain.entity;
+package com.jhsfully.domain.entity.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -8,7 +8,7 @@
 ### 프로젝트 빠른 실행
 1. https://developers.kakao.com/console/app 에서 테스트용 새 애플리케이션을 생성해주세요.
 2. ```앱 설정 -> 요약 정보``` 에서 ```앱 키``` 항목을 확인해주세요.
-3. docker/comppose/.env 파일을 열어서,
+3. docker/compose/.env 파일을 열어서,
 ```
 KAKAO_ADMIN_KEY=YOUR_KAKAO_ADMIN_KEY
 KAKAO_CLIENT_ID=YOUR_KAKAO_REST_API_KEY
@@ -35,7 +35,7 @@ sudo apt-get install openjdk-11-jdk
 
 ### 프로젝트 개요
 
-- 본 프로젝트는 스프링부트 기반의 백엔드 프로젝트입니다.
+- 본 프로젝트는 SpringBoot를 사용한 백엔드, React를 사용한 프론트엔드를 구현한 웹 프로젝트 입니다.
 
 
 - 공공데이터 포털에서 **OpenAPI**를 사용하여, 데이터를 조회할 수 있듯이
