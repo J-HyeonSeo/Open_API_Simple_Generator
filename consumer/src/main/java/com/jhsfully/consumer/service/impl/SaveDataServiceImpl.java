@@ -108,8 +108,8 @@ public class SaveDataServiceImpl implements SaveDataService {
    */
   private void createDataCollectionIndex(String collectionName, List<QueryData> queryParameter) {
 
-    //이미 인덱스는 만들어졌습니다!
-    if (!mongoTemplate.indexOps(collectionName).getIndexInfo().isEmpty()) {
+    //기본적으로 "_id" 인덱스가 생성되므로, 이 이상 존재하면, 인덱스를 이미 만들었다고 볼 수 있음.
+    if (mongoTemplate.indexOps(collectionName).getIndexInfo().size() > 1) {
       log.info("collectionName: {} => Already Created Index!!", collectionName);
       return;
     }
@@ -137,8 +137,8 @@ public class SaveDataServiceImpl implements SaveDataService {
   //HistoryCollection에 대한 인덱스
   private void createHistoryCollectionIndex(String collectionName) {
 
-    //이미 인덱스는 만들어졌습니다!
-    if (!mongoTemplate.indexOps(collectionName).getIndexInfo().isEmpty()) {
+    //기본적으로 "_id" 인덱스가 생성되므로, 이 이상 존재하면, 인덱스를 이미 만들었다고 볼 수 있음.
+    if (mongoTemplate.indexOps(collectionName).getIndexInfo().size() > 1) {
       log.info("collectionName: {} => Already Created Index!!", collectionName);
       return;
     }
