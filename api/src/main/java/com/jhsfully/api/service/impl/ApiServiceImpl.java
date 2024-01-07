@@ -33,7 +33,6 @@ import static com.jhsfully.domain.type.errortype.ApiPermissionErrorType.YOU_ARE_
 import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENTICATION_USER_NOT_FOUND;
 import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jhsfully.api.exception.ApiException;
 import com.jhsfully.api.exception.ApiPermissionException;
 import com.jhsfully.api.exception.AuthenticationException;
@@ -128,10 +127,10 @@ public class ApiServiceImpl implements ApiService {
   private String KAFKA_TOPIC_NAME;
 
   /*
-      OpenAPI를 새로 생성함.
+      Member가 OpenAPI를 등록하는 요청을 생성하여, kafka로 메세지를 요청하는 메서드.
    */
   @Override
-  public void createOpenApi(CreateApiInput input, long memberId) throws JsonProcessingException {
+  public void createOpenApi(CreateApiInput input, long memberId) {
 
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
@@ -141,35 +140,24 @@ public class ApiServiceImpl implements ApiService {
     String dataCollectionName = UUID.randomUUID().toString().replaceAll("-", "");
     String historyCollectionName = dataCollectionName + HISTORY_SUFFIX;
 
-    boolean fileEmpty = Objects.isNull(input.getFile()) || input.getFile().isEmpty();
+    boolean isFileEmpty = Objects.isNull(input.getFile()) || input.getFile().isEmpty();
+    String filePath = isFileEmpty ? "" : fileSave(input.getFile(), dataCollectionName);
 
-    ApiInfo apiInfo = apiInfoRepository.save(ApiInfo.builder()
+    //kafka가 받기 위한 모델임.
+    ExcelParserModel model = ExcelParserModel.builder()
         .apiName(input.getApiName())
-        .member(member)
+        .memberId(memberId)
         .apiIntroduce(input.getApiIntroduce())
         .schemaStructure(input.getSchemaStructure())
         .queryParameter(input.getQueryParameter())
         .dataCollectionName(dataCollectionName)
         .historyCollectionName(historyCollectionName)
-        .apiState(fileEmpty ? ApiState.ENABLED : ApiState.READY)
         .isPublic(input.isPublic())
-        .build());
-
-    /*
-        입력된 파일이 있는 경우만, 파일 경로를 생성하도록 함.
-     */
-    String filePath = fileEmpty ? "" : fileSave(input.getFile(), dataCollectionName);
-
-    //kafka가 받기 위한 모델임.
-    ExcelParserModel model = ExcelParserModel.builder()
-        .apiInfoId(apiInfo.getId())
+        .isFileEmpty(isFileEmpty)
         .excelPath(filePath)
-        .dataCollectionName(dataCollectionName)
-        .schemaStructure(input.getSchemaStructure())
-        .queryParameter(input.getQueryParameter())
         .build();
 
-    sendKafka(model);
+    kafkaTemplate.send(KAFKA_TOPIC_NAME, model);
   }
   private String fileSave(MultipartFile file, String fileName){
 
@@ -187,20 +175,14 @@ public class ApiServiceImpl implements ApiService {
 
     String[] periodSeparated = file.getOriginalFilename().split("\\.");
     String fileExtension = periodSeparated[periodSeparated.length-1];
-    String filepath = EXCEL_STORAGE_PATH + "/" + fileName + "." + fileExtension;
+    String filePath = EXCEL_STORAGE_PATH + "/" + fileName + "." + fileExtension;
     try {
-      File newFile = new File(filepath);
+      File newFile = new File(filePath);
       FileCopyUtils.copy(file.getInputStream(), new FileOutputStream(newFile));
     } catch (IOException e) {
       throw new ApiException(FILE_PARSE_ERROR);
     }
-    return filepath;
-  }
-
-  private void sendKafka(ExcelParserModel model) throws JsonProcessingException {
-    kafkaTemplate.send(KAFKA_TOPIC_NAME,
-        model
-    );
+    return filePath;
   }
 
   //API 데이터 조회 하기.
@@ -214,8 +196,9 @@ public class ApiServiceImpl implements ApiService {
 
     validateGetApiData(apiInfo, member);
 
-    Query query = new Query().with(pageable);
+    Query query = new Query();
     long totalCount = mongoTemplate.count(query, apiInfo.getDataCollectionName());
+    query.with(pageable);
     List<Document> results = mongoTemplate.find(query, Document.class, apiInfo.getDataCollectionName())
         .stream()
         .peek(x -> x.put(MONGODB_ID, x.get(MONGODB_ID).toString()))
@@ -408,7 +391,7 @@ public class ApiServiceImpl implements ApiService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new AuthenticationException(AUTHENTICATION_USER_NOT_FOUND));
 
-    validateEnableOpenApi(apiInfo, member, nowDate);
+    validateEnableOpenApi(apiInfo, member);
 
     Grade grade = member.getGrade();
 
@@ -670,7 +653,7 @@ public class ApiServiceImpl implements ApiService {
 
   }
 
-  private void validateEnableOpenApi(ApiInfo apiInfo, Member member, LocalDate nowDate){
+  private void validateEnableOpenApi(ApiInfo apiInfo, Member member){
     if(!Objects.equals(apiInfo.getMember().getId(), member.getId())){
       throw new ApiPermissionException(USER_HAS_NOT_API);
     }
