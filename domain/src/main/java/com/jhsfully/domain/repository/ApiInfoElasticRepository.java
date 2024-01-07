@@ -9,5 +9,4 @@ public interface ApiInfoElasticRepository extends ElasticsearchRepository<ApiInf
     ApiInfoElasticCustomRepository {
 
   void deleteByPermissionId(Long permissionId); //remove by permission
-
 }
