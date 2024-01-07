@@ -54,10 +54,9 @@ public class ApiInfo {
   private Member member;
   @Enumerated(EnumType.STRING)
   private ApiState apiState;
+  @Column(nullable = false, unique = true)
   private String dataCollectionName;
   private String historyCollectionName;
-  private int recordCount;
-  private int dataMaxLength;
   private boolean isPublic;
 
   @Convert(converter = SchemaDataConverter.class)
