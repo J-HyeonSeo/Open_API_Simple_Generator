@@ -1,7 +1,7 @@
 package com.jhsfully.api.security;
 
 import com.jhsfully.api.exception.AuthenticationException;
-import com.jhsfully.domain.entity.RefreshToken;
+import com.jhsfully.domain.entity.redis.RefreshToken;
 import com.jhsfully.domain.repository.RefreshTokenRepository;
 import com.jhsfully.domain.type.RoleType;
 import com.jhsfully.domain.type.errortype.AuthenticationErrorType;
