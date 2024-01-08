@@ -26,6 +26,7 @@ import static com.jhsfully.domain.type.errortype.AuthenticationErrorType.AUTHENT
 import static com.jhsfully.domain.type.errortype.GradeErrorType.MEMBER_HAS_NOT_GRADE;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -251,7 +252,6 @@ class ApiServiceImplTest {
     void success_createOpenApi() throws IOException {
       //given
       Member member = getOwnerMember();
-      ApiInfo apiInfo = getApiInfo();
 
       given(memberRepository.findById(anyLong()))
           .willReturn(Optional.of(member));
@@ -259,16 +259,13 @@ class ApiServiceImplTest {
       given(apiInfoRepository.countByMember(any()))
           .willReturn(0);
 
-      given(apiInfoRepository.save(any()))
-          .willReturn(apiInfo);
-
       ReflectionTestUtils.setField(apiService, "EXCEL_STORAGE_PATH", "src/test/resources");
       ReflectionTestUtils.setField(apiService, "KAFKA_TOPIC_NAME", "excelparser");
 
       //when
       CreateApiInput input = CreateApiInput.builder()
-          .apiName(apiInfo.getApiName())
-          .apiIntroduce(apiInfo.getApiIntroduce())
+          .apiName("apiName")
+          .apiIntroduce("apiIntroduce")
           .schemaStructure(List.of(new SchemaData("test", ApiStructureType.STRING)))
           .queryParameter(List.of(new QueryData("test", ApiQueryType.EQUAL)))
           .isPublic(true)
@@ -279,46 +276,32 @@ class ApiServiceImplTest {
       apiService.createOpenApi(input, memberId);
 
       //then
-      ArgumentCaptor<ApiInfo> apiInfoCaptor = ArgumentCaptor.forClass(ApiInfo.class);
       ArgumentCaptor<ExcelParserModel> modelCaptor = ArgumentCaptor.forClass(ExcelParserModel.class);
 
-      verify(apiInfoRepository, times(1)).save(apiInfoCaptor.capture());
       verify(kafkaTemplate, times(1)).send(eq("excelparser"), modelCaptor.capture());
 
-      ApiInfo expectedApiInfo = apiInfoCaptor.getValue();
       ExcelParserModel expectedModel = modelCaptor.getValue();
 
       assertAll(
-          () -> assertEquals(apiInfo.getApiName(), expectedApiInfo.getApiName()),
-          () -> assertEquals(apiInfo.getMember().getId(), expectedApiInfo.getMember().getId()),
-          () -> assertEquals(apiInfo.getApiIntroduce(), expectedApiInfo.getApiIntroduce()),
-          () -> assertEquals(apiInfo.getSchemaStructure().get(0).getField(), expectedApiInfo.getSchemaStructure().get(0).getField()),
-          () -> assertEquals(apiInfo.getSchemaStructure().get(0).getType(), expectedApiInfo.getSchemaStructure().get(0).getType()),
-          () -> assertEquals(apiInfo.getSchemaStructure().size(), expectedApiInfo.getSchemaStructure().size()),
-          () -> assertEquals(apiInfo.getQueryParameter().get(0).getField(), expectedApiInfo.getQueryParameter().get(0).getField()),
-          () -> assertEquals(apiInfo.getQueryParameter().get(0).getType(), expectedApiInfo.getQueryParameter().get(0).getType()),
-          () -> assertEquals(apiInfo.getQueryParameter().size(), expectedApiInfo.getQueryParameter().size()),
-          () -> assertTrue(expectedApiInfo.getDataCollectionName().matches("[a-z0-9]*")),
-          () -> assertEquals(expectedApiInfo.getHistoryCollectionName().split("-")[0],
-              expectedApiInfo.getDataCollectionName()),
-          () -> assertEquals(HISTORY_SUFFIX, expectedApiInfo.getHistoryCollectionName().split("-")[1]),
-          () -> assertEquals(ApiState.READY, expectedApiInfo.getApiState()),
-          () -> assertTrue(expectedApiInfo.isPublic()),
-
-          () -> assertEquals(apiInfo.getId(), expectedModel.getApiInfoId()),
-          () -> assertEquals("src/test/resources/" + expectedApiInfo.getDataCollectionName() + ".xlsx", expectedModel.getExcelPath()),
-          () -> assertEquals(expectedApiInfo.getDataCollectionName(), expectedModel.getDataCollectionName()),
-          () -> assertEquals(expectedApiInfo.getSchemaStructure().get(0).getField(), expectedModel.getSchemaStructure().get(0).getField()),
-          () -> assertEquals(expectedApiInfo.getSchemaStructure().get(0).getType(), expectedModel.getSchemaStructure().get(0).getType()),
-          () -> assertEquals(expectedApiInfo.getSchemaStructure().size(), expectedModel.getSchemaStructure().size()),
-          () -> assertEquals(expectedApiInfo.getQueryParameter().get(0).getField(), expectedModel.getQueryParameter().get(0).getField()),
-          () -> assertEquals(expectedApiInfo.getQueryParameter().get(0).getType(), expectedModel.getQueryParameter().get(0).getType()),
-          () -> assertEquals(expectedApiInfo.getQueryParameter().size(), expectedModel.getQueryParameter().size())
+          () -> assertEquals("apiName", expectedModel.getApiName()),
+          () -> assertEquals("apiIntroduce", expectedModel.getApiIntroduce()),
+          () -> assertEquals(1, expectedModel.getMemberId()),
+          () -> assertTrue(expectedModel.getExcelPath().startsWith("src/test/resources/")),
+          () -> assertTrue(expectedModel.getDataCollectionName().length() > 10),
+          () -> assertTrue(expectedModel.getHistoryCollectionName().endsWith(HISTORY_SUFFIX)),
+          () -> assertFalse(expectedModel.isFileEmpty()),
+          () -> assertTrue(expectedModel.isPublic()),
+          () -> assertEquals("test", expectedModel.getSchemaStructure().get(0).getField()),
+          () -> assertEquals(ApiStructureType.STRING, expectedModel.getSchemaStructure().get(0).getType()),
+          () -> assertEquals(1, expectedModel.getSchemaStructure().size()),
+          () -> assertEquals("test", expectedModel.getQueryParameter().get(0).getField()),
+          () -> assertEquals(ApiQueryType.EQUAL, expectedModel.getQueryParameter().get(0).getType()),
+          () -> assertEquals(1, expectedModel.getQueryParameter().size())
       );
 
       //delete test excelfile.
       // 삭제할 파일 경로 지정
-      String filePath = "src/test/resources/" + expectedApiInfo.getDataCollectionName() + ".xlsx";
+      String filePath = "src/test/resources/" + expectedModel.getDataCollectionName() + ".xlsx";
 
       // File 객체 생성
       File fileToDelete = new File(filePath);
